@@ -1,20 +1,29 @@
-/*
-Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
-
-@author Daniel Pátek (xpatek08)
-@author
-@author
-@author
-
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file main.c
+*
+* @author Daniel Pátek (xpatek08)
+* @author
+* @author
+* @author
+*
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 
+int main() {
 
-int main(int argc, char const *argv[]) {
+  FILE *fp;
+
+  if ((fp = fopen ("program.txt","r")) == NULL) {
+      return EXIT_FAILURE;
+  }
 
 
-  return 0;
+
+  printf("ahoj\n");
+
+  return EXIT_SUCCESS;
 }
-
