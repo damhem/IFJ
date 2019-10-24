@@ -29,3 +29,7 @@ int main() {
 
   return EXIT_SUCCESS;
 }
+<<<<<<< HEAD
+=======
+ahoj vole vv
+>>>>>>> 97c559ba76bccba82cdcca6785f6845c3037f9cf
