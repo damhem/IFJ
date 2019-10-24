@@ -7,9 +7,8 @@
 * @author Daniel Čechák (xcecha06)
 * @author Zdeněk Kroča (xkroca02)
 * @author Unensanaa Tumenjargal (xtumen01)
-*
 */
-
+fghghffhghfgh
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,7 +24,6 @@ int main() {
 
 
 
-  printf("ahoj\n");
+  printf("ahojky debilci\n");
 
   return EXIT_SUCCESS;
-}
