@@ -6,7 +6,7 @@
 * @author Daniel Pátek (xpatek08)
 * @author Daniel Čechák (xcecha06)
 * @author Zdeněk Kroča (xkroca02)
-* @author
+* @author Unensanaa Tumenjargal (xtumen01)
 *
 */
 
