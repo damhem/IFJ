@@ -5,7 +5,7 @@
 *
 * @author Daniel Pátek (xpatek08)
 * @author Daniel Čechák (xcecha06)
-* @author
+* @author Zdeněk Kroča (xkroca02)
 * @author
 *
 */
@@ -29,3 +29,8 @@ int main() {
 
   return EXIT_SUCCESS;
 }
+<<<<<<< HEAD
+=======
+ahoj vole vv hghhgg
+>>>>>>> c43815bbb9146daaaa7b7569f93d953137d565a4
+>>>>>>> 34647fb712a38e888e1fa92014c859c394e75ff1
