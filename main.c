@@ -4,7 +4,7 @@
 * @file main.c
 *
 * @author Daniel Pátek (xpatek08)
-* @author
+* @author Daniel Čechák (xcecha06)
 * @author
 * @author
 *
@@ -29,4 +29,3 @@ int main() {
 
   return EXIT_SUCCESS;
 }
-ahoj vole
