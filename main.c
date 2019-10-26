@@ -12,9 +12,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "error_code.h"
 #include "parser.h"
 
 int main() {
+
+  int error_code = EXIT_SUCCESS;
 
   //open file w/ program and push it to the stdin
   FILE *fp;
@@ -28,7 +31,7 @@ int main() {
     printf("%c", nextChar);
   }
 
-  
+  error_code = parse();
 
-  return EXIT_SUCCESS;
+  return error_code;
 }
