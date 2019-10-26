@@ -10,19 +10,25 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "parser.h"
 
 int main() {
 
+  //open file w/ program and push it to the stdin
   FILE *fp;
-
-  if ((fp = fopen ("program.txt","r")) == NULL) {
+  if ((fp = freopen("program.txt", "r", stdin)) == NULL) {
       return EXIT_FAILURE;
   }
 
+  // make sure the program is there
+  char nextChar;
+  while ((nextChar = getc(stdin)) != EOF)  {
+    printf("%c", nextChar);
+  }
 
-
-  printf("ahojky debilci\n");
+  
 
   return EXIT_SUCCESS;
+}
