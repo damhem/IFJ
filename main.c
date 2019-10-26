@@ -8,9 +8,8 @@
 * @author Zdeněk Kroča (xkroca02)
 * @author Unensanaa Tumenjargal (xtumen01)
 */
-fghghffhghfgh
+
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "parser.h"
 
