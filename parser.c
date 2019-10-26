@@ -7,5 +7,5 @@
 int parse() {
 
 
-  return EXIT_SUCCESS;
+  return 1;
 }
