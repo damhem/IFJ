@@ -33,5 +33,7 @@ int main() {
 
   error_code = parse();
 
+
+  printf("%d return\n", error_code);
   return error_code;
 }
