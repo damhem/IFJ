@@ -86,15 +86,14 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         if (c == '"'){                        //2"
           state = SCANNER_COMMENT_02;
         }else{
-          ungetc(c, stdin);
+          state = SCANNER_COMMENT_0;
         }
         break;
       case (SCANNER_COMMENT_02):
         if (c == '"'){                       //3"
           state = SCANNER_START;
         }else{
-          ungetc(c, stdin);
-          ungetc(c, stdin);
+          state = SCANNER_COMMENT_0;
         }
         break;
       case (SCANNER_LINE_COMMENT):
