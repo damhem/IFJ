@@ -34,12 +34,17 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           state = SCANNER_NUMBER;
           stringAddChar(&token.t_data.ID, c);
         }
+        else if (c == '"'){
+          state = SCANNER_COMMENT;
+        }
+        else if ( c == '#'){
+          state = SCANNER_LINE_COMMENT;
+        }
         break;
       case (SCANNER_ID):
         if (isalpha(c) || isdigit(c) || c == '_') {
           stringAddChar(&token.t_data.ID, c);
-        }
-        else {
+        }else {
           ungetc(c, stdin);
           return token;
         }
@@ -55,6 +60,49 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         else if (c == 'e' || c == 'E') {
           state = SCANNER_EXPONENT_1;
           stringAddChar(&token.t_data.ID, c);
+        }
+        break;
+      case (SCANNER_COMMENT):
+          if (c == '"'){                      //2 "
+            state = SCANNER_COMMENT_1;
+        }else{
+          ungetc(c, stdin);
+        }
+        break;
+      case (SCANNER_COMMENT_1):
+        if (c == '"'){                       //3"
+          state = SCANNER_COMMENT_0;
+        }else{
+          ungetc(c, stdin);
+          ungetc(c, stdin);
+        }
+        break;
+      case (SCANNER_COMMENT_0):
+        if (c == '"'){                        //1"
+          state = SCANNER_COMMENT_01;
+        }
+        break;
+      case (SCANNER_COMMENT_01):
+        if (c == '"'){                        //2"
+          state = SCANNER_COMMENT_02;
+        }else{
+          ungetc(c, stdin);
+        }
+        break;
+      case (SCANNER_COMMENT_02):
+        if (c == '"'){                       //3"
+          state = SCANNER_START;
+        }else{
+          ungetc(c, stdin);
+          ungetc(c, stdin);
+        }
+        break;
+      case (SCANNER_LINE_COMMENT):
+        if (c != EOF){
+          state = SCANNER_LINE_COMMENT;
+        }else{
+          token.t_type = TOKEN_EOF;
+					return token;
         }
         break;
       default:
