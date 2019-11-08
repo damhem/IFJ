@@ -26,14 +26,14 @@ int main() {
   }
 
   // make sure the program is there
-  char nextChar;
+  /*char nextChar;
   while ((nextChar = getc(stdin)) != EOF)  {
     printf("%c", nextChar);
-  }
+  }*/
 
   error_code = parse();
 
 
-  printf("%d return\n", error_code);
+  printf("return code: %d\n", error_code);
   return error_code;
 }

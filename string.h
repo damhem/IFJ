@@ -17,5 +17,6 @@ typedef struct {
 
 
 //TODO: predpisy funkci
-
+int stringInit(string *str);
+int stringAddChar(string *str, char c);
 #endif
