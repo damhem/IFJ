@@ -9,6 +9,9 @@
 
 #include "string.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+
 typedef enum {
   TOKEN_PLUS,
   TOKEN_MINUS,
