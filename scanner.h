@@ -17,7 +17,9 @@
 typedef enum {
   SCANNER_START,
   SCANNER_NUMBER,
-  SCANNER_ID
+  SCANNER_ID,
+  SCANNER_DECIMAL,
+  SCANNER_EXPONENT_1
 } scanner_state;
 
 typedef enum {
@@ -41,6 +43,6 @@ typedef struct Token {
   token_type t_type;
 } Token;
 
-Token getNextToken();
+Token getNextToken(bool *line_flag);
 
 #endif

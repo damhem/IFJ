@@ -6,6 +6,8 @@
 #include "error_code.h"
 #include "scanner.h"
 
+#include <stdbool.h>
+
 int parse();
 
 #endif

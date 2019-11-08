@@ -1,7 +1,7 @@
 
 #include "scanner.h"
 
-Token getNextToken(/*stack *indent_stack*/) {
+Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
   bool run = true;
   //bool line_flag = true;
   Token token;
@@ -32,7 +32,7 @@ Token getNextToken(/*stack *indent_stack*/) {
         }
         else if (isdigit(c)) {
           state = SCANNER_NUMBER;
-
+          stringAddChar(&token.t_data.ID, c);
         }
         break;
       case (SCANNER_ID):
@@ -45,7 +45,17 @@ Token getNextToken(/*stack *indent_stack*/) {
         }
         break;
       case (SCANNER_NUMBER):
-        //TODO
+        if (isdigit(c)) {
+          stringAddChar(&token.t_data.ID, c);
+        }
+        else if (c == '.') {
+          state = SCANNER_DECIMAL;
+          stringAddChar(&token.t_data.ID, c);
+        }
+        else if (c == 'e' || c == 'E') {
+          state = SCANNER_EXPONENT_1;
+          stringAddChar(&token.t_data.ID, c);
+        }
         break;
       default:
         token.t_type = TOKEN_UNDEF;

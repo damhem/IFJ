@@ -8,7 +8,8 @@
 
 int parse() {
 
-  Token token = getNextToken();
+  bool line_flag = true;
+  Token token = getNextToken(&line_flag);
   int token_counter = 0;
 
   while (token.t_type != TOKEN_EOF) {
@@ -24,7 +25,7 @@ int parse() {
 
     token_counter++;
 
-    token = getNextToken();
+    token = getNextToken(&line_flag);
   }
 
 
