@@ -20,18 +20,13 @@ Token getNextToken(/*stack *indent_stack*/) {
 					token.t_type = TOKEN_EOF;
 					return token;
 				}
-        else {
-          stringInit
+        else if (stringInit(&token.t_data.ID) == ERROR_CODE_INTERNAL) {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_INTERNAL;
+          return token;
         }
         if (isalpha(c) || c == '_') {
-
           state = SCANNER_ID;
-
-          if (stringInit(&token.t_data.ID) == ERROR_CODE_INTERNAL) {
-            token.t_type = TOKEN_UNDEF;
-            token.t_data.integer = ERROR_CODE_INTERNAL;
-            return token;
-          }
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
         }
