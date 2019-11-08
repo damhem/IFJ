@@ -20,6 +20,9 @@ Token getNextToken(/*stack *indent_stack*/) {
 					token.t_type = TOKEN_EOF;
 					return token;
 				}
+        else {
+          stringInit
+        }
         if (isalpha(c) || c == '_') {
 
           state = SCANNER_ID;
@@ -31,6 +34,10 @@ Token getNextToken(/*stack *indent_stack*/) {
           }
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
+        }
+        else if (isdigit(c)) {
+          state = SCANNER_NUMBER;
+
         }
         break;
       case (SCANNER_ID):
