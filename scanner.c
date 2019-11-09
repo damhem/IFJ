@@ -9,6 +9,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
 
   int state = SCANNER_START;
   char c;
+  char prev_c;
 
   while(run) {
 
@@ -69,7 +70,10 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           token.t_type = TOKEN_BIGGERTHEN;
         }
         else if ( c == '!'){
-          state= SCANNER_NEG;
+          state = SCANNER_NEG;
+        }
+        else if ( c == '\''){
+          state = SCANNER_STRING;
         }
         break;
       case (SCANNER_ID):
@@ -136,13 +140,14 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         }
         break;
       case (SCANNER_DIVISION):
-      if (c == '/'){
-        token.t_type = TOKEN_INTEGER_DIVISION;
-        return token;
-      }else{
-        ungetc(c, stdin);
-        return token;
-      }
+        if (c == '/'){
+          token.t_type = TOKEN_INTEGER_DIVISION;
+          return token;
+        }else{
+          ungetc(c, stdin);
+          return token;
+        }
+        break;
       case (SCANNER_EQUAL):
         if (c == '='){
           token.t_type = TOKEN_EQUAL_EQUAL;
@@ -151,6 +156,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           ungetc(c, stdin);
           return token;
         }
+        break;
       case(SCANNER_SMALLERTHEN):
         if (c == '='){
           token.t_type = TOKEN_SMALLERTHEN_EQUAL;
@@ -159,6 +165,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           ungetc(c, stdin);
           return token;
         }
+        break;
       case(SCANNER_BIGGERTHEN):
         if (c == '='){
           token.t_type = TOKEN_BIGGERTHEN_EQUAL;
@@ -167,6 +174,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           ungetc(c, stdin);
           return token;
         }
+        break;
       case(SCANNER_NEG):
         if (c == '='){
           token.t_type = TOKEN_NEG_EQUAL;
@@ -175,9 +183,66 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
           ungetc(c, stdin);
         }
         break;
-      default:
-        token.t_type = TOKEN_UNDEF;
-        return token;
+      case(SCANNER_STRING):
+       if( c == '\''){
+         token.t_type = TOKEN_STRING;
+         return token;
+       }else if(c != '\\'){
+         stringAddChar(&token.t_data.ID, c);
+       }else if(c== '\\'){
+         state = SCANNER_STRING1;
+       }
+       break;
+     case(SCANNER_STRING1):
+      if( c == '\\'){
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }else if(c == '\''){
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }else if(c == '\"'){
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }else if(c == 'n'){
+        c = '\n';
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }else if(c == 't'){
+        c = '\t';
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }else if(c == 'x'){
+        state = SCANNER_STRING2;
+      }
+      break;
+    case(SCANNER_STRING2):
+      if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+        prev_c = c;
+        state = SCANNER_STRING3;
+      }
+      break;
+    case(SCANNER_STRING3):
+      if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+        char c_h;
+        string String;
+        stringInit(&String);
+        c_h = '0';
+        stringAddChar(&String, c_h);
+        c_h = 'x';
+        stringAddChar(&String, c_h);
+        stringAddChar(&String, prev_c);
+        stringAddChar(&String, c);
+
+        c = (char)strtol(String.value, NULL, 16);
+
+        stringDispose(&String);
+        stringAddChar(&token.t_data.ID, c);
+        state = SCANNER_STRING;
+      }
+      break;
+    default:
+      token.t_type = TOKEN_UNDEF;
+      return token;
     } //switch
   } //while
   return token;

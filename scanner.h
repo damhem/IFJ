@@ -11,8 +11,10 @@
 #include "error_code.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 typedef enum {
   SCANNER_START,
@@ -30,7 +32,11 @@ typedef enum {
   SCANNER_EQUAL,
   SCANNER_SMALLERTHEN,
   SCANNER_BIGGERTHEN,
-  SCANNER_NEG
+  SCANNER_NEG,
+  SCANNER_STRING,
+  SCANNER_STRING1,
+  SCANNER_STRING2,
+  SCANNER_STRING3
 } scanner_state;
 
 typedef enum {
@@ -52,7 +58,8 @@ typedef enum {
   TOKEN_BIGGERTHEN,
   TOKEN_SMALLERTHEN,
   TOKEN_SMALLERTHEN_EQUAL,
-  TOKEN_BIGGERTHEN_EQUAL
+  TOKEN_BIGGERTHEN_EQUAL,
+  TOKEN_STRING
 } token_type;
 
 typedef union token_data {
