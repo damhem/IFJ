@@ -19,4 +19,5 @@ typedef struct {
 //TODO: predpisy funkci
 int stringInit(string *str);
 int stringAddChar(string *str, char c);
+void stringDispose(string *str);
 #endif
