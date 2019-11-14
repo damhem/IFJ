@@ -105,7 +105,8 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         }
         break;
       case (SCANNER_COMMENT_1):
-        if (c == '"'){                       //3"
+        if (c == '"'){
+          token.t_type = TOKEN_STRING;              //3"
           state = SCANNER_COMMENT_0;
         }else{
           ungetc(c, stdin);
@@ -115,12 +116,15 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
       case (SCANNER_COMMENT_0):
         if (c == '"'){                        //1"
           state = SCANNER_COMMENT_01;
+        }else{
+          stringAddChar(&token.t_data.ID, c);
         }
         break;
       case (SCANNER_COMMENT_01):
         if (c == '"'){                        //2"
           state = SCANNER_COMMENT_02;
         }else{
+          stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
@@ -128,6 +132,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         if (c == '"'){                       //3"
           state = SCANNER_START;
         }else{
+          stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
