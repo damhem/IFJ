@@ -130,7 +130,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         break;
       case (SCANNER_COMMENT_02):
         if (c == '"'){                       //3"
-          state = SCANNER_START;
+          return token;
         }else{
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
