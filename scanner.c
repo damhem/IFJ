@@ -124,6 +124,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         if (c == '"'){                        //2"
           state = SCANNER_COMMENT_02;
         }else{
+          stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
@@ -131,6 +132,7 @@ Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
         if (c == '"'){                       //3"
           state = SCANNER_START;
         }else{
+          stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
