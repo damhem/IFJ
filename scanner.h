@@ -75,7 +75,7 @@ typedef enum {
   TOKEN_RIGHTPAR,
   TOKEN_DOUBLEDOT,
   TOKEN_INT,
-  TOKEN_DOUBLE
+  TOKEN_DOUBLE,
   TOKEN_COMMA
 } token_type;
 

@@ -11,6 +11,9 @@
 //actual token
 Token token;
 
+//scanner stack
+tStack s;
+
 //line variable for scanner
 bool line_flag;
 

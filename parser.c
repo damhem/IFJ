@@ -6,7 +6,6 @@ int parse() {
 
 
   line_flag = true;
-  tStack s;
   stackInit(&s);
   
   int result;
@@ -19,7 +18,7 @@ int parse() {
   
 
   //get first token
-  token = getNextToken(&line_flag);
+  token = getNextToken(&line_flag, &s);
   if (token.t_type == TOKEN_UNDEF) {
     return token.t_data.integer;
   } else {
@@ -41,7 +40,7 @@ int parse() {
 
     token_counter++;
 
-    token = getNextToken(&line_flag,&s);
+    token = getNextToken(&line_flag, &s,&s);
   }
 */
   stringDispose(&functionName);
@@ -54,7 +53,7 @@ int skipEol() {
   int result;
   switch (token.t_type) {
   case TOKEN_EOL:
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = skipEol();
     break;
   default:
@@ -83,7 +82,7 @@ int program() {
     if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
 
     //there can be some eols
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = skipEol();
     if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
 
@@ -155,7 +154,7 @@ int functionDef() {
      //todo symtable shit
 
     //there has to be EOL
-     if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
      if (token.t_type != TOKEN_EOL) {
        return ERROR_CODE_LEX;
@@ -166,7 +165,7 @@ int functionDef() {
     if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
 
     //there has to be indent
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     if (token.t_type != TOKEN_INDENT) {
       return ERROR_CODE_LEX;
     }
@@ -176,7 +175,7 @@ int functionDef() {
     if (result != ERROR_CODE_OK) return result;
 
     //there has to be dedent
-    //if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     if (token.t_type != TOKEN_DEDENT) {
       return ERROR_CODE_SYN;
     }
@@ -194,7 +193,7 @@ int functionHead() {
   switch (token.t_type) {
   //Hlavicka_funkce -> def id ( Parametry ) :
   case TOKEN_DEF:
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     if (token.t_type != TOKEN_ID) {
       return ERROR_CODE_LEX;
     }
@@ -203,8 +202,8 @@ int functionHead() {
     stringAddChars(&functionName, token.t_data.ID.value);
 
     //there has to be (
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-    if (token.t_type != TOKEN_LEFT_PAR) {
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_LEFTPAR) {
       return ERROR_CODE_LEX;
     }
     
@@ -213,14 +212,14 @@ int functionHead() {
     if (result != ERROR_CODE_OK) return result;
 
     //there has to be )
-    //if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-    if (token.t_type != TOKEN_RIGHT_PAR) {
+    //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_RIGHTPAR) {
       return ERROR_CODE_LEX;
     }
 
     //there has to be :
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-    if (token.t_type != TOKEN_DOUBLE_DOT) {
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DOUBLEDOT) {
       return ERROR_CODE_LEX;
     }
 
@@ -240,13 +239,13 @@ int functionParam() {
       
       paramIndex++;
 
-      if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
       result = nextFunctionParam();
       if (result != ERROR_CODE_OK) return result;
 
       return ERROR_CODE_OK;
-    case TOKEN_RIGHT_PAR:
+    case TOKEN_RIGHTPAR:
     //Parametry -> eps
       paramIndex = 0;
       return ERROR_CODE_OK;
@@ -261,13 +260,13 @@ int nextFunctionParam() {
   switch (token.t_type) {
   case TOKEN_COMMA:
   //Dalsi_parametr -> , Parametry
-    if (((token = getNextToken(&line_flag)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = functionParam();
     if (result != ERROR_CODE_OK) return result;
 
     return ERROR_CODE_OK;
   
-  case TOKEN_RIGHT_PAR:
+  case TOKEN_RIGHTPAR:
   //Dalsi_parametr -> eps
     return ERROR_CODE_OK;
   default:
