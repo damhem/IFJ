@@ -76,6 +76,7 @@ typedef enum {
   TOKEN_DOUBLEDOT,
   TOKEN_INT,
   TOKEN_DOUBLE
+  TOKEN_COMMA
 } token_type;
 
 typedef union token_data {

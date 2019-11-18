@@ -8,6 +8,29 @@
 
 #include <stdbool.h>
 
+//actual token
+Token token;
+
+//line variable for scanner
+bool line_flag;
+
+//var for actual function name
+string functionName;
+
+//index counter for params in function
+int paramIndex;
+
+//function list
 int parse();
+int program();
+int programBody();
+int functionHead();
+int functionParam();
+int functionDef();
+int functionBody();
+int prikaz();
+int command();
+int functionParam();
+int nextFunctionParam();
 
 #endif

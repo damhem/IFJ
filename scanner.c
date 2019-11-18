@@ -1,6 +1,7 @@
 
 #include "scanner.h"
 
+
 Token getNextToken(bool *line_flag, tStack *s) {
   bool run = true;
   Token token;
