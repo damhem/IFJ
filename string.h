@@ -20,4 +20,5 @@ typedef struct {
 int stringInit(string *str);
 int stringAddChar(string *str, char c);
 void stringDispose(string *str);
+int stringAddChars(string *str, char* c);
 #endif

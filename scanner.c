@@ -1,7 +1,7 @@
 
 #include "scanner.h"
 
-Token getNextToken(bool *line_flag/*stack *indent_stack*/) {
+Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
   bool run = true;
   //bool line_flag = true;
   Token token;
