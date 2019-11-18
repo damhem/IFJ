@@ -1,15 +1,20 @@
 
 #include "parser.h"
-
+#include "stack.h"
 
 int parse() {
 
+
+  line_flag = true;
+  tStack s;
+  stackInit(&s);
   
   int result;
-  line_flag = true;
+  
   paramIndex = 0;
 
   stringInit(&functionName);
+
 
   
 
@@ -36,7 +41,7 @@ int parse() {
 
     token_counter++;
 
-    token = getNextToken(&line_flag);
+    token = getNextToken(&line_flag,&s);
   }
 */
   stringDispose(&functionName);

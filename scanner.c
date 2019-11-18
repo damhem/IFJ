@@ -1,15 +1,18 @@
 
 #include "scanner.h"
 
-Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
+
+Token getNextToken(bool *line_flag, tStack *s) {
   bool run = true;
-  //bool line_flag = true;
   Token token;
   token.t_type = TOKEN_UNDEF;
 
   int state = SCANNER_START;
   char c;
   char prev_c;
+  int spacecount = 0;
+  char s_top;
+  stackTop(s,&s_top);
 
   while(run) {
 
@@ -18,6 +21,7 @@ Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
     switch (state) {
       case (SCANNER_START):
         if (c == EOF) {
+          *line_flag=false;
 					token.t_type = TOKEN_EOF;
 					return token;
 				}
@@ -26,54 +30,91 @@ Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
           token.t_data.integer = ERROR_CODE_INTERNAL;
           return token;
         }
+        else if (c == '\n'){
+          *line_flag=true;
+          token.t_type = TOKEN_EOL;
+          return token;
+        }
         if (isalpha(c) || c == '_') {
+          *line_flag=false;
           state = SCANNER_ID;
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
         }
+        else if (isspace(c) && (*line_flag) == true) {
+          state = SCANNER_DENTCOUNT;
+          spacecount++;
+        }
         else if (isdigit(c)) {
+          *line_flag=false;
           state = SCANNER_NUMBER;
           stringAddChar(&token.t_data.ID, c);
         }
         else if (c == '"'){
+          *line_flag=false;
           state = SCANNER_COMMENT;
         }
         else if ( c == '#'){
+          *line_flag=false;
           state = SCANNER_LINE_COMMENT;
         }
         else if ( c == '+'){
+          *line_flag=false;
           token.t_type = TOKEN_ADDITION;
           return token;
         }
         else if ( c == '-'){
+          *line_flag=false;
           token.t_type = TOKEN_SUBTRACTION;
           return token;
         }
         else if ( c == '*'){
+          *line_flag=false;
           token.t_type = TOKEN_MULTIPLICATION;
           return token;
         }
         else if ( c == '/'){
+          *line_flag=false;
           state= SCANNER_DIVISION;
           token.t_type = TOKEN_DIVISION;
         }
         else if ( c == '='){
+          *line_flag=false;
           state= SCANNER_EQUAL;
           token.t_type = TOKEN_EQUAL;
         }
         else if ( c == '<'){
+          *line_flag=false;
           state= SCANNER_SMALLERTHEN;
           token.t_type = TOKEN_SMALLERTHEN;
         }
         else if ( c == '>'){
+          *line_flag=false;
           state= SCANNER_BIGGERTHEN;
           token.t_type = TOKEN_BIGGERTHEN;
         }
         else if ( c == '!'){
+          *line_flag=false;
           state = SCANNER_NEG;
         }
         else if ( c == '\''){
+          *line_flag=false;
           state = SCANNER_STRING;
+        }
+        else if ( c == '('){
+          *line_flag=false;
+          token.t_type = TOKEN_LEFTPAR;
+          return token;
+        }
+        else if ( c == ')'){
+          *line_flag=false;
+          token.t_type = TOKEN_RIGHTPAR;
+          return token;
+        }
+        else if ( c == ':'){
+          *line_flag=false;
+          token.t_type = TOKEN_DOUBLEDOT;
+          return token;
         }
         break;
       case (SCANNER_ID):
@@ -81,9 +122,44 @@ Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
           stringAddChar(&token.t_data.ID, c);
         }else {
           ungetc(c, stdin);
+          //kontrola pro klíčová slova
           return token;
         }
         break;
+        case (SCANNER_DENTCOUNT):
+          if (isspace(c)) {
+            spacecount++;
+          }
+          else {
+            ungetc(c, stdin);
+            stackTop(s,&s_top);
+            if (spacecount>s_top || stackEmpty(s)) {
+              printf("mezer je %d ",spacecount);
+              token.t_type = TOKEN_INDENT;
+
+              stackPush(s,spacecount);
+              spacecount=0;
+              return token;
+            }
+            else if (spacecount==s_top) {
+              spacecount=0;
+            }
+            else if (spacecount<s_top) {
+              while (spacecount<s_top && stackEmpty(s)==0) {
+                stackPop(s);
+                stackTop(s,&s_top);
+                if (spacecount==s_top) {
+                  token.t_type = TOKEN_DEDENT;
+                  stackPush(s,spacecount);
+                  spacecount=0;
+                }
+                if (spacecount>s_top) {
+                  //error
+                }
+              }
+            }
+          }
+          break;
       case (SCANNER_NUMBER):
         if (isdigit(c)) {
           stringAddChar(&token.t_data.ID, c);
@@ -95,6 +171,12 @@ Token getNextToken(bool *line_flagg/*stack *indent_stack*/) {
         else if (c == 'e' || c == 'E') {
           state = SCANNER_EXPONENT_1;
           stringAddChar(&token.t_data.ID, c);
+        }
+        else {
+          //přidání rozdělení na INT a DOUBLE, přidání čísla do data.int data.decimal atd...
+          token.t_type = TOKEN_INT;
+          ungetc(c, stdin);
+          return token;
         }
         break;
       case (SCANNER_COMMENT):
