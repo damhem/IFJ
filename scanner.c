@@ -100,6 +100,21 @@ Token getNextToken(bool *line_flag, tStack *s) {
           *line_flag=false;
           state = SCANNER_STRING;
         }
+        else if ( c == '('){
+          *line_flag=false;
+          token.t_type = TOKEN_LEFTPAR;
+          return token;
+        }
+        else if ( c == ')'){
+          *line_flag=false;
+          token.t_type = TOKEN_RIGHTPAR;
+          return token;
+        }
+        else if ( c == ':'){
+          *line_flag=false;
+          token.t_type = TOKEN_DOUBLEDOT;
+          return token;
+        }
         break;
       case (SCANNER_ID):
         if (isalpha(c) || isdigit(c) || c == '_') {
@@ -144,15 +159,6 @@ Token getNextToken(bool *line_flag, tStack *s) {
             }
           }
           break;
-        case(SCANNER_EOL):
-          if (c == '\n'){
-            token.t_type = TOKEN_EOL;
-            return token;
-          }else{
-            ungetc(c, stdin);
-            return token;
-          }
-        break;
       case (SCANNER_NUMBER):
         if (isdigit(c)) {
           stringAddChar(&token.t_data.ID, c);

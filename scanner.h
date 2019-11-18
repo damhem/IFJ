@@ -39,7 +39,7 @@ typedef enum {
   SCANNER_STRING2,
   SCANNER_STRING3,
   SCANNER_DENTCOUNT,
-  SCANNER_EOL
+  SCANNER_EOL,
 } scanner_state;
 
 typedef enum {

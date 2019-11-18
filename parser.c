@@ -12,7 +12,7 @@ int parse() {
   tStack s;
   stackInit(&s);
 
-  Token token = getNextToken(&line_flag);
+  Token token = getNextToken(&line_flag,&s);
   int token_counter = 0;
 
   while (token.t_type != TOKEN_EOF) {
