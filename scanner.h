@@ -9,6 +9,7 @@
 
 #include "string.h"
 #include "error_code.h"
+#include "stack.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -36,7 +37,9 @@ typedef enum {
   SCANNER_STRING,
   SCANNER_STRING1,
   SCANNER_STRING2,
-  SCANNER_STRING3
+  SCANNER_STRING3,
+  SCANNER_DENTCOUNT,
+  SCANNER_EOL
 } scanner_state;
 
 typedef enum {
@@ -59,7 +62,20 @@ typedef enum {
   TOKEN_SMALLERTHEN,
   TOKEN_SMALLERTHEN_EQUAL,
   TOKEN_BIGGERTHEN_EQUAL,
-  TOKEN_STRING
+  TOKEN_STRING,
+  TOKEN_EOL,
+  TOKEN_DEF,
+  TOKEN_ELSE,
+  TOKEN_IF,
+  TOKEN_NONE,
+  TOKEN_PASS,
+  TOKEN_RETURN,
+  TOKEN_WHILE,
+  TOKEN_LEFTPAR,
+  TOKEN_RIGHTPAR,
+  TOKEN_DOUBLEDOT,
+  TOKEN_INT,
+  TOKEN_DOUBLE
 } token_type;
 
 typedef union token_data {
@@ -73,6 +89,6 @@ typedef struct Token {
   token_type t_type;
 } Token;
 
-Token getNextToken(bool *line_flag);
+Token getNextToken(bool *line_flag, tStack *s);
 
 #endif

@@ -4,11 +4,14 @@
 
 
 #include "parser.h"
-
+#include "stack.h"
 
 int parse() {
 
   bool line_flag = true;
+  tStack s;
+  stackInit(&s);
+
   Token token = getNextToken(&line_flag);
   int token_counter = 0;
 
@@ -25,7 +28,7 @@ int parse() {
 
     token_counter++;
 
-    token = getNextToken(&line_flag);
+    token = getNextToken(&line_flag,&s);
   }
 
 
