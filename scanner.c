@@ -9,7 +9,7 @@ token_type peekNextToken() {
     return -1;
   }
 
-  return token.t_type;
+  return peekToken.t_type;
 }
 
 Token getNextToken(bool *line_flag, tStack *s) {
@@ -132,6 +132,11 @@ Token getNextToken(bool *line_flag, tStack *s) {
         else if ( c == ':'){
           *line_flag=false;
           token.t_type = TOKEN_DOUBLEDOT;
+          return token;
+        }
+        else if ( c == ','){
+          *line_flag=false;
+          token.t_type = TOKEN_COMMA;
           return token;
         }
         break;

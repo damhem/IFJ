@@ -39,5 +39,7 @@ int command();
 int functionParam();
 int nextFunctionParam();
 int continueID();
+int terms();
+int nextTerms();
 
 #endif

@@ -3,7 +3,7 @@
 #include "stack.h"
 
 int parse() {
-
+  printf("START PARSING\n");
 
   line_flag = true;
   stackInit(&s);
@@ -50,6 +50,7 @@ int parse() {
 */
 int skipEol() {
   int result;
+  printf("SKIPPING EOL\n");
   switch (token.t_type) {
   case TOKEN_EOL:
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -145,6 +146,8 @@ int programBody() {
 
 */
 int functionDef() {
+
+  printf("IN FUNCTION DEF\n");
   int result;
 
   switch (token.t_type) {
@@ -193,6 +196,8 @@ int functionDef() {
 int functionHead() {
   int result;
 
+  printf("IN FUNCTION HEAD\n");
+
   switch (token.t_type) {
   //Hlavicka_funkce -> def id ( Parametry ) :
   case TOKEN_DEF:
@@ -235,6 +240,7 @@ int functionHead() {
 
 int functionParam() {
   int result;
+  printf("IN FUNCTION PARAMS\n");
   switch (token.t_type) {
     case TOKEN_ID:
     //Parametry -> id Dalsi_parametr
@@ -260,6 +266,7 @@ int functionParam() {
 
 int nextFunctionParam() {
   int result;
+  printf("IN NEXT FUNCTION PARAM\n");
   switch (token.t_type) {
   case TOKEN_COMMA:
   //Dalsi_parametr -> , Parametry
@@ -280,6 +287,7 @@ int nextFunctionParam() {
 
 int functionBody() {
   int result;
+  printf("IN FUNCTION BODY\n");
   switch (token.t_type) {
   case TOKEN_ID:
   case TOKEN_PASS:
@@ -321,17 +329,16 @@ int command() {
   case TOKEN_RETURN:
   //Prikaz -> return Vyraz eol
 
-  case TOKEN_ID:
+  case TOKEN_ID: ;
   //have to check if its expression
-  printf("IN TOKEN_ID\n");
   token_type nextTokenType;
   if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
   printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
   //Prikaz -> Vyraz eol
   switch (nextTokenType) {
     //has to be operator
-    case TOKEN_PLUS:
-    case TOKEN_MINUS:
+    case TOKEN_ADDITION:
+    case TOKEN_SUBTRACTION:
     case TOKEN_MULTIPLICATION:
     case TOKEN_DIVISION:
     case TOKEN_EQUAL_EQUAL:
@@ -343,16 +350,17 @@ int command() {
 
     //todo expression napojení (expression(token))
     
-    return ERROR_CODE_OK;
+    return ERROR_CODE_SYN;
   
   case TOKEN_EQUAL:
     //Pokracovani_id -> = Pokracovani_id_next
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = continueID();
     if (result != ERROR_CODE_OK) return result;
     return ERROR_CODE_OK;
   default:
-    printf("NEXT TOKEN TYPE: %d", nextTokenType);
+    printf("default: NEXT TOKEN TYPE: %d", nextTokenType);
     return ERROR_CODE_SYN;
   }
 
@@ -367,12 +375,111 @@ int command() {
   //todo expression
   
   default:
-    break;
+    return ERROR_CODE_SYN;
   }
   return ERROR_CODE_SYN;
 }
 
 int continueID() {
+  int result;
   printf("IN CONTINUE ID\n");
+  switch (token.t_type) {
+  case TOKEN_ID: ;
+    //have to check if its expression
+  token_type nextTokenType;
+  if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+  printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
+
+  switch (nextTokenType) {
+    //Pokracovani_id_next -> Vyraz eol
+    //has to be operator
+    case TOKEN_ADDITION:
+    case TOKEN_SUBTRACTION:
+    case TOKEN_MULTIPLICATION:
+    case TOKEN_DIVISION:
+    case TOKEN_EQUAL_EQUAL:
+    case TOKEN_SMALLERTHEN:
+    case TOKEN_SMALLERTHEN_EQUAL:
+    case TOKEN_BIGGERTHEN:
+    case TOKEN_BIGGERTHEN_EQUAL:
+    case TOKEN_EOL:
+
+    printf("WILL BE DOING EXPRESSION\n");
+    //todo expression napojení (expression(token))
+
+    //todo eol token
+    
+    return ERROR_CODE_SYN;
+
+    case TOKEN_LEFTPAR:
+      //Pokracovani_id_next -> id ( Termy ) eol
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      result = terms();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+      return ERROR_CODE_OK;
+
+    default:
+      return ERROR_CODE_SYN;
+    }
+  
+  default:
+    return ERROR_CODE_SYN;
+  }
+  return ERROR_CODE_SYN;
+}
+
+
+int terms() {
+  printf("IN TERMS NOW\n");
+  int result;
+  switch (token.t_type) {
+    case TOKEN_ID:
+      //todo sth
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+      return ERROR_CODE_OK;
+    case TOKEN_STRING:
+    case TOKEN_INT:
+    case TOKEN_DOUBLE:
+    case TOKEN_NONE:
+      //todo sth
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+      return ERROR_CODE_OK;
+    case TOKEN_RIGHTPAR:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
+  }
+  return ERROR_CODE_SYN;
+}
+
+int nextTerms() {
+  printf("IN NEXT TERMS:\n");
+  int result;
+  switch (token.t_type) {
+  case TOKEN_COMMA:
+    //Next_term -> , Termy
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    result = terms();
+    if (result != ERROR_CODE_OK) return result;
+
+    //todo maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
+
+    return ERROR_CODE_OK;
+  case TOKEN_RIGHTPAR:
+    return ERROR_CODE_OK;
+  default:
+    return ERROR_CODE_SYN;
+  }
   return ERROR_CODE_SYN;
 }
