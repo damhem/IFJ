@@ -1,8 +1,26 @@
 
 #include "scanner.h"
+#include "parser.h"
 
+token_type peekNextToken() {
+  peekToken = getNextToken(&line_flag, &s);
+  
+  if (peekToken.t_type == TOKEN_UNDEF) {
+    return -1;
+  }
+
+  return token.t_type;
+}
 
 Token getNextToken(bool *line_flag, tStack *s) {
+  
+  //checks if some token isnt already read
+  if (peekToken.t_type != TOKEN_UNDEF) {
+    Token peekThisToken = peekToken;
+    peekToken.t_type = TOKEN_UNDEF;
+    return peekThisToken;
+  }
+
   bool run = true;
   Token token;
   token.t_type = TOKEN_UNDEF;

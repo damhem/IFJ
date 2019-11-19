@@ -11,6 +11,9 @@
 //actual token
 Token token;
 
+//one token ahead
+Token peekToken;
+
 //scanner stack
 tStack s;
 
@@ -35,5 +38,6 @@ int prikaz();
 int command();
 int functionParam();
 int nextFunctionParam();
+int continueID();
 
 #endif

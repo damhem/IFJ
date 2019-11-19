@@ -14,8 +14,7 @@ int parse() {
 
   stringInit(&functionName);
 
-
-  
+  peekToken.t_type = TOKEN_UNDEF;  
 
   //get first token
   token = getNextToken(&line_flag, &s);
@@ -66,6 +65,8 @@ int skipEol() {
 int program() {
   int result;
 
+  printf("IN PROGRAM\n");
+
   switch (token.t_type) {
   case TOKEN_EOL:
     result = skipEol();
@@ -79,12 +80,12 @@ int program() {
   case TOKEN_PASS:
     //get into program body
     result = programBody();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
     //there can be some eols
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = skipEol();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
     //there should be eof
     if (token.t_type == TOKEN_EOF) {
@@ -96,13 +97,15 @@ int program() {
   case TOKEN_EOF:
     return ERROR_CODE_OK;
   default:
-    return ERROR_CODE_LEX;
+    return ERROR_CODE_SYN;
   }
-  return ERROR_CODE_LEX;
+  return ERROR_CODE_SYN;
 }
 
 int programBody() {
   int result;
+
+  printf("IN PROGRAM BODY\n");
 
   switch (token.t_type) {
   
@@ -122,10 +125,10 @@ int programBody() {
   case TOKEN_IF:
   case TOKEN_WHILE:
     result = command();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
     result = programBody();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
    return ERROR_CODE_OK;
 
@@ -301,7 +304,10 @@ int functionBody() {
 }
 
 int command() {
-  /*int result;
+
+  printf("IN COMMAND\n");
+
+  int result;
   switch (token.t_type) {
   case TOKEN_IF:
   //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
@@ -316,12 +322,57 @@ int command() {
   //Prikaz -> return Vyraz eol
 
   case TOKEN_ID:
-  //id Pokracovani_id
+  //have to check if its expression
+  printf("IN TOKEN_ID\n");
+  token_type nextTokenType;
+  if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+  printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
+  //Prikaz -> Vyraz eol
+  switch (nextTokenType) {
+    //has to be operator
+    case TOKEN_PLUS:
+    case TOKEN_MINUS:
+    case TOKEN_MULTIPLICATION:
+    case TOKEN_DIVISION:
+    case TOKEN_EQUAL_EQUAL:
+    case TOKEN_SMALLERTHEN:
+    case TOKEN_SMALLERTHEN_EQUAL:
+    case TOKEN_BIGGERTHEN:
+    case TOKEN_BIGGERTHEN_EQUAL:
+    case TOKEN_EOL:
+
+    //todo expression napojení (expression(token))
+    
+    return ERROR_CODE_OK;
+  
+  case TOKEN_EQUAL:
+    //Pokracovani_id -> = Pokracovani_id_next
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    result = continueID();
+    if (result != ERROR_CODE_OK) return result;
+    return ERROR_CODE_OK;
+  default:
+    printf("NEXT TOKEN TYPE: %d", nextTokenType);
+    return ERROR_CODE_SYN;
+  }
+
+  case TOKEN_STRING:
+  case TOKEN_INT:
+  case TOKEN_DOUBLE:
+  case TOKEN_NONE:
+  case TOKEN_LEFTPAR:
+  //this is expression 100%
 
   //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
+  //todo expression
   
   default:
     break;
-  }*/
+  }
+  return ERROR_CODE_SYN;
+}
+
+int continueID() {
+  printf("IN CONTINUE ID\n");
   return ERROR_CODE_SYN;
 }

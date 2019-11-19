@@ -91,5 +91,6 @@ typedef struct Token {
 } Token;
 
 Token getNextToken(bool *line_flag, tStack *s);
+token_type peekNextToken();
 
 #endif
