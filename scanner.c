@@ -4,7 +4,7 @@
 
 token_type peekNextToken() {
   peekToken = getNextToken(&line_flag, &s);
-  
+
   if (peekToken.t_type == TOKEN_UNDEF) {
     return -1;
   }
@@ -13,7 +13,7 @@ token_type peekNextToken() {
 }
 
 Token getNextToken(bool *line_flag, tStack *s) {
-  
+
   //checks if some token isnt already read
   if (peekToken.t_type != TOKEN_UNDEF) {
     Token peekThisToken = peekToken;
@@ -145,7 +145,27 @@ Token getNextToken(bool *line_flag, tStack *s) {
           stringAddChar(&token.t_data.ID, c);
         }else {
           ungetc(c, stdin);
-          //kontrola pro klíčová slova
+          if (strcmp("def",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_DEF;
+          }
+          else if (strcmp("else",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_ELSE;
+          }
+          else if (strcmp("if",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_IF;
+          }
+          else if (strcmp("None",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_NONE;
+          }
+          else if (strcmp("pass",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_PASS;
+          }
+          else if (strcmp("return",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_RETURN;
+          }
+          else if (strcmp("while",token.t_data.ID.value) == 0) {
+            token.t_type = TOKEN_WHILE;
+          }
           return token;
         }
         break;
