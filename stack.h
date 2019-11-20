@@ -48,4 +48,6 @@ void stackPop(tStack *s);
 
 void stackPush(tStack *s, char c);
 
+void stackClear(tStack *s);
+
 #endif

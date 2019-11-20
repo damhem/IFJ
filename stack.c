@@ -12,7 +12,7 @@
 ** do maximální hodnoty STACK_SIZE. Položka záznamu 'top' ukazuje na prvek
 ** na vrcholu zásobníku. Prázdnému zásobníku odpovídá hodnota top == -1,
 ** zásobníku s jedním prvkem hodnota 0, atd. Přesnou definici typů neleznete
-** v hlavičkovém souboru c202.h. 
+** v hlavičkovém souboru c202.h.
 **
 ** Implementujte následující funkce:
 **
@@ -70,7 +70,7 @@ void stackInit(tStack *s)
 **
 ** V případě, že funkce dostane jako parametr s == NULL,
 ** volejte funkci stackError(SERR_INIT). U ostatních funkcí pro zjednodušení
-** předpokládejte, že tato situace nenastane. 
+** předpokládejte, že tato situace nenastane.
 */
 	// Pokud s == NULL, nastane SERR_INIT.
 	if (!s)
@@ -174,4 +174,10 @@ void stackPush(tStack *s, char c)
 	// Zvýšení indexu vrcholu zásobníku a uložení hodnoty c na zvýšený index.
 	s->top++;
 	s->arr[s->top] = c;
+}
+
+void stackClear(tStack *s) {
+	while (stackEmpty(s) == 0) {
+		stackPop(s);
+	}
 }

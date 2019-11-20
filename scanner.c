@@ -182,6 +182,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
               stackPush(s,spacecount);
               spacecount=0;
+              *line_flag=false;
               return token;
             }
             else if (spacecount==s_top) {
@@ -195,9 +196,13 @@ Token getNextToken(bool *line_flag, tStack *s) {
                   token.t_type = TOKEN_DEDENT;
                   stackPush(s,spacecount);
                   spacecount=0;
+                  *line_flag=false;
+                  return token;
                 }
                 if (spacecount>s_top) {
-                  //error
+                  token.t_type = TOKEN_UNDEF;
+                  token.t_data.integer = ERROR_CODE_LEX;
+                  return token;
                 }
               }
             }
