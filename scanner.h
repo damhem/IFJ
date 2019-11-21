@@ -90,6 +90,8 @@ typedef struct Token {
   token_type t_type;
 } Token;
 
+int dentcount;
+
 Token getNextToken(bool *line_flag, tStack *s);
 token_type peekNextToken();
 
