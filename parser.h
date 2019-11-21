@@ -27,20 +27,20 @@ string functionName;
 int paramIndex;
 
 //function list
-int parse();
-int program();
-int programBody();
-int functionHead();
-int functionParam();
-int functionDef();
-int functionBody();
-int prikaz();
-int command();
-int functionParam();
-int nextFunctionParam();
-int continueID();
-int terms();
-int nextTerms();
-int commands();
+ERROR_CODE parse();
+ERROR_CODE program();
+ERROR_CODE programBody();
+ERROR_CODE functionHead();
+ERROR_CODE functionParam();
+ERROR_CODE functionDef();
+ERROR_CODE functionBody();
+ERROR_CODE prikaz();
+ERROR_CODE command();
+ERROR_CODE functionParam();
+ERROR_CODE nextFunctionParam();
+ERROR_CODE continueID();
+ERROR_CODE terms();
+ERROR_CODE nextTerms();
+ERROR_CODE commands();
 
 #endif

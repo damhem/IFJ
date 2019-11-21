@@ -211,9 +211,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
                   token.t_data.integer = ERROR_CODE_LEX;
                   return token;
                 }
-                printf("spacecount: %d", spacecount);
-                printf("stack_top: %d", s_top);
+               
                 if (spacecount==s_top || stackEmpty(s) != 0) {
+                   printf("spacecount: %d\n", spacecount);
+                   printf("stack_top: %d\n", s_top);
                   token.t_type = TOKEN_DEDENT;
                   spacecount=0;
                   dentcount--;

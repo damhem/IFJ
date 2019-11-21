@@ -17,7 +17,7 @@
 
 int main() {
 
-  int error_code = EXIT_SUCCESS;
+  ERROR_CODE error_code = EXIT_SUCCESS;
 
   //open file w/ program and push it to the stdin
   FILE *fp;

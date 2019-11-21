@@ -1,10 +1,37 @@
+
+
 def foo(jedna, dva) :
   yo = ahoj(jdjd,ddd)
+  return U
+
 ded5
+
 if sth :
   deeeed
   ddssd
+  if sthn :
+    jsdff
+    while fff:
+      jghgh
+      if jjd :
+        hfhfhf
+        djdjjd
+      else:
+        jfj
+    ffff
+  else:
+    vvv
 else :
   dwa
 lul
+while sth :
+  prvni
+  druhy(ahoj, yo)
+treti
+
+
+
+
+
+
 
