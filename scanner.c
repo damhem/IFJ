@@ -55,7 +55,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
-          if (!isspace(c)) {
+          if (c != ' ') {
             while (stackEmpty(s)==0) {
             stackPop(s);
             dentcount++;
@@ -72,7 +72,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
         }
-        else if (isspace(c) && (*line_flag) == true) {
+        else if (c == ' ' && (*line_flag) == true) {
           state = SCANNER_DENTCOUNT;
           spacecount++;
         }
@@ -183,7 +183,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
         case (SCANNER_DENTCOUNT):
-          if (isspace(c)) {
+          if (c == ' ') {
             spacecount++;
           }
           else {
@@ -199,6 +199,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             }
             else if (spacecount==s_top) {
               spacecount=0;
+              state = SCANNER_START;
             }
             else if (spacecount<s_top) {
               while (spacecount<s_top && stackEmpty(s)==0) {
@@ -210,6 +211,8 @@ Token getNextToken(bool *line_flag, tStack *s) {
                   token.t_data.integer = ERROR_CODE_LEX;
                   return token;
                 }
+                printf("spacecount: %d", spacecount);
+                printf("stack_top: %d", s_top);
                 if (spacecount==s_top || stackEmpty(s) != 0) {
                   token.t_type = TOKEN_DEDENT;
                   spacecount=0;

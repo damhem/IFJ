@@ -4,7 +4,7 @@ ded5
 if sth :
   deeeed
   ddssd
-else sth2 :
+else :
   dwa
 lul
 
