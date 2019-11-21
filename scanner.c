@@ -30,9 +30,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
   char prev_c;
   int spacecount = 0;
   char s_top;
-  stackTop(s,&s_top);
 
   while(run) {
+
+  if (dentcount>0) {
+    dentcount--;
+    token.t_type = TOKEN_DEDENT;
+    return token;
+  }
 
     c = (char) getc(stdin);
 
@@ -49,6 +54,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
           return token;
         }
         else if (c == '\n'){
+          c = (char) getc(stdin);
+          if (!isspace(c)) {
+            while (stackEmpty(s)==0) {
+            stackPop(s);
+            dentcount++;
+            }
+          }
+          ungetc(c, stdin);
           *line_flag=true;
           token.t_type = TOKEN_EOL;
           return token;
@@ -174,15 +187,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
             spacecount++;
           }
           else {
+            *line_flag=false;
             ungetc(c, stdin);
             stackTop(s,&s_top);
             if (spacecount>s_top || stackEmpty(s)) {
-              printf("mezer je %d ",spacecount);
               token.t_type = TOKEN_INDENT;
 
               stackPush(s,spacecount);
               spacecount=0;
-              *line_flag=false;
               return token;
             }
             else if (spacecount==s_top) {
@@ -190,18 +202,18 @@ Token getNextToken(bool *line_flag, tStack *s) {
             }
             else if (spacecount<s_top) {
               while (spacecount<s_top && stackEmpty(s)==0) {
+                dentcount++;
                 stackPop(s);
                 stackTop(s,&s_top);
-                if (spacecount==s_top) {
-                  token.t_type = TOKEN_DEDENT;
-                  stackPush(s,spacecount);
-                  spacecount=0;
-                  *line_flag=false;
-                  return token;
-                }
                 if (spacecount>s_top) {
                   token.t_type = TOKEN_UNDEF;
                   token.t_data.integer = ERROR_CODE_LEX;
+                  return token;
+                }
+                if (spacecount==s_top || stackEmpty(s) != 0) {
+                  token.t_type = TOKEN_DEDENT;
+                  spacecount=0;
+                  dentcount--;
                   return token;
                 }
               }
@@ -222,6 +234,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else {
           //přidání rozdělení na INT a DOUBLE, přidání čísla do data.int data.decimal atd...
+          int temp;
+          sscanf(token.t_data.ID.value, "%d", &temp);
+          token.t_data.integer=temp;
           token.t_type = TOKEN_INT;
           ungetc(c, stdin);
           return token;
@@ -377,6 +392,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
       break;
     default:
       token.t_type = TOKEN_UNDEF;
+      token.t_data.integer = ERROR_CODE_LEX;
       return token;
     } //switch
   } //while
