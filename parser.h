@@ -41,5 +41,6 @@ int nextFunctionParam();
 int continueID();
 int terms();
 int nextTerms();
+int commands();
 
 #endif

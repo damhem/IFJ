@@ -1,8 +1,10 @@
 def foo(jedna, dva) :
- 1 yo _boiii kkt_jj     ttt98 l9_5_o_K_h_SS """ahoj""" ahoj +-*/ // = == > < >= <= != 'ahoj  \\ \' \" \n \t \xaf aa'
+  yo = ahoj(jdjd,ddd)
 ded5
-66
+if sth :
   deeeed
-   ddssd
+  ddssd
+else sth2 :
   dwa
+lul
 

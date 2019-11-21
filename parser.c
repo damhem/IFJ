@@ -24,35 +24,17 @@ int parse() {
     result = program();
   }
   
-/*
-  int token_counter = 1;
-  while (token.t_type != TOKEN_EOF) {
 
-
-    if (token.t_type == TOKEN_UNDEF) {
-      return token.t_data.integer;
-    }
-
-    printf("token num %d type: %d\n", token_counter, token.t_type);
-    printf("token num %d data: %s\n", token_counter, token.t_data.ID.value);
-    printf("\n");
-
-    token_counter++;
-
-    token = getNextToken(&line_flag, &s,&s);
-  }
-*/
   stringDispose(&functionName);
   return result;
 }
-/*
-@
-*/
+
 int skipEol() {
   int result;
-  printf("SKIPPING EOL\n");
+  
   switch (token.t_type) {
   case TOKEN_EOL:
+    printf("SKIPPING EOL\n");
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = skipEol();
     break;
@@ -62,8 +44,8 @@ int skipEol() {
   return result;
 }
 
-// Program -> Telo_Programu EOF
 int program() {
+  // Program -> Telo_Programu EOF
   int result;
 
   printf("IN PROGRAM\n");
@@ -71,7 +53,7 @@ int program() {
   switch (token.t_type) {
   case TOKEN_EOL:
     result = skipEol();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
     break;
 
   case TOKEN_ID:
@@ -79,6 +61,11 @@ int program() {
   case TOKEN_WHILE:
   case TOKEN_IF:
   case TOKEN_PASS:
+  case TOKEN_LEFTPAR:
+  case TOKEN_INT:
+  case TOKEN_DOUBLE:
+  case TOKEN_STRING:
+  case TOKEN_NONE:
     //get into program body
     result = programBody();
     if (result != ERROR_CODE_OK) return result;
@@ -113,10 +100,10 @@ int programBody() {
   //Telo_programu -> Definice_funkce Telo_programu
   case TOKEN_DEF:
     result = functionDef();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
     result = programBody();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
+    if (result != ERROR_CODE_OK) return result;
 
    return ERROR_CODE_OK;
 
@@ -125,6 +112,11 @@ int programBody() {
   case TOKEN_PASS:
   case TOKEN_IF:
   case TOKEN_WHILE:
+  case TOKEN_INT:
+  case TOKEN_DOUBLE:
+  case TOKEN_STRING:
+  case TOKEN_LEFTPAR:
+  case TOKEN_NONE:
     result = command();
     if (result != ERROR_CODE_OK) return result;
 
@@ -142,9 +134,6 @@ int programBody() {
   }
 }
 
-/*
-
-*/
 int functionDef() {
 
   printf("IN FUNCTION DEF\n");
@@ -158,6 +147,7 @@ int functionDef() {
      if (result != ERROR_CODE_OK) return result;
 
      //todo symtable shit
+     
 
     //there has to be EOL
      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -166,17 +156,22 @@ int functionDef() {
        return ERROR_CODE_LEX;
      }
 
+     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    printf("token typ: %d", token.t_type);
     //hey there can be a lot of eols izi
     result = skipEol();
-    if (result != ERROR_CODE_OK) return ERROR_CODE_LEX;
-
+    if (result != ERROR_CODE_OK) return result;
+    
     //there has to be indent
-    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    //
+    
     if (token.t_type != TOKEN_INDENT) {
       return ERROR_CODE_LEX;
     }
-
+    
     //going deeper to function body
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
     result = functionBody();
     if (result != ERROR_CODE_OK) return result;
 
@@ -216,6 +211,8 @@ int functionHead() {
     }
     
     //function parametres
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
     result = functionParam();
     if (result != ERROR_CODE_OK) return result;
 
@@ -287,13 +284,18 @@ int nextFunctionParam() {
 
 int functionBody() {
   int result;
-  printf("IN FUNCTION BODY\n");
+  printf("IN FUNCTION BODY, token type: %d\n", token.t_type);
   switch (token.t_type) {
   case TOKEN_ID:
   case TOKEN_PASS:
   case TOKEN_WHILE:
   case TOKEN_IF:
   case TOKEN_RETURN:
+  case TOKEN_INT:
+  case TOKEN_DOUBLE:
+  case TOKEN_NONE:
+  case TOKEN_STRING:
+  case TOKEN_LEFTPAR:
   //Telo_funkce -> Prikaz Telo_funkce
   //todo lokalni tabulka symbolu?
     result = command();
@@ -304,6 +306,7 @@ int functionBody() {
     return ERROR_CODE_OK;
   
   case TOKEN_DEDENT:
+    printf("got dedent\n");
     return ERROR_CODE_OK;
   default:
     return ERROR_CODE_SYN;
@@ -318,49 +321,153 @@ int command() {
   int result;
   switch (token.t_type) {
   case TOKEN_IF:
-  //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
+    //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
+    //todo vyraz expression
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    printf("token type: %d\n", token.t_type);
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DOUBLEDOT) {
+      return ERROR_CODE_SYN;
+    }
+    printf("token type: %d\n", token.t_type);
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_EOL) {
+      return ERROR_CODE_SYN;
+    }
+    printf("token type: %d\n", token.t_type);
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_INDENT) {
+      return ERROR_CODE_SYN;
+    }
+    printf("token type: %d\n", token.t_type);
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     
+    result = commands();
+    if (result != ERROR_CODE_OK) {
+      return result;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DEDENT) {
+      return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_ELSE) {
+      return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DOUBLEDOT) {
+      return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_INDENT) {
+      return ERROR_CODE_SYN;
+    }
+    //
+
+    result = commands();
+    if (result != ERROR_CODE_OK) {
+      return result;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DEDENT) {
+      return ERROR_CODE_SYN;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+    return ERROR_CODE_OK;
+
   case TOKEN_WHILE:
-  //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
+    //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    //todo vyraz here
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DOUBLEDOT) return ERROR_CODE_SYN;
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_INDENT) return ERROR_CODE_SYN;
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    
+    result = commands();
+    if (result != ERROR_CODE_OK) {
+      return result;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_DEDENT) {
+      return ERROR_CODE_SYN;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+    return ERROR_CODE_OK;
 
   case TOKEN_PASS:
-  //Prikaz -> pass eol
+    //Prikaz -> pass eol
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    return ERROR_CODE_OK;
 
   case TOKEN_RETURN:
-  //Prikaz -> return Vyraz eol
-
-  case TOKEN_ID: ;
-  //have to check if its expression
-  token_type nextTokenType;
-  if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-  printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
-  //Prikaz -> Vyraz eol
-  switch (nextTokenType) {
-    //has to be operator
-    case TOKEN_ADDITION:
-    case TOKEN_SUBTRACTION:
-    case TOKEN_MULTIPLICATION:
-    case TOKEN_DIVISION:
-    case TOKEN_EQUAL_EQUAL:
-    case TOKEN_SMALLERTHEN:
-    case TOKEN_SMALLERTHEN_EQUAL:
-    case TOKEN_BIGGERTHEN:
-    case TOKEN_BIGGERTHEN_EQUAL:
-    case TOKEN_EOL:
-
-    //todo expression napojení (expression(token))
+    //Prikaz -> return Vyraz eol
+    //todo vyraz again lol
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     
-    return ERROR_CODE_SYN;
-  
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_EOL) {
+      return ERROR_CODE_SYN;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+    return ERROR_CODE_OK;
+  case TOKEN_ID: ;
+    //have to check if its expression
+    token_type nextTokenType;
+    if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
+    //Prikaz -> Vyraz eol
+    switch (nextTokenType) {
+      //has to be operator
+      case TOKEN_ADDITION:
+      case TOKEN_SUBTRACTION:
+      case TOKEN_MULTIPLICATION:
+      case TOKEN_DIVISION:
+      case TOKEN_EQUAL_EQUAL:
+      case TOKEN_SMALLERTHEN:
+      case TOKEN_SMALLERTHEN_EQUAL:
+      case TOKEN_BIGGERTHEN:
+      case TOKEN_BIGGERTHEN_EQUAL:
+      
+
+        //todo expression napojení (expression(token))
+        
+        return ERROR_CODE_SYN;
+      case TOKEN_EOL:
+        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+        return ERROR_CODE_OK;
+    
   case TOKEN_EQUAL:
     //Pokracovani_id -> = Pokracovani_id_next
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     result = continueID();
     if (result != ERROR_CODE_OK) return result;
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
     return ERROR_CODE_OK;
   default:
-    printf("default: NEXT TOKEN TYPE: %d", nextTokenType);
+    printf("default in command: NEXT TOKEN TYPE: %d", nextTokenType);
     return ERROR_CODE_SYN;
   }
 
@@ -369,10 +476,14 @@ int command() {
   case TOKEN_DOUBLE:
   case TOKEN_NONE:
   case TOKEN_LEFTPAR:
-  //this is expression 100%
-
-  //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
-  //todo expression
+    //this is expression 100%
+    //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
+    //todo expression
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+    return ERROR_CODE_OK;
   
   default:
     return ERROR_CODE_SYN;
@@ -421,6 +532,7 @@ int continueID() {
       if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       return ERROR_CODE_OK;
 
     default:
@@ -432,7 +544,6 @@ int continueID() {
   }
   return ERROR_CODE_SYN;
 }
-
 
 int terms() {
   printf("IN TERMS NOW\n");
@@ -480,6 +591,34 @@ int nextTerms() {
     return ERROR_CODE_OK;
   default:
     return ERROR_CODE_SYN;
+  }
+  return ERROR_CODE_SYN;
+}
+
+int commands() {
+  ERROR_CODE result;
+  switch (token.t_type) {
+    case TOKEN_ID:
+    case TOKEN_LEFTPAR:
+    case TOKEN_IF:
+    case TOKEN_WHILE:
+    case TOKEN_PASS:
+    case TOKEN_INT:
+    case TOKEN_DOUBLE:
+    case TOKEN_STRING:
+    case TOKEN_NONE:
+      //Sekvence_prikazu -> Prikaz Sekvence_prikazu
+      result = command();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+      return commands();
+
+    case TOKEN_DEDENT:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
   }
   return ERROR_CODE_SYN;
 }
