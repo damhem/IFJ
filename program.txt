@@ -1,7 +1,6 @@
 
 
 def foo(jedna, dva) :
-  yo = ahoj(jdjd,ddd)
   if sth :
     deeeed
     ddssd
@@ -22,7 +21,6 @@ def foo(jedna, dva) :
   lul
   while sth :
     prvni
-    druhy(ahoj, yo)
     treti
   return U
 
