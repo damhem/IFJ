@@ -14,6 +14,11 @@
 
 #include "error_code.h"
 #include "parser.h"
+#include "linear_list.h"
+#include "generator.h"
+#include "scanner.h"
+#include "string.h"
+#include "stack.h"
 
 int main() {
 
@@ -31,9 +36,12 @@ int main() {
     printf("%c", nextChar);
   }*/
 
+  DLInitList(&instrList);
+
   error_code = parse();
+  if (error_code == ERROR_CODE_OK) printInstructionList(&instrList);
 
-
+  DLDisposeList(&instrList);
   printf("return code: %d\n", error_code);
   return error_code;
 }

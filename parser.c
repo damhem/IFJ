@@ -479,24 +479,35 @@ ERROR_CODE command() {
           
           return ERROR_CODE_SYN;
         case TOKEN_EOL:
+          //i dont have to care or do I? this
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           return ERROR_CODE_OK;
       
         case TOKEN_EQUAL:
           //Pokracovani_id -> = Pokracovani_id_next
+          //jedna se o prizareni do promenne
+          //todo some symtable magic
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
-          return continueID();
+          //todo expression
+
+          return ERROR_CODE_OK;
+
+
         case TOKEN_LEFTPAR:
-          //just a function call (without actually var to assign to)
-          return continueID();
+          //just a function call (without actually var to assign to) - procedure
+          //return continueID();
+          //todo there has to start expression as well
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+          return ERROR_CODE_OK;
         default:
           printf("default in command: NEXT TOKEN TYPE: %d", nextTokenType);
           return ERROR_CODE_SYN;
       }
 
+    
     case TOKEN_STRING:
     case TOKEN_INT:
     case TOKEN_DOUBLE:
@@ -518,7 +529,7 @@ ERROR_CODE command() {
   }
   return ERROR_CODE_SYN;
 }
-
+/*
 ERROR_CODE continueID() {
 
   ERROR_CODE result;
@@ -637,6 +648,7 @@ ERROR_CODE nextTerms() {
   return ERROR_CODE_SYN;
 }
 
+*/
 ERROR_CODE commands() {
 
   ERROR_CODE result;

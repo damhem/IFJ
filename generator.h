@@ -1,3 +1,6 @@
+
+#ifndef IFJ_GENERATOR_H
+#define IFJ_GENERATOR_H
 /**
  * @brief IFJ / IAL project VUT FIT 2019
  * @file generator.h
@@ -6,13 +9,26 @@
 
 #include "string.h"
 
-//types of instructions
+#define STARTLABEL "$$start"
+#define TMP "GF@tmp"
+#define LABELSYMBOL "$"
+#define FRAMEGF "GF@"
+#define FRAMELF "LF@"
+#define FRAMETF "TF@"
+#define TYPEINT "int@"
+#define TYPEBOOL "bool@"
+#define TYPESTRING "string@"
+#define TYPEDOUBLE "float@"
 
+//types of instructions
 typedef enum {
+    START,
+    COMMENT,
+
     //prace s ramci, volani funkci
-    I_MOVE,             //var,symb
-    I_CREATEFRAME,
-    I_PUSHFRAME,
+    MOVE,             //var,symb
+    CREATEFRAME,
+    PUSHFRAME,
     POPFRAME,
     DEFVAR,           //var
     CALL,             //label
@@ -97,25 +113,13 @@ typedef enum {
 
 //struct for instruction
 typedef struct instruction {
-    inst_type instruction;
+    inst_type instructionType;
     void *adress1;
     void *adress2;
     void *adress3;
 } instruction;
 
-//instruction as part of the list
-typedef struct instruction_node {
-    instruction inst;
-    instruction_node *lptr;
-    instruction_node *rptr;
-} instruction_node;
 
-//instruction list
-typedef struct instruction_list {
-    instruction_node First;
-    instruction_node Actual;
-    instruction_node Last;
-} instruction_list;
 
 //struct for operand
 typedef struct operand {
@@ -128,7 +132,31 @@ typedef struct operand {
     //todo? inputtype?
 } operand ;
 
+//instruction as part of the list
+typedef struct instruction_node {
+    instruction inst;
+    struct instruction_node *lptr;
+    struct instruction_node *rptr;
+} *instruction_node;
+
+//instruction list
+typedef struct instruction_list {
+    instruction_node First;
+    instruction_node Actual;
+    instruction_node Last;
+} instruction_list;
+
 //declaration of three help vars for generating instruction
 operand operand1;
 operand operand2;
 operand operand3;
+
+
+void addInstruction(struct instruction_list *List, int instType, void *adress1, void *adress2, void *adress3);
+void noOperandInstr(struct instruction_list *List, inst_type type);
+operand initOperand(operand operand, string value, int type, frame frame, bool is_temp, bool is_label);
+void printInstructionList(instruction_list *List);
+void oneOperandInstr(instruction_list *List, int instType, operand first);
+void twoOperandInstr(instruction_list *L, int instType, operand first, operand second);
+void threeOperandInstr(instruction_list *L, int instType, operand first, operand second, operand third);
+#endif
