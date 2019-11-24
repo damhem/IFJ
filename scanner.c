@@ -213,8 +213,8 @@ Token getNextToken(bool *line_flag, tStack *s) {
                 }
                
                 if (spacecount==s_top || stackEmpty(s) != 0) {
-                   printf("spacecount: %d\n", spacecount);
-                   printf("stack_top: %d\n", s_top);
+                   //printf("spacecount: %d\n", spacecount);
+                   //printf("stack_top: %d\n", s_top);
                   token.t_type = TOKEN_DEDENT;
                   spacecount=0;
                   dentcount--;

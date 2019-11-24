@@ -5,11 +5,12 @@
 ERROR_CODE parse() {
   
   line_flag = true;
-  stackInit(&s);
   ERROR_CODE result;
   paramIndex = 0;
-  stringInit(&functionName);
   peekToken.t_type = TOKEN_UNDEF;  
+
+  stringInit(&functionName);
+  stackInit(&s);
 
   //get first token
   token = getNextToken(&line_flag, &s);
@@ -19,7 +20,9 @@ ERROR_CODE parse() {
     result = program();
   }
   
+
   stringDispose(&functionName);
+  stackClear(&s);
   return result;
 }
 
@@ -27,7 +30,7 @@ ERROR_CODE skipEol() {
   ERROR_CODE result;
   switch (token.t_type) {
     case TOKEN_EOL:
-      printf("SKIPPING EOL\n");
+      //printf("SKIPPING EOL\n");
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       return skipEol();
     default:
@@ -81,7 +84,7 @@ ERROR_CODE program() {
 ERROR_CODE programBody() {
   ERROR_CODE result;
 
-  printf("IN PROGRAM BODY\n");
+  //printf("IN PROGRAM BODY\n");
 
   switch (token.t_type) {
     
@@ -126,7 +129,7 @@ ERROR_CODE programBody() {
 
 ERROR_CODE functionDef() {
 
-  printf("IN FUNCTION DEF\n");
+  //printf("IN FUNCTION DEF\n");
 
   ERROR_CODE result;
 
@@ -183,7 +186,7 @@ ERROR_CODE functionHead() {
   
   ERROR_CODE result;
 
-  printf("IN FUNCTION HEAD\n");
+  //printf("IN FUNCTION HEAD\n");
 
   switch (token.t_type) {
     
@@ -230,7 +233,7 @@ ERROR_CODE functionHead() {
 
 ERROR_CODE functionParam() {
   ERROR_CODE result;
-  printf("IN FUNCTION PARAMS\n");
+  //printf("IN FUNCTION PARAMS\n");
 
   switch (token.t_type) {
     case TOKEN_ID:
@@ -258,7 +261,7 @@ ERROR_CODE functionParam() {
 
 ERROR_CODE nextFunctionParam() {
   //todo? result
-  printf("IN NEXT FUNCTION PARAM\n");
+  //printf("IN NEXT FUNCTION PARAM\n");
 
   switch (token.t_type) {
     case TOKEN_COMMA:
@@ -278,7 +281,7 @@ ERROR_CODE nextFunctionParam() {
 
 ERROR_CODE functionBody() {
   ERROR_CODE result;
-  printf("IN FUNCTION BODY, token type: %d\n", token.t_type);
+  //printf("IN FUNCTION BODY, token type: %d\n", token.t_type);
 
   switch (token.t_type) {
     case TOKEN_ID:
@@ -312,14 +315,14 @@ ERROR_CODE functionBody() {
 
 ERROR_CODE command() {
 
-  printf("IN COMMAND\n");
-  printf("token data to command: %s\n", token.t_data.ID.value);
+  //printf("IN COMMAND\n");
+  ////printf("token data to command: %s\n", token.t_data.ID.value);
 
   ERROR_CODE result;
 
   switch (token.t_type) {
     case TOKEN_IF:
-      printf("DOING IF\n");
+      ////printf("DOING IF\n");
       
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
@@ -382,21 +385,21 @@ ERROR_CODE command() {
       result = commands();
       if (result != ERROR_CODE_OK) {
         return result;
-        printf("returning ddddwith token: %d\n", token.t_type);
+        ////printf("returning ddddwith token: %d\n", token.t_type);
       }
-      printf("returnsssing with token: %d\n", token.t_type);
+      ////printf("returnsssing with token: %d\n", token.t_type);
 
       if (token.t_type != TOKEN_DEDENT) {
-        printf("returning with sstoken: %d\n", token.t_type);
+       // //printf("returning with sstoken: %d\n", token.t_type);
         return ERROR_CODE_SYN;
         
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      printf("returning wdddith token: %d\n", token.t_type);
+      ////printf("returning wdddith token: %d\n", token.t_type);
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      printf("returning with token: %d\n", token.t_type);
+      ////printf("returning with token: %d\n", token.t_type);
       return ERROR_CODE_OK;
 
     case TOKEN_WHILE:
@@ -460,7 +463,7 @@ ERROR_CODE command() {
       //have to check if its expression
       token_type nextTokenType;
       if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
+      ////printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
       //Prikaz -> Vyraz eol
 
       switch (nextTokenType) {
@@ -503,7 +506,7 @@ ERROR_CODE command() {
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           return ERROR_CODE_OK;
         default:
-          printf("default in command: NEXT TOKEN TYPE: %d", nextTokenType);
+          ////printf("default in command: NEXT TOKEN TYPE: %d", nextTokenType);
           return ERROR_CODE_SYN;
       }
 
@@ -513,10 +516,11 @@ ERROR_CODE command() {
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
     case TOKEN_LEFTPAR:
+    
       //this is expression 100%
       //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
       //todo expression
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
@@ -529,18 +533,20 @@ ERROR_CODE command() {
   }
   return ERROR_CODE_SYN;
 }
+
+
 /*
 ERROR_CODE continueID() {
 
   ERROR_CODE result;
-  printf("IN CONTINUE ID\n");
+  //printf("IN CONTINUE ID\n");
 
   switch (token.t_type) {
     case TOKEN_ID: ;
       //have to check if its expression
       token_type nextTokenType;
       if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
+      //printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
 
     switch (nextTokenType) {
       case TOKEN_ADDITION:
@@ -556,7 +562,7 @@ ERROR_CODE continueID() {
         //Pokracovani_id_next -> Vyraz eol
         //has to be operator
 
-        printf("WILL BE DOING EXPRESSION\n");
+        //printf("WILL BE DOING EXPRESSION\n");
         //todo expression napojení (expression(token))
 
         //todo eol token
@@ -590,7 +596,7 @@ ERROR_CODE continueID() {
 
 ERROR_CODE terms() {
 
-  printf("IN TERMS NOW\n");
+  //printf("IN TERMS NOW\n");
   ERROR_CODE result;
 
   switch (token.t_type) {
@@ -629,7 +635,7 @@ ERROR_CODE terms() {
 
 ERROR_CODE nextTerms() {
 
-  printf("IN NEXT TERMS:\n");
+  //printf("IN NEXT TERMS:\n");
   //todo? ERROR_CODE result;
 
   switch (token.t_type) {
@@ -652,8 +658,8 @@ ERROR_CODE nextTerms() {
 ERROR_CODE commands() {
 
   ERROR_CODE result;
-  printf("IN COMMANDS\n");
-  printf("returning with comm: %d\n", token.t_type);
+  //printf("IN COMMANDS\n");
+  //printf("returning with comm: %d\n", token.t_type);
 
   switch (token.t_type) {
     case TOKEN_ID:
