@@ -1,6 +1,4 @@
 #include "expression.h"
-#include "exp_stack.h"
-#include "stack.h"
 #include "string.h"
 #include "scanner.h"
 
@@ -26,33 +24,35 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 /*  $  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '$' },
 };
 
-int expression(Token token){/*,int expectedValue*/
+int expression(){/*,int expectedValue*/
     int result;
 
 
 
 
-    result=expressionAnalysis(&stack_expression,token);
+    result=expressionAnalysis(&stack_expression);
 
     exp_stackClear(&stack_expression);
     return result;
 }
 
-int expressionAnalysis(ptrStack *stack_expression,Token token){
+int expressionAnalysis(ptrStack *stack_expression){
     /*Exp_element element_on_stack;*/
     char sign = '_';
     while(1){
-          getSignFromTable();
+          sign = getSignFromTable();
           if(sign == '='){
               exp_stackPush(stack_expression,tokentoExp_element(token,false));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
+    
               if(stack_expression != NULL){
                    ((Exp_element*)stack_expression->top_of_stack->value)->handle = true;
               }
               exp_stackPush(stack_expression,tokentoExp_element(token,true));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '>'){
+              exp_stackPush(stack_expression, tokentoExp_element(token, false));
               if( ((Exp_element*)stack_expression->top_of_stack->value)->handle == true){
                   exp_stackPop(stack_expression);
               }
@@ -66,17 +66,20 @@ int expressionAnalysis(ptrStack *stack_expression,Token token){
 
 
           }else{
+              printf("dhdhhd\n");  
               return 2;
 
           }
     }
 }
 
-int getSignFromTable(){
+char getSignFromTable(){
     int a;
     int b;
     b = convertTokenToIndex(token);
     a = get_stack_type(&stack_expression);
+    printf("%d %d \n", a, b);
+    printf("%c \n", precedenceTable[a][b]);
     return precedenceTable[a][b];
 }
 
@@ -123,9 +126,9 @@ int convertTokenToIndex(Token token){
             return EXP_DIVIDE;
         case TOKEN_INTEGER_DIVISION:
             return EXP_INTEGER_DIVIDE;
-        case TOKEN_PLUS:
+        case TOKEN_ADDITION:
             return EXP_PLUS;
-        case TOKEN_MINUS:
+        case TOKEN_SUBTRACTION:
             return EXP_MINUS;
         case TOKEN_EQUAL:
             return EXP_EQUAL;
@@ -151,8 +154,9 @@ int convertTokenToIndex(Token token){
             return EXP_OPERAND;
         case TOKEN_STRING:
             return EXP_OPERAND;
-        /*case:
-            return EXP_DOLLAR;*/
+        case TOKEN_EOL:
+            return EXP_DOLLAR;
+
         default:
             return EXP_OTHER;
 
