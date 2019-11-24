@@ -76,6 +76,11 @@ Token getNextToken(bool *line_flag, tStack *s) {
           state = SCANNER_DENTCOUNT;
           spacecount++;
         }
+        else if (c == '0') {
+          *line_flag=false;
+          state = SCANNER_ZERO;
+          stringAddChar(&token.t_data.ID, c);
+        }
         else if (isdigit(c)) {
           *line_flag=false;
           state = SCANNER_NUMBER;
@@ -211,10 +216,8 @@ Token getNextToken(bool *line_flag, tStack *s) {
                   token.t_data.integer = ERROR_CODE_LEX;
                   return token;
                 }
-               
+
                 if (spacecount==s_top || stackEmpty(s) != 0) {
-                   //printf("spacecount: %d\n", spacecount);
-                   //printf("stack_top: %d\n", s_top);
                   token.t_type = TOKEN_DEDENT;
                   spacecount=0;
                   dentcount--;
@@ -224,24 +227,114 @@ Token getNextToken(bool *line_flag, tStack *s) {
             }
           }
           break;
-      case (SCANNER_NUMBER):
+        case (SCANNER_ZERO):
+          if (c == '0' || isdigit(c)) {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
+          }
+          else if (c == '.') {
+            state = SCANNER_DECIMAL_1;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else if (c == 'e' || c == 'E') {
+            state = SCANNER_EXPONENT_1;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            int temp;
+            sscanf(token.t_data.ID.value, "%d", &temp);
+            token.t_data.integer = temp;
+            token.t_type = TOKEN_INT;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_NUMBER):
+          if (isdigit(c)) {
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else if (c == '.') {
+            state = SCANNER_DECIMAL_1;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else if (c == 'e' || c == 'E') {
+            state = SCANNER_EXPONENT_1;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            int temp;
+            sscanf(token.t_data.ID.value, "%d", &temp);
+            token.t_data.integer = temp;
+            token.t_type = TOKEN_INT;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_DECIMAL_1):
+              if (isdigit(c)) {
+                state = SCANNER_DECIMAL_2;
+                stringAddChar(&token.t_data.ID, c);
+              }
+              else {
+                token.t_type = TOKEN_UNDEF;
+                token.t_data.integer = ERROR_CODE_LEX;
+                return token;
+              }
+            break;
+        case (SCANNER_DECIMAL_2):
+              if (isdigit(c)) {
+                stringAddChar(&token.t_data.ID, c);
+              }
+              else if (c == 'e' || c == 'E') {
+                state = SCANNER_EXPONENT_1;
+                stringAddChar(&token.t_data.ID, c);
+              }
+              else {
+              double temp = atof(token.t_data.ID.value);
+              token.t_data.decimal=temp;
+              token.t_type = TOKEN_DOUBLE;
+              ungetc(c, stdin);
+        return token;
+        }
+        break;
+      case (SCANNER_EXPONENT_1):
         if (isdigit(c)) {
+          state = SCANNER_EXPONENT_3;
           stringAddChar(&token.t_data.ID, c);
         }
-        else if (c == '.') {
-          state = SCANNER_DECIMAL;
+        else if (c == '-') {
+          state = SCANNER_EXPONENT_2;
           stringAddChar(&token.t_data.ID, c);
         }
-        else if (c == 'e' || c == 'E') {
-          state = SCANNER_EXPONENT_1;
+        else if ( c == '+') {
+          state = SCANNER_EXPONENT_2;
+        }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
+        break;
+      case (SCANNER_EXPONENT_2):
+        if (isdigit(c)) {
+          state = SCANNER_EXPONENT_3;
           stringAddChar(&token.t_data.ID, c);
         }
         else {
-          //přidání rozdělení na INT a DOUBLE, přidání čísla do data.int data.decimal atd...
-          int temp;
-          sscanf(token.t_data.ID.value, "%d", &temp);
-          token.t_data.integer=temp;
-          token.t_type = TOKEN_INT;
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
+        break;
+      case (SCANNER_EXPONENT_3):
+        if (isdigit(c)) {
+                stringAddChar(&token.t_data.ID, c);
+        }
+        else {
+          double temp = atof(token.t_data.ID.value);
+          token.t_data.decimal=temp;
+          token.t_type = TOKEN_DOUBLE;
           ungetc(c, stdin);
           return token;
         }
