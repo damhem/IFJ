@@ -14,6 +14,7 @@ void DLInitList(instruction_list *List) {
     addInstruction(List, DEFVAR, "GF@tmp_type2", NULL, NULL);
     addInstruction(List, JUMP, "$$start", NULL, NULL);
     
+    //todo vestavene funkce
     //writeLength();
     //addInstruction(L, I_COMMENT, "-------------------ASC--------------------", NULL, NULL);
     //writeAsc();
