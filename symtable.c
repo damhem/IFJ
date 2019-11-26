@@ -1,3 +1,4 @@
+
 #include "symtable.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,51 +12,52 @@ tBSTNodePtr BSTSearch (tBSTNodePtr RootPtr, char* K)	{
 	if (RootPtr == NULL) {
 		return NULL;
 	}
-
-	else if (RootPtr->Key == K) {
+	else if (strcmp(K, RootPtr->Key.value) > 0) {
+        return BSTSearch(RootPtr->rPtr, K);
+	}
+	else if (strcmp(K, RootPtr->Key.value) < 0) {
+		return BSTSearch(RootPtr->lPtr, K);
+	} 
+	else {
 		return RootPtr;
 	}
-
-	else if (RootPtr->Key < K) {
-		return BSTSearch(RootPtr->rPtr, K);
-	}
-
-	return BSTSearch(RootPtr->lPtr, K);
 }
 ///////////////////////////////////////////////////////////////////////////
-void BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, int vartype, bool declared, int paramnum) {
+ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, int vartype, bool declared, int paramnum) {
+	ERROR_CODE result = ERROR_CODE_OK;
 	if (*RootPtr == NULL) {
-		*RootPtr = malloc(sizeof( **RootPtr));
-	  	if(*RootPtr == NULL) {
-	    	exit(1); //malloc nesehnal dost paměti
+	  	if((((*RootPtr) = (tBSTNodePtr) malloc(sizeof(struct tBSTNode))) == NULL)) {
+	    	result = ERROR_CODE_INTERNAL; //malloc nesehnal dost paměti
+			return result;
 		}
 	  	(*RootPtr)->lPtr = NULL;
 	  	(*RootPtr)->rPtr = NULL;
-		  (*RootPtr)->Key = K;
+		stringAddChars(&(*RootPtr)->Key, K);
 			(*RootPtr)->DataType = type;
 	  	(*RootPtr)->VarType = vartype;
 			(*RootPtr)->declared = declared;
 			(*RootPtr)->parametrs = paramnum;
-		return;
+		return result;
 	}
 
-	else if ((*RootPtr)->Key == K) {
+	else if ((*RootPtr)->Key.value == K) {
 		(*RootPtr)->DataType = type;
 		(*RootPtr)->VarType = vartype;
 		(*RootPtr)->declared = declared;
 		(*RootPtr)->parametrs = paramnum;
-		return;
+		return result;
 	}
 
-	else if ((*RootPtr)->Key < K) {
-		BSTInsert(&(*RootPtr)->rPtr, K, type, vartype, declared, paramnum);
-		return;
+	else if (strcmp(K, (*RootPtr)->Key.value) < 0) {
+		result = BSTInsert(&(*RootPtr)->lPtr, K, type, vartype, declared, paramnum);
+		return result;
 	}
 
-	else if ((*RootPtr)->Key > K) {
-		BSTInsert(&(*RootPtr)->lPtr, K, type, vartype, declared, paramnum);
-		return;
+	else if (strcmp(K, (*RootPtr)->Key.value) > 0) {
+		result = BSTInsert(&(*RootPtr)->rPtr, K, type, vartype, declared, paramnum);
+		return result;
 	}
+	return ERROR_CODE_SEM_OTHER;
 }
 ///////////////////////////////////////////////////////////////////////////
 void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
@@ -85,7 +87,7 @@ void BSTDelete (tBSTNodePtr *RootPtr, char* K) {
         return ;
 	}
 
-	else if ((*RootPtr)->Key == K) {
+	else if ((*RootPtr)->Key.value == K) {
 		tBSTNodePtr reserve = *RootPtr;
 		if ((*RootPtr)->rPtr == NULL) {
 			*RootPtr = reserve->lPtr;
@@ -101,11 +103,11 @@ void BSTDelete (tBSTNodePtr *RootPtr, char* K) {
 		}
 	}
 
-	else if ((*RootPtr)->Key < K) {
+	else if (strcmp(K, (*RootPtr)->Key.value) > 0) {
 		BSTDelete(&(*RootPtr)->rPtr, K);
 	}
 
-	else if ((*RootPtr)->Key > K) {
+	else if (strcmp(K, (*RootPtr)->Key.value) < 0) {
 		BSTDelete(&(*RootPtr)->lPtr, K);
 	}
 }
@@ -121,20 +123,45 @@ void BSTDispose (tBSTNodePtr *RootPtr) {
 		*RootPtr = NULL;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /////        FUNKCE PRO SYMTABLE         //////////////////////////////
 
 void symTableInit(symtable* symtable) {
   BSTInit(&(symtable->root));
 }
 
-void symTableInsert(symtable* Table, string Key, bool isfunction) {
-//pro teďkonc, type 1 je funkce a 0 je proměnná
-if (isfunction) {
-	BSTInsert(&(Table->root), Key.value, Function, -1, false, -1);
-	return;
+ERROR_CODE symTableInsert(symtable* Table, string Key, bool isfunction) {
+	ERROR_CODE result;
+	//pro teďkonc, type 1 je funkce a 0 je proměnná
+	if (isfunction) {
+	result = BSTInsert(&(Table->root), Key.value, Function, -1, false, -1);
+	return result;
 	}
-BSTInsert(&(Table->root), Key.value, Variable, -1, false, -1);
-
+	result = BSTInsert(&(Table->root), Key.value, Variable, -1, false, -1);
+	return result;
 }
 
 tBSTNodePtr symTableSearch(symtable* Table, string Key) { // vraci ukazatel na hledany uzel, pokud nenajde vraci NULL

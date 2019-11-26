@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "string.h"
+#include "error_code.h"
 
 typedef enum {
     Variable,
@@ -10,7 +11,7 @@ typedef enum {
 } NodeType;
 
 typedef struct tBSTNode {
-    char* Key;
+    string Key;
     NodeType DataType;
     int VarType;
     bool declared;
@@ -27,8 +28,14 @@ typedef struct symtable {
 
 void BSTInit   (tBSTNodePtr *);
 tBSTNodePtr BSTSearch (tBSTNodePtr, char*);
-void BSTInsert (tBSTNodePtr *, char*, NodeType, int, bool, int);
+ERROR_CODE BSTInsert (tBSTNodePtr *, char*, NodeType, int, bool, int);
 void BSTDelete (tBSTNodePtr *, char*);
 void BSTDispose(tBSTNodePtr *);
+
+void symTableInit(symtable* symtable);
+ERROR_CODE symTableInsert(symtable* Table, string Key, bool isfunction);
+tBSTNodePtr symTableSearch(symtable* Table, string Key);
+void symTableDelete(symtable* Table, string Key);
+void symTableDispose(symtable* Table);
 
 #endif

@@ -4,14 +4,16 @@
 
 
 ERROR_CODE parse() {
+  
+  ERROR_CODE result;
 
   line_flag = true;
   paramIndex = 0;
   peekToken.t_type = TOKEN_UNDEF;
 
-  ERROR_CODE result;
-
+  //initialize structures
   stackInit(&s);
+  symTableInit(&glSymtable);
   initexpressionStack(&stack_expression);
   stringInit(&functionName);
 
@@ -23,10 +25,12 @@ ERROR_CODE parse() {
     result = program();
   }
   
-
+  //free memory
   stringDispose(&functionName);
   exp_stackClear(&stack_expression);
   stackClear(&s);
+  symTableDispose(&glSymtable);
+
   return result;
 }
 
@@ -201,9 +205,19 @@ ERROR_CODE functionHead() {
         return ERROR_CODE_SYN;
       }
 
-      //todo check id of function (maybe its already declared by our program or sth)
+      // check id of function (maybe its already declared by our program or sth)
       stringAddChars(&functionName, token.t_data.ID.value);
-
+      tBSTNodePtr helper;
+      if ((helper = symTableSearch(&glSymtable, functionName)) != NULL) {
+        //todo definition
+        //if (helper->)
+        printf("uz byla vytvorena takova funkce\n");
+        return ERROR_CODE_SEM;
+      }
+      else {
+        symTableInsert(&glSymtable, functionName, true);
+      }
+      
 
       //there has to be (
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;

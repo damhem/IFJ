@@ -10,6 +10,7 @@
 #include "exp_stack.h"
 #include "generator.h"
 #include "linear_list.h"
+#include "symtable.h"
 
 #include <stdbool.h>
 
@@ -30,6 +31,9 @@ string functionName;
 
 //index counter for params in function
 int paramIndex;
+
+//global symtable
+symtable glSymtable;
 
 //instruction list
 instruction_list instrList;
