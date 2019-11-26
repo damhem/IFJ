@@ -7,6 +7,7 @@
 #include "scanner.h"
 #include "string.h"
 #include "expression.h"
+#include "exp_stack.h"
 #include "generator.h"
 #include "linear_list.h"
 

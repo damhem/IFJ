@@ -530,6 +530,8 @@ ERROR_CODE command() {
       //todo expression
       //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
+      expression(token);
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
 

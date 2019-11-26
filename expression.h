@@ -5,7 +5,6 @@
 #include "scanner.h"
 #include "exp_stack.h"
 #include "stack.h"
-#include "exp_stack.h"
 #include "error_code.h"
 #include "string.h"
 #include "symtable.h"
@@ -41,11 +40,12 @@ typedef enum {
 typedef struct exp_element{
     exp_type type;
     bool handle;    //Handle pro pomoc při redukci stacku
+    /*bool terminal;*/
 }Exp_element;
 
-int expression(Token token); /*,int expectedValue*/
-int expressionAnalysis(ptrStack *stack_expression,Token token);
-int getSignFromTable();
+int expression(); /*,int expectedValue*/
+int expressionAnalysis(ptrStack *stack_expression);
+char getSignFromTable();
 int initexpressionStack(ptrStack*);
 Exp_element *newElement(int type,bool handle);
 int get_stack_type(ptrStack *stack_expression);
