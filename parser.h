@@ -6,7 +6,8 @@
 #include "error_code.h"
 #include "scanner.h"
 #include "string.h"
-
+#include "expression.h"
+#include "exp_stack.h"
 #include "generator.h"
 #include "linear_list.h"
 
@@ -20,7 +21,7 @@ Token peekToken;
 
 //scanner stack
 tStack s;
-
+ptrStack stack_expression;
 //line variable for scanner
 bool line_flag;
 
