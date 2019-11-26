@@ -2,12 +2,18 @@
 #include "parser.h"
 #include "stack.h"
 
+
 ERROR_CODE parse() {
-  
+
   line_flag = true;
+
+  stackInit(&s);
+  initexpressionStack(&stack_expression);
   ERROR_CODE result;
   paramIndex = 0;
-  peekToken.t_type = TOKEN_UNDEF;  
+  stringInit(&functionName);
+  peekToken.t_type = TOKEN_UNDEF;
+
 
   stringInit(&functionName);
   stackInit(&s);
@@ -41,7 +47,7 @@ ERROR_CODE skipEol() {
 
 ERROR_CODE program() {
   // Program -> Telo_Programu EOF
-  
+
   ERROR_CODE result = skipEol();
       if (result != ERROR_CODE_OK) return result;
 
@@ -87,7 +93,7 @@ ERROR_CODE programBody() {
   //printf("IN PROGRAM BODY\n");
 
   switch (token.t_type) {
-    
+
     case TOKEN_DEF:
       //Telo_programu -> Definice_funkce Telo_programu
       result = functionDef();
@@ -97,7 +103,7 @@ ERROR_CODE programBody() {
       if (result != ERROR_CODE_OK) return result;
 
       return programBody();
-    
+
     case TOKEN_ID:
     case TOKEN_PASS:
     case TOKEN_IF:
@@ -134,17 +140,17 @@ ERROR_CODE functionDef() {
   ERROR_CODE result;
 
   switch (token.t_type) {
-    
+
     case TOKEN_DEF:
       //Definice_funkce -> Hlavicka_funkce eol indent Telo_funkce dedent
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
       //todo zapis instrukce?
-      
+
 
       //todo symtable shit
-      
+
 
       //there has to be EOL
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -153,7 +159,7 @@ ERROR_CODE functionDef() {
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      
+
       //there has to be indent
       if (token.t_type != TOKEN_INDENT) {
         return ERROR_CODE_SYN;
@@ -163,7 +169,7 @@ ERROR_CODE functionDef() {
       //hey there can be a lot of eols izi
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      
+
       //going deeper to function body
       result = functionBody();
       if (result != ERROR_CODE_OK) return result;
@@ -175,7 +181,7 @@ ERROR_CODE functionDef() {
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       return ERROR_CODE_OK;
-    
+
     default:
       return ERROR_CODE_SYN;
     }
@@ -183,13 +189,13 @@ ERROR_CODE functionDef() {
 }
 
 ERROR_CODE functionHead() {
-  
+
   ERROR_CODE result;
 
   //printf("IN FUNCTION HEAD\n");
 
   switch (token.t_type) {
-    
+
     case TOKEN_DEF:
       //Hlavicka_funkce -> def id ( Parametry ) :
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -205,7 +211,7 @@ ERROR_CODE functionHead() {
       if (token.t_type != TOKEN_LEFTPAR) {
         return ERROR_CODE_SYN;
       }
-      
+
       //function parametres
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
@@ -240,7 +246,7 @@ ERROR_CODE functionParam() {
 
       //Parametry -> id Dalsi_parametr
       //todo vytvořit string na paramname a práce se symtable
-      
+
       paramIndex++;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -269,7 +275,7 @@ ERROR_CODE nextFunctionParam() {
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
       return functionParam();
-    
+
     case TOKEN_RIGHTPAR:
       //Dalsi_parametr -> eps
       return ERROR_CODE_OK;
@@ -296,7 +302,7 @@ ERROR_CODE functionBody() {
     case TOKEN_LEFTPAR:
       //Telo_funkce -> Prikaz Telo_funkce
       //todo lokalni tabulka symbolu?
-      
+
       result = command();
       if (result != ERROR_CODE_OK) return result;
 
@@ -304,7 +310,7 @@ ERROR_CODE functionBody() {
       if (result != ERROR_CODE_OK) return result;
 
       return functionBody();
-    
+
     case TOKEN_DEDENT:
       return ERROR_CODE_OK;
     default:
@@ -322,8 +328,10 @@ ERROR_CODE command() {
 
   switch (token.t_type) {
     case TOKEN_IF:
+
       ////printf("DOING IF\n");
       
+
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
 
@@ -392,7 +400,7 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_DEDENT) {
        // //printf("returning with sstoken: %d\n", token.t_type);
         return ERROR_CODE_SYN;
-        
+
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -420,7 +428,7 @@ ERROR_CODE command() {
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      
+
       result = commands();
       if (result != ERROR_CODE_OK) {
         return result;
@@ -449,7 +457,7 @@ ERROR_CODE command() {
       //Prikaz -> return Vyraz eol
       //todo vyraz again lol
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
@@ -479,14 +487,14 @@ ERROR_CODE command() {
           //has to be operator
 
           //todo expression napojení (expression(token))
-          
+
           return ERROR_CODE_SYN;
         case TOKEN_EOL:
           //i dont have to care or do I? this
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
           return ERROR_CODE_OK;
-      
+
         case TOKEN_EQUAL:
           //Pokracovani_id -> = Pokracovani_id_next
           //jedna se o prizareni do promenne
@@ -510,7 +518,7 @@ ERROR_CODE command() {
           return ERROR_CODE_SYN;
       }
 
-    
+
     case TOKEN_STRING:
     case TOKEN_INT:
     case TOKEN_DOUBLE:
@@ -521,6 +529,8 @@ ERROR_CODE command() {
       //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
       //todo expression
       //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+      expression(token);
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
@@ -566,14 +576,14 @@ ERROR_CODE continueID() {
         //todo expression napojení (expression(token))
 
         //todo eol token
-      
+
         return ERROR_CODE_SYN;
 
       case TOKEN_LEFTPAR:
         //Pokracovani_id_next -> id ( Termy ) eol
         if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
         if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-        
+
         result = terms();
         if (result != ERROR_CODE_OK) return result;
 
