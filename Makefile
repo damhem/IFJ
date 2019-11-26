@@ -7,4 +7,4 @@ RM=rm -f
 all : $(PROJ)
 
 $(PROJ) : $(FILES)
-		$(CC) $(CFLAGS) -o $(PROJ) $(FILES) -lm
+		$(CC) -g $(CFLAGS) -o $(PROJ) $(FILES) -lm

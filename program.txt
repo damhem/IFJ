@@ -27,3 +27,12 @@ def foo(jedna, dva) :
     
   return U
 
+def sss(rrj, ccol, ssss, cc) :
+  return o
+
+def dfhsdfh() :
+  return o
+
+def fooo(hdfd, ff) :
+    print
+    return OO

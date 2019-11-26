@@ -1,8 +1,6 @@
 
 #include "symtable.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
 
 void BSTInit (tBSTNodePtr *RootPtr) {
 	*RootPtr = NULL;
@@ -35,7 +33,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, int vartype,
 		stringAddChars(&(*RootPtr)->Key, K);
 			(*RootPtr)->DataType = type;
 	  	(*RootPtr)->VarType = vartype;
-			(*RootPtr)->declared = declared;
+			(*RootPtr)->defined = declared;
 			(*RootPtr)->parametrs = paramnum;
 		return result;
 	}
@@ -43,7 +41,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, int vartype,
 	else if ((*RootPtr)->Key.value == K) {
 		(*RootPtr)->DataType = type;
 		(*RootPtr)->VarType = vartype;
-		(*RootPtr)->declared = declared;
+		(*RootPtr)->defined = declared;
 		(*RootPtr)->parametrs = paramnum;
 		return result;
 	}
@@ -58,6 +56,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, int vartype,
 		return result;
 	}
 	return ERROR_CODE_SEM_OTHER;
+
 }
 ///////////////////////////////////////////////////////////////////////////
 void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
@@ -67,7 +66,7 @@ void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
 	else if ((*RootPtr)->rPtr == NULL) {
     	PtrReplaced->DataType = (*RootPtr)->DataType;
 		PtrReplaced->VarType = (*RootPtr)->VarType;
-		PtrReplaced->declared = (*RootPtr)->declared;
+		PtrReplaced->defined = (*RootPtr)->defined;
 		PtrReplaced->parametrs = (*RootPtr)->parametrs;
 
     PtrReplaced->Key = (*RootPtr)->Key;

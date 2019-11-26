@@ -35,6 +35,7 @@ int main() {
   error_code = parse();
   if (error_code == ERROR_CODE_OK) printInstructionList(&instrList);
 
+  fclose(fp);
   DLDisposeList(&instrList);
   printf("return code: %d\n", error_code);
   return error_code;
