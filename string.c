@@ -1,7 +1,6 @@
 /*
   @brief Working with string structures.
   @file string.c
-  @author Daniel Pátek (xpatek08)
 
 ... ?
 */

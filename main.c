@@ -30,12 +30,6 @@ int main() {
       return EXIT_FAILURE;
   }
 
-  // make sure the program is there
-  /*char nextChar;
-  while ((nextChar = getc(stdin)) != EOF)  {
-    printf("%c", nextChar);
-  }*/
-
   DLInitList(&instrList);
 
   error_code = parse();

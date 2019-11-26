@@ -6,17 +6,14 @@
 ERROR_CODE parse() {
 
   line_flag = true;
+  paramIndex = 0;
+  peekToken.t_type = TOKEN_UNDEF;
+
+  ERROR_CODE result;
 
   stackInit(&s);
   initexpressionStack(&stack_expression);
-  ERROR_CODE result;
-  paramIndex = 0;
   stringInit(&functionName);
-  peekToken.t_type = TOKEN_UNDEF;
-
-
-  stringInit(&functionName);
-  stackInit(&s);
 
   //get first token
   token = getNextToken(&line_flag, &s);
@@ -28,6 +25,7 @@ ERROR_CODE parse() {
   
 
   stringDispose(&functionName);
+  exp_stackClear(&stack_expression);
   stackClear(&s);
   return result;
 }
@@ -206,6 +204,7 @@ ERROR_CODE functionHead() {
       //todo check id of function (maybe its already declared by our program or sth)
       stringAddChars(&functionName, token.t_data.ID.value);
 
+
       //there has to be (
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_LEFTPAR) {
@@ -246,8 +245,12 @@ ERROR_CODE functionParam() {
 
       //Parametry -> id Dalsi_parametr
       //todo vytvořit string na paramname a práce se symtable
+      //symtable search()
+
 
       paramIndex++;
+
+      //symtabele addparametre()
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
@@ -267,12 +270,13 @@ ERROR_CODE functionParam() {
 
 ERROR_CODE nextFunctionParam() {
   //todo? result
-  //printf("IN NEXT FUNCTION PARAM\n");
 
   switch (token.t_type) {
     case TOKEN_COMMA:
       //Dalsi_parametr -> , Parametry
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+
+      if (token.t_type == TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
 
       return functionParam();
 
@@ -322,7 +326,7 @@ ERROR_CODE functionBody() {
 ERROR_CODE command() {
 
   //printf("IN COMMAND\n");
-  ////printf("token data to command: %s\n", token.t_data.ID.value);
+  //printf("token data to command: %s\n", token.t_data.ID.value);
 
   ERROR_CODE result;
 
@@ -530,9 +534,10 @@ ERROR_CODE command() {
       //todo expression
       //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
 
-      expression(token);
+      //result = expression();
+      //if (result != ERROR_CODE_OK) return result;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
+      //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return ERROR_CODE_LEX;

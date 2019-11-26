@@ -161,11 +161,8 @@ int convertTokenToIndex(Token token){
             return EXP_OPERAND;
         case TOKEN_EOL:
             return EXP_DOLLAR;
-
         default:
             return EXP_OTHER;
-
-
     }
 }
 /*

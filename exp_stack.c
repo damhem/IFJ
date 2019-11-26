@@ -12,12 +12,6 @@ bool exp_stackEmpty (ptrStack* stack ) {
     return (stack->top_of_stack == NULL);
 }
 
-/*
-// vrátí vrchní token na zásobníku
-tToken STop (ptrStack* stack) {
-    return (stack->top_of_stack->value);
-}*/
-
 // Uvolní vrchní prvek ze zásobníku
 bool exp_stackPop (ptrStack* stack ) {
     ptStack *tmp = NULL;

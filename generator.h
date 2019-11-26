@@ -130,7 +130,7 @@ typedef struct operand {
     bool is_label;
     //todo? isscope
     //todo? inputtype?
-} operand ;
+} operand;
 
 //instruction as part of the list
 typedef struct instruction_node {
