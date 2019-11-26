@@ -2,7 +2,7 @@
 def foo(jedna, dva) :
   if sth :
     deeeed
-    5+*5
+    5 + 5
     ddssd
     25868646
     if sthn :

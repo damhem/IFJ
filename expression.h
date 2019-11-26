@@ -40,7 +40,6 @@ typedef enum {
 typedef struct exp_element{
     exp_type type;
     bool handle;    //Handle pro pomoc při redukci stacku
-    /*bool terminal;*/
 }Exp_element;
 
 int expression(); /*,int expectedValue*/

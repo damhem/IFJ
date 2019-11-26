@@ -59,6 +59,7 @@ int expressionAnalysis(ptrStack *stack_expression){
                   exp_stackPop(stack_expression);
                   exp_stackPop(stack_expression);
                   if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
               }
           }else if(sign == '$'){
 
@@ -66,7 +67,8 @@ int expressionAnalysis(ptrStack *stack_expression){
 
 
           }else{
-              printf("dhdhhd\n");
+              printf("dhdhhd\n");  
+
               return 2;
 
           }
@@ -99,7 +101,8 @@ int initexpressionStack(ptrStack *stack_expression){
     return 0 ;
 }
 
-Exp_element *newElement(int type,bool handle){ /* ,bool terminal*/
+
+Exp_element *newElement(int type,bool handle){
   Exp_element *new_element = malloc(sizeof(struct exp_element));
 
   //Inicializace noveho elementu
@@ -107,6 +110,7 @@ Exp_element *newElement(int type,bool handle){ /* ,bool terminal*/
       new_element->type = type;
       new_element->handle = handle;
       /*new_element->terminal = terminal;*/
+
       return new_element;
   }
   else return NULL;
