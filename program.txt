@@ -11,7 +11,7 @@ def foo(jedna, dva) :
         jghgh
         if jjd :
           hfhfhf
-          
+
           djdjjd
         else:
           jfj
@@ -22,9 +22,8 @@ def foo(jedna, dva) :
     dwa
   lul
   while sth :
-    
+
     prvni
     treti
-    
-  return U
 
+  return U
