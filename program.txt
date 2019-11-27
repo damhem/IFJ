@@ -1,6 +1,6 @@
 def foo(jedna, dva) :
   if sth :
-    deeeed
+    deeeed = kkk
     ddssd
     
     

@@ -32,6 +32,7 @@ ERROR_CODE parse() {
   exp_stackClear(&stack_expression);
   stackClear(&s);
   symTableDispose(&glSymtable);
+  symTableDispose(&lcSymtable);
 
   return result;
 }
@@ -40,7 +41,6 @@ ERROR_CODE skipEol() {
   ERROR_CODE result;
   switch (token.t_type) {
     case TOKEN_EOL:
-      //printf("SKIPPING EOL\n");
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       return skipEol();
     default:
@@ -174,6 +174,21 @@ ERROR_CODE functionDef() {
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
 
+      //create local symtable
+      symTableInit(&lcSymtable);
+
+      //set global symtable to pointer
+      tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
+      if (helper == NULL) {
+        return ERROR_CODE_SEM_OTHER;
+      }
+      else {
+        //now we have to add paramnames to local symtable
+        for (int i = 0; i < helper->parametrs; i++) {
+          symTableInsert(&lcSymtable, helper->paramName[i], false);
+        }
+      }
+
       //going deeper to function body
       result = functionBody();
       if (result != ERROR_CODE_OK) return result;
@@ -188,8 +203,6 @@ ERROR_CODE functionDef() {
 
       //clear paramIndex
       paramIndex = 0;
-
-
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       return ERROR_CODE_OK;
 
@@ -373,7 +386,6 @@ ERROR_CODE nextFunctionParam() {
 
 ERROR_CODE functionBody() {
   ERROR_CODE result;
-  //printf("IN FUNCTION BODY, token type: %d\n", token.t_type);
 
   switch (token.t_type) {
     case TOKEN_ID:
@@ -387,7 +399,8 @@ ERROR_CODE functionBody() {
     case TOKEN_STRING:
     case TOKEN_LEFTPAR:
       //Telo_funkce -> Prikaz Telo_funkce
-      //todo lokalni tabulka symbolu?
+
+      //todo? some var infunction
 
       result = command();
       if (result != ERROR_CODE_OK) return result;
@@ -407,16 +420,9 @@ ERROR_CODE functionBody() {
 
 ERROR_CODE command() {
 
-  //printf("IN COMMAND\n");
-  //printf("token data to command: %s\n", token.t_data.ID.value);
-
   ERROR_CODE result;
 
   switch (token.t_type) {
-    case TOKEN_IF:
-
-      ////printf("DOING IF\n");
-
 
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
@@ -557,9 +563,8 @@ ERROR_CODE command() {
       //have to check if its expression
       token_type nextTokenType;
       if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      ////printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
-      //Prikaz -> Vyraz eol
 
+      //Prikaz -> Vyraz eol
       switch (nextTokenType) {
         case TOKEN_ADDITION:
         case TOKEN_SUBTRACTION:
@@ -584,10 +589,31 @@ ERROR_CODE command() {
         case TOKEN_EQUAL:
           //Pokracovani_id -> = Pokracovani_id_next
           //jedna se o prizareni do promenne
-          //todo some symtable magic
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          
+          //have to update symtable
+          if (functionName.length == 0) {
+            //now im in main program -> looking into global symtable
+            //make sure that this var is not in table
+            if (symTableSearch(&glSymtable, token.t_data.ID) == NULL) {
+              symTableInsert(&glSymtable, token.t_data.ID, false);
+            }
+          }
+          else {
+            //now im in function -> looking into local symtable
+            //make sure that this var is not in the table already
+            if (symTableSearch(&lcSymtable, token.t_data.ID) == NULL) {
+              symTableInsert(&lcSymtable, token.t_data.ID, false);
+            }
+          }
 
+          //todo? some expected value?
+
+          //take the = from stdin
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          
+          //now we are sure that there has to be expression after =
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          
           //todo expression
 
           return ERROR_CODE_OK;
@@ -595,15 +621,14 @@ ERROR_CODE command() {
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
-          //return continueID();
+          
+
           //todo there has to start expression as well
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           return ERROR_CODE_OK;
         default:
-          ////printf("default in command: NEXT TOKEN TYPE: %d", nextTokenType);
           return ERROR_CODE_SYN;
       }
-
 
     case TOKEN_STRING:
     case TOKEN_INT:
@@ -611,20 +636,24 @@ ERROR_CODE command() {
     case TOKEN_NONE:
     case TOKEN_LEFTPAR:
 
-      //this is expression 100%
-      //todo Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
-      //todo expression
-      //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
+
+      //wtf
+      //can we do sth with this?
+      //while (token.t_type != TOKEN_EOL) {
+      //  if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      //}
+
 
       //result = expression();
       //if (result != ERROR_CODE_OK) return result;
 
-      //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+      //if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       return ERROR_CODE_OK;
+
     default:
       return ERROR_CODE_SYN;
   }
@@ -755,8 +784,6 @@ ERROR_CODE nextTerms() {
 ERROR_CODE commands() {
 
   ERROR_CODE result;
-  //printf("IN COMMANDS\n");
-  //printf("returning with comm: %d\n", token.t_type);
 
   switch (token.t_type) {
     case TOKEN_ID:
