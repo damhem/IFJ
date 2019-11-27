@@ -1,10 +1,12 @@
 #include "exp_stack.h"
-unsigned int deletedItems = 0;
-unsigned int stackSize = 0;
 
 // Inicializuje zásobník
-void exp_stackInit (ptrStack* stack) {
+ERROR_CODE exp_stackInit (ptrStack* stack) {
     stack->top_of_stack = NULL;
+
+    int type = EXP_DOLLAR;
+    Exp_element *new_element = newElement(type,false);
+    return exp_stackPush(stack, new_element);
 }
 
 // vrátí true pokud je zásobník prázdný
@@ -13,29 +15,27 @@ bool exp_stackEmpty (ptrStack* stack ) {
 }
 
 // Uvolní vrchní prvek ze zásobníku
-bool exp_stackPop (ptrStack* stack ) {
+void exp_stackPop (ptrStack* stack ) {
     ptStack *tmp = NULL;
-    if(stack->top_of_stack != NULL){
-        tmp = stack->top_of_stack;
-        stack->top_of_stack = stack->top_of_stack->left;
-        free(tmp);
-        stackSize--;
-        return true;
+    if (stack->top_of_stack != NULL) {
+      tmp = stack->top_of_stack;
+      stack->top_of_stack = stack->top_of_stack->left;
+      free(tmp);
+      stackSize--;
     }
-    return false;
 }
 
 // vytvoří nové paměťové místo na zásobníku a vloží do něj data
-bool exp_stackPush (ptrStack* stack, void * value) {
+ERROR_CODE exp_stackPush (ptrStack* stack, void * value) {
     ptStack *tmp = malloc(sizeof(struct ptstack_structure));
     if(tmp != NULL) {
         tmp->value = value;
         tmp->left = stack->top_of_stack;
         stack->top_of_stack = tmp;
         stackSize++;
-        return true;
+        return ERROR_CODE_OK;
     }
-    return false;
+    return ERROR_CODE_INTERNAL;
 }
 
 // uvolnění postupně celý zásobník

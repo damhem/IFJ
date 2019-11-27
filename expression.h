@@ -11,7 +11,7 @@
 #include "parser.h"
 
 
-#define PT_SIZE 16
+#define PT_SIZE 18
 typedef enum {
       EXP_MULTIPLY,
       EXP_DIVIDE,
@@ -31,16 +31,29 @@ typedef enum {
       EXP_RIGHT_PAR,
 
       EXP_OPERAND,
+      EXP_FUNCTION,
+      EXP_COMMA,
       EXP_DOLLAR,
       EXP_OTHER
 
   }exp_type;
 
+typedef union element_data {
+  string ID;
+  int integer;
+  double decimal;
+} element_data;
+
 //Struktura reprezentující (ne)terminál na zásobníku
 typedef struct exp_element{
+    element_data e_data;
     exp_type type;
     bool handle;    //Handle pro pomoc při redukci stacku
+    bool terminal;
 }Exp_element;
+
+//
+ptStack* firstTerm;
 
 int expression(); /*,int expectedValue*/
 int expressionAnalysis(ptrStack *stack_expression);
