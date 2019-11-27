@@ -3,26 +3,31 @@
 Token token; //Převzatý token od scanneru
 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
-//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )     ID    F     ,     $
-/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  /  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '_' , '<' , '_' },
-/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '>' },
-/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '>' , '>' },
-/*  F  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '_' , '_' , '_' , '_' },
-/*  ,  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '<' , '_' , '<' , '_' },
-/*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '_' , '$' },
+//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID    F     ,     $
+/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
+/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
+/* STR */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
+/* INT */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
+/* DOUB*/ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
+/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
+/*  F  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' },
+/*  ,  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
+/*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '$' },
 };
+
+
 
 int expression() {/*,int expectedValue*/
     ERROR_CODE result;
@@ -76,10 +81,15 @@ int expressionAnalysis() {
 char getSignFromTable(){
     int a;
     int b;
-    b = token.t_type;
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+        b = TOKEN_UNDEF;
+    }
+    else {
+        b = token.t_type;
+    }
     a = get_stack_type(&stack_expression);
-    //printf("%d %d \n", a, b);
-    //printf("%c \n", precedenceTable[a][b]);
+    printf("%d %d \n", a, b);
+    printf("%c \n", precedenceTable[a][b]);
     return precedenceTable[a][b];
 }
 
@@ -128,56 +138,16 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     Exp_element *element_to_stack = newElement(type, handle);
     return element_to_stack;
 }
-/*
-int convertTokenToIndex(Token token){
-    switch(token.t_type){
-        case TOKEN_MULTIPLICATION:
-            return EXP_MULTIPLY;
-        case TOKEN_DIVISION:
-            return EXP_DIVIDE;
-        case TOKEN_INTEGER_DIVISION:
-            return EXP_INTEGER_DIVIDE;
-        case TOKEN_ADDITION:
-            return EXP_PLUS;
-        case TOKEN_SUBTRACTION:
-            return EXP_MINUS;
-        case TOKEN_EQUAL:
-            return EXP_EQUAL;
-        case TOKEN_NEG_EQUAL:
-            return EXP_NOT_EQUAL;
-        case TOKEN_SMALLERTHEN:
-            return EXP_LESS;
-        case TOKEN_SMALLERTHEN_EQUAL:
-            return EXP_LESS_EQUAL;
-        case TOKEN_BIGGERTHEN:
-            return EXP_MORE;
-        case TOKEN_BIGGERTHEN_EQUAL:
-            return EXP_MORE_EQUAL;
-        case TOKEN_EQUAL_EQUAL:
-            return EXP_COMPARISON;
-        case TOKEN_LEFTPAR:
-            return EXP_LEFT_PAR;
-        case TOKEN_RIGHTPAR:
-            return EXP_RIGHT_PAR;
-        case TOKEN_INT:
-            return EXP_OPERAND;
-        case TOKEN_DOUBLE:
-            return EXP_OPERAND;
-        case TOKEN_STRING:
-            return EXP_OPERAND;
-        case TOKEN_EOL:
-            return EXP_DOLLAR;
 
-        default:
-            return EXP_OTHER;
-    }
-}
-*/
+
 int useRule(ptrStack *stack_expression){
 
     switch(firstTerm->value->type) {
 
-        case EXP_OPERAND :
+        case TOKEN_INT :
+        case TOKEN_DOUBLE:
+        case TOKEN_ID:
+        case TOKEN_STRING:
             ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
             ((Exp_element *)stack_expression->top_of_stack->value)->handle = false;
             ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
@@ -186,10 +156,14 @@ int useRule(ptrStack *stack_expression){
             //todo function term?
 
             if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
+
                 string operandString;
                 stringInit(&operandString);
+
                 char number[6];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
+                printf("number: %s", number);
+
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
                 oneOperandInstr(&instrList, PUSHS, operand);
@@ -197,46 +171,46 @@ int useRule(ptrStack *stack_expression){
             
             return ERROR_CODE_OK;
 
-        case EXP_PLUS :
+        case TOKEN_ADDITION :
             //todo concatenace stringu
 
             noOperandInstr(&instrList, ADDS);
             break;
 
-        case EXP_MULTIPLY :
+        case TOKEN_MULTIPLICATION :
             noOperandInstr(&instrList, MULS);
             break;
 
-        case EXP_MINUS:
+        case TOKEN_SUBTRACTION:
             noOperandInstr(&instrList, SUBS);
             break;
 
-        case EXP_DIVIDE:
+        case TOKEN_DIVISION:
             noOperandInstr(&instrList, DIVS);
             break;
             
-        case EXP_INTEGER_DIVIDE:
+        case TOKEN_INTEGER_DIVISION:
             noOperandInstr(&instrList, DIVS);
             noOperandInstr(&instrList, FLOAT2INTS);
             break;
-        case EXP_EQUAL:
+        case TOKEN_EQUAL_EQUAL:
             noOperandInstr(&instrList, EQS);
             break;
-        case EXP_NOT_EQUAL:
+        case TOKEN_NEG_EQUAL:
             noOperandInstr(&instrList, EQS);
             noOperandInstr(&instrList, NOTS);
             break;
-        case EXP_LESS:
+        case TOKEN_SMALLERTHEN:
             noOperandInstr(&instrList, LTS);
             break;
-        case EXP_MORE:
+        case TOKEN_BIGGERTHEN:
             noOperandInstr(&instrList, GTS);
             break;
-        case EXP_LESS_EQUAL:
+        case TOKEN_SMALLERTHEN_EQUAL:
             noOperandInstr(&instrList, GTS);
             noOperandInstr(&instrList, NOTS);
             break;
-        case EXP_MORE_EQUAL:
+        case TOKEN_BIGGERTHEN_EQUAL:
             noOperandInstr(&instrList, LTS);
             noOperandInstr(&instrList, NOTS);
             break;

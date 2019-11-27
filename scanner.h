@@ -64,10 +64,11 @@ typedef enum {
   TOKEN_ID,                 //2
   TOKEN_STRING,             //19
   TOKEN_DOUBLE,             //32
-  TOKEN_INT,                //31
+  TOKEN_INT,
+  TOKEN_EOF,                //1                //31
   TOKEN_COMMA,               //33
   TOKEN_UNDEF,              //0
-  TOKEN_EOF,                //1
+  
   TOKEN_PLUS,               //3
   TOKEN_MINUS,              //4
   TOKEN_INDENT,             //5
