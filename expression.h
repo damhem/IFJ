@@ -11,32 +11,7 @@
 #include "parser.h"
 
 
-#define PT_SIZE 18
-typedef enum {
-      EXP_MULTIPLY,
-      EXP_DIVIDE,
-      EXP_INTEGER_DIVIDE,
-      EXP_PLUS,
-      EXP_MINUS,
-
-      EXP_EQUAL,
-      EXP_NOT_EQUAL,
-      EXP_LESS,
-      EXP_LESS_EQUAL,
-      EXP_MORE,
-      EXP_MORE_EQUAL,
-      EXP_COMPARISON,
-
-      EXP_LEFT_PAR,
-      EXP_RIGHT_PAR,
-
-      EXP_OPERAND,
-      EXP_FUNCTION,
-      EXP_COMMA,
-      EXP_DOLLAR,
-      EXP_OTHER
-
-  }exp_type;
+#define PT_SIZE 21
 
 typedef union element_data {
   string ID;
@@ -47,7 +22,7 @@ typedef union element_data {
 //Struktura reprezentující (ne)terminál na zásobníku
 typedef struct exp_element {
     element_data e_data;
-    exp_type type;
+    token_type type;
     bool handle;    //Handle pro pomoc při redukci stacku
     bool terminal;
 } Exp_element;

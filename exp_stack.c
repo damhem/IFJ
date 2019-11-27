@@ -6,7 +6,7 @@ unsigned int stackSize = 0;
 ERROR_CODE exp_stackInit (ptrStack* stack) {
     stack->top_of_stack = NULL;
 
-    int type = EXP_DOLLAR;
+    int type = TOKEN_UNDEF;
     Exp_element *new_element = newElement(type,false);
     return exp_stackPush(stack, new_element);
 }

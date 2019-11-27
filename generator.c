@@ -15,8 +15,9 @@
 
 
 operand initOperand(operand operand, string value, int type, frame frame, bool is_temp, bool is_label){
+    stringInit(&(operand.value));
     stringAddChars(&(operand.value), value.value);
-    operand.type = type;
+    operand.type = type; //token type
     operand.frame = frame;
     operand.is_temp = is_temp;
     operand.is_label = is_label;
