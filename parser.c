@@ -1,6 +1,6 @@
 
 #include "parser.h"
-#include "stack.h"
+
 
 
 ERROR_CODE parse() {
@@ -16,7 +16,7 @@ ERROR_CODE parse() {
     return ERROR_CODE_INTERNAL;
   }
   symTableInit(&glSymtable);
-  initexpressionStack(&stack_expression);
+  exp_stackInit(&stack_expression);
   stringInit(&functionName);
 
   //get first token
@@ -645,10 +645,10 @@ ERROR_CODE command() {
       //}
 
 
-      //result = expression();
+      result = expression();
       //if (result != ERROR_CODE_OK) return result;
 
-      //if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+      if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 

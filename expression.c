@@ -39,17 +39,23 @@ int expressionAnalysis() {
     while(true) {
           sign = getSignFromTable();
           if(sign == '='){
+
               exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
+
               if (convertTokenToIndex(token) == EXP_OPERAND){
                   exp_stackPush(&stack_expression,tokentoExp_element(token,true));
               }else{
+
                   exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               }
+
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-              firstTerm = (Exp_element*)stack_expression.top_of_stack;
+              firstTerm = stack_expression.top_of_stack;
+
           } else if(sign == '>') {
+
               return useRule(&stack_expression);
 
           } else if(sign == '$') {
@@ -163,23 +169,29 @@ int convertTokenToIndex(Token token){
 
 int useRule(ptrStack *stack_expression){
 
-    switch(firstTerm->type) {
+    switch(firstTerm->value->type) {
+
         case EXP_OPERAND :
           ((Exp_element*)stack_expression->top_of_stack->value)->terminal=false;
-          firstTerm = stack_expression->top_of_stack->left->value;
+          firstTerm = stack_expression->top_of_stack->left;
           printf("I_PUSHS\n");
           return ERROR_CODE_OK;
+
         case EXP_PLUS :
           printf("I_ADDS\n");
           break;
+
         case EXP_MULTIPLY :
           printf("I_MULS\n");
           break;
+
         default:
           return ERROR_CODE_SEM;
     }
     exp_stackPop(stack_expression);
     exp_stackPop(stack_expression);
-    firstTerm = stack_expression->top_of_stack->left->value;
+    if(stack_expression->top_of_stack != NULL){
+        firstTerm = stack_expression->top_of_stack->left;
+    }
     return ERROR_CODE_OK;
 }

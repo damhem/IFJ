@@ -1,5 +1,6 @@
 def foo(jedna, dva) :
   if sth :
+    51*5
     deeeed = kkk
     ddssd
     

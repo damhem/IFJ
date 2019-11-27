@@ -53,12 +53,11 @@ typedef struct exp_element {
 } Exp_element;
 
 //first terminal on stack
-Exp_element* firstTerm;
+ptStack* firstTerm;
 
 int expression(); /*,int expectedValue*/
 int expressionAnalysis();
 char getSignFromTable();
-int initexpressionStack(ptrStack*);
 Exp_element *newElement(int type,bool handle);
 int get_stack_type(ptrStack *stack_expression);
 Exp_element *tokentoExp_element(Token token,bool handle);
