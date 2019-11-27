@@ -44,7 +44,7 @@ int expressionAnalysis() {
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
 
-              if (convertTokenToIndex(token) == EXP_OPERAND){
+              if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
                   exp_stackPush(&stack_expression,tokentoExp_element(token,true));
               }else{
 
@@ -76,7 +76,7 @@ int expressionAnalysis() {
 char getSignFromTable(){
     int a;
     int b;
-    b = convertTokenToIndex(token);
+    b = token.t_type;
     a = get_stack_type(&stack_expression);
     //printf("%d %d \n", a, b);
     //printf("%c \n", precedenceTable[a][b]);
@@ -120,11 +120,15 @@ int get_stack_type(ptrStack *stack_expression){
 }
 
 Exp_element *tokentoExp_element(Token token,bool handle){
-    int type = convertTokenToIndex(token);
+    int type;
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+        type = TOKEN_UNDEF;
+    }
+    type = token.t_type;
     Exp_element *element_to_stack = newElement(type, handle);
     return element_to_stack;
 }
-
+/*
 int convertTokenToIndex(Token token){
     switch(token.t_type){
         case TOKEN_MULTIPLICATION:
@@ -168,28 +172,75 @@ int convertTokenToIndex(Token token){
             return EXP_OTHER;
     }
 }
-
+*/
 int useRule(ptrStack *stack_expression){
 
     switch(firstTerm->value->type) {
 
         case EXP_OPERAND :
-          ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
-          ((Exp_element *)stack_expression->top_of_stack->value)->handle = false;
-          ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
-          firstTerm = stack_expression->top_of_stack->left;
+            ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
+            ((Exp_element *)stack_expression->top_of_stack->value)->handle = false;
+            ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
+            firstTerm = stack_expression->top_of_stack->left;
 
-          printf("I_PUSHS\n");
-          return ERROR_CODE_OK;
+            //todo function term?
+
+            if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
+                string operandString;
+                stringInit(&operandString);
+                char number[6];
+                sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
+                stringAddChars(&operandString, number);
+                operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand);
+            }
+            
+            return ERROR_CODE_OK;
 
         case EXP_PLUS :
-          printf("I_ADDS\n");
-          break;
+            //todo concatenace stringu
+
+            noOperandInstr(&instrList, ADDS);
+            break;
 
         case EXP_MULTIPLY :
-          printf("I_MULS\n");
-          break;
+            noOperandInstr(&instrList, MULS);
+            break;
 
+        case EXP_MINUS:
+            noOperandInstr(&instrList, SUBS);
+            break;
+
+        case EXP_DIVIDE:
+            noOperandInstr(&instrList, DIVS);
+            break;
+            
+        case EXP_INTEGER_DIVIDE:
+            noOperandInstr(&instrList, DIVS);
+            noOperandInstr(&instrList, FLOAT2INTS);
+            break;
+        case EXP_EQUAL:
+            noOperandInstr(&instrList, EQS);
+            break;
+        case EXP_NOT_EQUAL:
+            noOperandInstr(&instrList, EQS);
+            noOperandInstr(&instrList, NOTS);
+            break;
+        case EXP_LESS:
+            noOperandInstr(&instrList, LTS);
+            break;
+        case EXP_MORE:
+            noOperandInstr(&instrList, GTS);
+            break;
+        case EXP_LESS_EQUAL:
+            noOperandInstr(&instrList, GTS);
+            noOperandInstr(&instrList, NOTS);
+            break;
+        case EXP_MORE_EQUAL:
+            noOperandInstr(&instrList, LTS);
+            noOperandInstr(&instrList, NOTS);
+            break;
+        
         default:
           return ERROR_CODE_SEM;
     }

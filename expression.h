@@ -47,7 +47,7 @@ typedef union element_data {
 //Struktura reprezentující (ne)terminál na zásobníku
 typedef struct exp_element {
     element_data e_data;
-    exp_type type;
+    token_type type;
     bool handle;    //Handle pro pomoc při redukci stacku
     bool terminal;
 } Exp_element;
