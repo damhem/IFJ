@@ -12,7 +12,7 @@
 //type of node in binary seach tree
 typedef enum {
     Variable,
-    Function,
+    Function
 } NodeType;
 
 //one node in binary seach tree
@@ -26,7 +26,7 @@ typedef struct tBSTNode {
     int VarType;                //type of variable (-1 means undefined or unknown)
 
     //function
-    bool defined;               // if the function has been defined;
+    bool defined;               // if the function has been defined
     int parametrs;              //number of function parametres
     string paramName[40];       //names of function parametres
 } *tBSTNodePtr;

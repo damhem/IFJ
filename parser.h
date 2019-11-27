@@ -35,6 +35,9 @@ int paramIndex;
 //global symtable
 symtable glSymtable;
 
+//local symtable
+symtable lcSymtable;
+
 //instruction list
 instruction_list instrList;
 
