@@ -108,7 +108,7 @@ void BSTDelete (tBSTNodePtr *RootPtr, char* K) {
 		BSTDelete(&(*RootPtr)->lPtr, K);
 	}
 }
-///////////////////////////////////////////////////////////////////////////
+
 void BSTDispose (tBSTNodePtr *RootPtr) {
 	if (*RootPtr == NULL)
     	return ;
