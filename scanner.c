@@ -346,7 +346,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
           if (c == '"'){                      //2 "
             state = SCANNER_COMMENT_1;
         }else{
-          ungetc(c, stdin);
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         break;
       case (SCANNER_COMMENT_1):
@@ -354,8 +356,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_STRING;              //3"
           state = SCANNER_COMMENT_0;
         }else{
-          ungetc(c, stdin);
-          ungetc(c, stdin);
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         break;
       case (SCANNER_COMMENT_0):
@@ -370,12 +373,18 @@ Token getNextToken(bool *line_flag, tStack *s) {
           state = SCANNER_COMMENT_02;
         }else{
           stringAddChar(&token.t_data.ID, c);
+          stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
       case (SCANNER_COMMENT_02):
         if (c == '"'){                       //3"
-          return token;
+          if (inFunctionflag == true) {
+            return token;
+          }
+          else {
+            state = SCANNER_START;
+          }
         }else{
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
