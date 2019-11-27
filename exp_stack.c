@@ -1,5 +1,6 @@
 #include "exp_stack.h"
-
+unsigned int deletedItems = 0;
+unsigned int stackSize = 0;
 // Inicializuje zásobník
 ERROR_CODE exp_stackInit (ptrStack* stack) {
     stack->top_of_stack = NULL;

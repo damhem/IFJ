@@ -1,6 +1,4 @@
 #include "expression.h"
-#include "string.h"
-#include "scanner.h"
 
 Token token; //Převzatý token od scanneru
 
@@ -17,7 +15,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 /*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' };
+/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '_' , '<' , '_' },
 /*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '>' },
 /*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '>' , '>' },
@@ -28,35 +26,35 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 
 int expression() {/*,int expectedValue*/
     ERROR_CODE result;
-    result = expressionAnalysis();
-    exp_stackClear(&stack_expression);
 
+    result = expressionAnalysis();
+
+    exp_stackClear(&stack_expression);
     return result;
 }
 
-int expressionAnalysis(ptrStack *stack_expression) {
-    /*Exp_element element_on_stack;*/
+int expressionAnalysis() {
     //ERROR_CODE result;
     char sign = '_';
-    while(1) {
+    while(true) {
           sign = getSignFromTable();
           if(sign == '='){
-              exp_stackPush(stack_expression,tokentoExp_element(token,false));
+              exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
               if (convertTokenToIndex(token) == EXP_OPERAND){
-                  exp_stackPush(stack_expression,tokentoExp_element(token,true));
+                  exp_stackPush(&stack_expression,tokentoExp_element(token,true));
               }else{
-                  exp_stackPush(stack_expression,tokentoExp_element(token,false));
+                  exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               }
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          }else if(sign == '>'){
+              firstTerm = (Exp_element*)stack_expression.top_of_stack;
+          } else if(sign == '>') {
               return useRule(&stack_expression);
 
-          }else if(sign == '$'){
+          } else if(sign == '$') {
 
-              return 0;
-
+            return 0;
 
           }else{
               printf("dhdhhd\n");
@@ -103,12 +101,14 @@ Exp_element *newElement(int type,bool handle){
 int get_stack_type(ptrStack *stack_expression){
     if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
+      }
     if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
     }
     if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
     }
+    return ERROR_CODE_OK;
 }
 
 Exp_element *tokentoExp_element(Token token,bool handle){
@@ -116,6 +116,7 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     Exp_element *element_to_stack = newElement(type, handle);
     return element_to_stack;
 }
+
 int convertTokenToIndex(Token token){
     switch(token.t_type){
         case TOKEN_MULTIPLICATION:
@@ -157,18 +158,28 @@ int convertTokenToIndex(Token token){
 
         default:
             return EXP_OTHER;
-
-
     }
 }
 
 int useRule(ptrStack *stack_expression){
 
-    switch(stack_expression->top_of_stack->type) {
+    switch(firstTerm->type) {
         case EXP_OPERAND :
-            if( ((Exp_element*)stack_expression->top_of_stack->value)->handle == true){
-                ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
-            }
-
+          ((Exp_element*)stack_expression->top_of_stack->value)->terminal=false;
+          firstTerm = stack_expression->top_of_stack->left->value;
+          printf("I_PUSHS\n");
+          return ERROR_CODE_OK;
+        case EXP_PLUS :
+          printf("I_ADDS\n");
+          break;
+        case EXP_MULTIPLY :
+          printf("I_MULS\n");
+          break;
+        default:
+          return ERROR_CODE_SEM;
     }
+    exp_stackPop(stack_expression);
+    exp_stackPop(stack_expression);
+    firstTerm = stack_expression->top_of_stack->left->value;
+    return ERROR_CODE_OK;
 }
