@@ -41,7 +41,7 @@ int stackFull(const tStack *s)
 }
 
 
-ERROR_CODE stackTop(const tStack *s, char *c)
+void stackTop(const tStack *s, char *c)
 {
 /*
 ** Vrací znak z vrcholu zásobníku prostřednictvím parametru c.
@@ -49,12 +49,11 @@ ERROR_CODE stackTop(const tStack *s, char *c)
 
 // V případě že je zásobník prázdný a vrací nulu, vrací se ERROR_CODE_INTERNAL
   if (stackEmpty(s) != 0) {
-		return ERROR_CODE_INTERNAL;
+		return;
   }
 
 // Do ukazatele c se přiřadí hodnota z vrcholu zásobníku.
   *c = s->arr[s->top];
-  return ERROR_CODE_OK;
 }
 
 

@@ -22,7 +22,7 @@ void stackError(int error_code);
 ERROR_CODE stackInit(tStack* s);
 int stackEmpty(const tStack* s);
 int stackFull(const tStack* s);
-ERROR_CODE stackTop(const tStack* s, char* c);
+void stackTop(const tStack* s, char* c);
 void stackPop(tStack* s);
 ERROR_CODE stackPush(tStack* s, char c);
 void stackClear(tStack* s);

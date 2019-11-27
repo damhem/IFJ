@@ -194,10 +194,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           else {
             *line_flag=false;
             ungetc(c, stdin);
-            if (stackTop(s,&s_top) == ERROR_CODE_INTERNAL) {
-              token.t_type = TOKEN_UNDEF;
-              token.t_data.integer = ERROR_CODE_INTERNAL;
-              return token;
+            stackTop(s,&s_top);
             }
             if (spacecount>s_top || stackEmpty(s)) {
               if (stackPush(s,spacecount) == ERROR_CODE_INTERNAL) {
@@ -217,10 +214,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
               while (spacecount<s_top && stackEmpty(s)==0) {
                 dentcount++;
                 stackPop(s);
-                if (stackTop(s,&s_top) == ERROR_CODE_INTERNAL) {
-                  token.t_type = TOKEN_UNDEF;
-                  token.t_data.integer = ERROR_CODE_INTERNAL;
-                  return token;
+                stackTop(s,&s_top);
                 }
                 if (spacecount>s_top) {
                   token.t_type = TOKEN_UNDEF;
