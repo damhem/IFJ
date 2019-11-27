@@ -160,7 +160,7 @@ int useRule(ptrStack *stack_expression){
                 string operandString;
                 stringInit(&operandString);
 
-                char number[6];
+                char number[10];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
                 printf("number: %s", number);
 
