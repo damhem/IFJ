@@ -168,6 +168,7 @@ int useRule(ptrStack *stack_expression){
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
+            //todo pro double a pro string a pro ID?? nvm
             
             return ERROR_CODE_OK;
 
