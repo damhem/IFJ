@@ -8,6 +8,7 @@ ERROR_CODE parse() {
   ERROR_CODE result;
 
   line_flag = true;
+  inFunctionflag = false;
   paramIndex = 0;
   peekToken.t_type = TOKEN_UNDEF;
 

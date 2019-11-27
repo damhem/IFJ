@@ -28,6 +28,9 @@ ptrStack stack_expression;
 //line variable for scanner
 bool line_flag;
 
+//
+bool inFunctionflag;
+
 //var for actual function name
 string functionName;
 
