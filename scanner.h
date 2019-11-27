@@ -53,22 +53,22 @@ typedef enum {
   TOKEN_ADDITION,
   TOKEN_SUBTRACTION,
   TOKEN_EQUAL,              //12
-  TOKEN_NEG_EQUAL, 
+  TOKEN_NEG_EQUAL,
   TOKEN_SMALLERTHEN,        //16
   TOKEN_SMALLERTHEN_EQUAL,  //17
   TOKEN_BIGGERTHEN,         //15
   TOKEN_BIGGERTHEN_EQUAL,   //18
   TOKEN_EQUAL_EQUAL,        //14
   TOKEN_LEFTPAR,            //28
-  TOKEN_RIGHTPAR,           //29
-  TOKEN_ID,                 //2
+  TOKEN_RIGHTPAR,           //29      //2
   TOKEN_STRING,             //19
   TOKEN_DOUBLE,             //32
   TOKEN_INT,
+  TOKEN_ID,
   TOKEN_EOF,                //1                //31
   TOKEN_COMMA,               //33
   TOKEN_UNDEF,              //0
-  
+
   TOKEN_PLUS,               //3
   TOKEN_MINUS,              //4
   TOKEN_INDENT,             //5
@@ -81,7 +81,7 @@ typedef enum {
   TOKEN_PASS,               //25
   TOKEN_RETURN,             //26
   TOKEN_WHILE,              //27
-  TOKEN_DOUBLEDOT,          //30 
+  TOKEN_DOUBLEDOT,          //30
 } token_type;
 
 typedef union token_data {
