@@ -195,7 +195,6 @@ Token getNextToken(bool *line_flag, tStack *s) {
             *line_flag=false;
             ungetc(c, stdin);
             stackTop(s,&s_top);
-            }
             if (spacecount>s_top || stackEmpty(s)) {
               if (stackPush(s,spacecount) == ERROR_CODE_INTERNAL) {
                 token.t_type = TOKEN_UNDEF;
@@ -215,7 +214,6 @@ Token getNextToken(bool *line_flag, tStack *s) {
                 dentcount++;
                 stackPop(s);
                 stackTop(s,&s_top);
-                }
                 if (spacecount>s_top) {
                   token.t_type = TOKEN_UNDEF;
                   token.t_data.integer = ERROR_CODE_LEX;

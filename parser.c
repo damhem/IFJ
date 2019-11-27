@@ -423,7 +423,7 @@ ERROR_CODE command() {
   ERROR_CODE result;
 
   switch (token.t_type) {
-
+    case TOKEN_IF:
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
 
