@@ -6,7 +6,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 //           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )     ID    F     ,     $
 /*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
-/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  /  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
 /*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
@@ -34,7 +34,7 @@ int expression() {/*,int expectedValue*/
 }
 
 int expressionAnalysis() {
-    //ERROR_CODE result;
+    ERROR_CODE result;
     char sign = '_';
     while(true) {
           sign = getSignFromTable();
@@ -56,14 +56,16 @@ int expressionAnalysis() {
 
           } else if(sign == '>') {
 
-              return useRule(&stack_expression);
+              result = useRule(&stack_expression);
+              if (result != ERROR_CODE_OK) {
+                  return result;
+              }
 
           } else if(sign == '$') {
 
             return 0;
 
           }else{
-              printf("dhdhhd\n");
 
               return 2;
 
@@ -76,8 +78,8 @@ char getSignFromTable(){
     int b;
     b = convertTokenToIndex(token);
     a = get_stack_type(&stack_expression);
-    printf("%d %d \n", a, b);
-    printf("%c \n", precedenceTable[a][b]);
+    //printf("%d %d \n", a, b);
+    //printf("%c \n", precedenceTable[a][b]);
     return precedenceTable[a][b];
 }
 
@@ -172,8 +174,11 @@ int useRule(ptrStack *stack_expression){
     switch(firstTerm->value->type) {
 
         case EXP_OPERAND :
-          ((Exp_element*)stack_expression->top_of_stack->value)->terminal=false;
+          ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
+          ((Exp_element *)stack_expression->top_of_stack->value)->handle = false;
+          ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
           firstTerm = stack_expression->top_of_stack->left;
+
           printf("I_PUSHS\n");
           return ERROR_CODE_OK;
 
