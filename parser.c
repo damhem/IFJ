@@ -4,7 +4,7 @@
 
 
 ERROR_CODE parse() {
-  
+
   ERROR_CODE result;
 
   line_flag = true;
@@ -12,7 +12,9 @@ ERROR_CODE parse() {
   peekToken.t_type = TOKEN_UNDEF;
 
   //initialize structures
-  stackInit(&s);
+  if (stackInit(&s) == ERROR_CODE_INTERNAL) {
+    return ERROR_CODE_INTERNAL;
+  }
   symTableInit(&glSymtable);
   initexpressionStack(&stack_expression);
   stringInit(&functionName);
@@ -24,7 +26,7 @@ ERROR_CODE parse() {
   } else {
     result = program();
   }
-  
+
   //free memory
   stringDispose(&functionName);
   exp_stackClear(&stack_expression);
@@ -195,13 +197,12 @@ ERROR_CODE functionDef() {
       if (token.t_type != TOKEN_DEDENT) {
         return ERROR_CODE_SYN;
       }
-      
+
       //dispose function name
       stringClear(&functionName);
 
       //clear paramIndex
       paramIndex = 0;
-      
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       return ERROR_CODE_OK;
 
@@ -264,7 +265,7 @@ ERROR_CODE functionHead() {
           helper->parametrs = 0;
         }
       }
-      
+
 
       //there has to be (
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -304,7 +305,7 @@ ERROR_CODE functionParam() {
   switch (token.t_type) {
     case TOKEN_ID: ;
       //Parametry -> id Dalsi_parametr
-      
+
       string Paramname;
       stringInit(&Paramname);
       stringAddChars(&Paramname, token.t_data.ID.value);
@@ -337,7 +338,7 @@ ERROR_CODE functionParam() {
 
         //increment the index
         paramIndex++;
-        
+
       }
       else {
         return ERROR_CODE_SEM_OTHER;
@@ -422,7 +423,6 @@ ERROR_CODE command() {
   ERROR_CODE result;
 
   switch (token.t_type) {
-    case TOKEN_IF:     
 
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
@@ -635,6 +635,7 @@ ERROR_CODE command() {
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
     case TOKEN_LEFTPAR:
+
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
 
       //wtf
@@ -642,6 +643,7 @@ ERROR_CODE command() {
       //while (token.t_type != TOKEN_EOL) {
       //  if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       //}
+
 
       //result = expression();
       //if (result != ERROR_CODE_OK) return result;
