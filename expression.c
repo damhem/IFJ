@@ -1,73 +1,63 @@
 #include "expression.h"
-#include "string.h"
-#include "scanner.h"
 
 Token token; //Převzatý token od scanneru
 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
-//           *     /     //    +     -     =    !=     <    <=     >    >=    ==    (     )     ID     $
-/*  *  */ { '_' , '_' , '_' , '>' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  /  */ { '_' , '_' , '_' , '>' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  // */ { '_' , '_' , '_' , '>' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  +  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  -  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  =  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  != */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  <  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  <= */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  >  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  >= */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  == */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '_' },
-/*  (  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '=' , '<' , '_' },
-/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '>' },
-/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '>' },
-/*  $  */ { '_' , '_' , '_' , '<' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '<' , '$' },
+//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )     ID    F     ,     $
+/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '_' , '_' , '>' },
+/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '_' , '<' , '_' },
+/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '>' },
+/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '>' , '>' },
+/*  F  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '_' , '_' , '_' , '_' },
+/*  ,  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '<' , '_' , '<' , '_' },
+/*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '_' , '$' },
 };
 
-int expression(){/*,int expectedValue*/
-    int result;
+int expression() {/*,int expectedValue*/
+    ERROR_CODE result;
 
-
-
-
-    result=expressionAnalysis(&stack_expression);
+    result = expressionAnalysis();
 
     exp_stackClear(&stack_expression);
     return result;
 }
 
-int expressionAnalysis(ptrStack *stack_expression){
-    /*Exp_element element_on_stack;*/
+int expressionAnalysis() {
+    //ERROR_CODE result;
     char sign = '_';
-    while(1){
+    while(true) {
           sign = getSignFromTable();
           if(sign == '='){
-              exp_stackPush(stack_expression,tokentoExp_element(token,false));
+              exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
-              if(stack_expression != NULL){
-                   ((Exp_element*)stack_expression->top_of_stack->value)->handle = true;
+              if (convertTokenToIndex(token) == EXP_OPERAND){
+                  exp_stackPush(&stack_expression,tokentoExp_element(token,true));
+              }else{
+                  exp_stackPush(&stack_expression,tokentoExp_element(token,false));
               }
-              exp_stackPush(stack_expression,tokentoExp_element(token,true));
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          }else if(sign == '>'){
-              exp_stackPush(stack_expression, tokentoExp_element(token, false));
-              if( ((Exp_element*)stack_expression->top_of_stack->value)->handle == true){
-                  exp_stackPop(stack_expression);
-              }
-              if( ((Exp_element*)stack_expression->top_of_stack->left->value)->handle == true){
-                  exp_stackPop(stack_expression);
-                  exp_stackPop(stack_expression);
-                  if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+              firstTerm = (Exp_element*)stack_expression.top_of_stack;
+          } else if(sign == '>') {
+              return useRule(&stack_expression);
 
-              }
-          }else if(sign == '$'){
+          } else if(sign == '$') {
 
-              return 0;
-
+            return 0;
 
           }else{
-              printf("dhdhhd\n");  
+              printf("dhdhhd\n");
 
               return 2;
 
@@ -85,44 +75,48 @@ char getSignFromTable(){
     return precedenceTable[a][b];
 }
 
-int initexpressionStack(ptrStack *stack_expression){
-    if(stack_expression != NULL){
-      exp_stackInit(stack_expression);
-    }
-
-
-    //Vytvořím string "$"
-    string dollar;
-    stringInit(&dollar);
-    stringAddChar(&dollar, '$');
-    int type = EXP_DOLLAR;
-    Exp_element *new_element = newElement(type,false);
-    exp_stackPush(stack_expression, new_element);
-    return 0 ;
-}
-
 
 Exp_element *newElement(int type,bool handle){
   Exp_element *new_element = malloc(sizeof(struct exp_element));
 
   //Inicializace noveho elementu
   if(new_element != NULL){
+      if(token.t_type == TOKEN_INT){
+      new_element->e_data.integer = token.t_data.integer;
+      }
+      if(token.t_type == TOKEN_DOUBLE){
+      new_element->e_data.decimal = token.t_data.decimal;
+      }
+      if(token.t_type == TOKEN_STRING){
+      new_element->e_data.ID = token.t_data.ID;
+      }
       new_element->type = type;
       new_element->handle = handle;
-      /*new_element->terminal = terminal;*/
+      new_element->terminal = true;
 
       return new_element;
   }
   else return NULL;
 }
 int get_stack_type(ptrStack *stack_expression){
-    return ((Exp_element*)stack_expression->top_of_stack->value)->type;
+    if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
+        return ((Exp_element*)stack_expression->top_of_stack->value)->type;
+      }
+    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
+        return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
+    }
+    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
+        return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
+    }
+    return ERROR_CODE_OK;
 }
+
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type = convertTokenToIndex(token);
     Exp_element *element_to_stack = newElement(type, handle);
     return element_to_stack;
 }
+
 int convertTokenToIndex(Token token){
     switch(token.t_type){
         case TOKEN_MULTIPLICATION:
@@ -161,12 +155,31 @@ int convertTokenToIndex(Token token){
             return EXP_OPERAND;
         case TOKEN_EOL:
             return EXP_DOLLAR;
+
         default:
             return EXP_OTHER;
     }
 }
-/*
+
 int useRule(ptrStack *stack_expression){
 
-    switch
-}*/
+    switch(firstTerm->type) {
+        case EXP_OPERAND :
+          ((Exp_element*)stack_expression->top_of_stack->value)->terminal=false;
+          firstTerm = stack_expression->top_of_stack->left->value;
+          printf("I_PUSHS\n");
+          return ERROR_CODE_OK;
+        case EXP_PLUS :
+          printf("I_ADDS\n");
+          break;
+        case EXP_MULTIPLY :
+          printf("I_MULS\n");
+          break;
+        default:
+          return ERROR_CODE_SEM;
+    }
+    exp_stackPop(stack_expression);
+    exp_stackPop(stack_expression);
+    firstTerm = stack_expression->top_of_stack->left->value;
+    return ERROR_CODE_OK;
+}

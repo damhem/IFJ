@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "error_code.h"
 #include "scanner.h"
+#include "expression.h"
 
 // Struktura prvku na zásobníku
 typedef struct ptstack_structure{
@@ -14,7 +15,7 @@ typedef struct ptstack_structure{
 } ptStack;
 
 // Struktura zásboníku
-typedef struct {
+typedef struct ptrStack{
     ptStack *top_of_stack;
 } ptrStack;
 
