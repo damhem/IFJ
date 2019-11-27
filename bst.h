@@ -30,7 +30,7 @@ typedef struct tBSTNode {
     struct tBSTNode * rPtr;     //right subtree
 
     //variable
-    VarType Vartype;                //type of variable (-1 means undefined or unknown)
+    VarType Vartype;            //type of variable (-1 means undefined or unknown)
 
     //function
     bool defined;               // if the function has been defined;

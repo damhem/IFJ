@@ -7,8 +7,6 @@
 #include "error_code.h"
 #include "scanner.h"
 
-
-
 // Struktura prvku na zásobníku
 typedef struct ptstack_structure{
     struct ptstack_structure *left;
@@ -24,7 +22,6 @@ typedef struct {
 void exp_stackInit(ptrStack *);
 bool exp_stackPush(ptrStack *, void *);
 bool exp_stackPop(ptrStack *);
-//tToken STop(ptrStack *, void *);
 Token exp_stackTop(ptrStack *);
 bool exp_stackEmpty(ptrStack *);
 bool exp_stackClear(ptrStack *);
