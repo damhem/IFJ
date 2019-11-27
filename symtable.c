@@ -1,8 +1,43 @@
 #include "symtable.h"
 #include "bst.h"
 
-void symTableInit(symtable* symtable) {
+ERROR_CODE symTableInit(symtable* symtable) {
   BSTInit(&(symtable->root));
+  tBSTNodePtr FunctionNode;
+  ERROR_CODE result;
+  // ERROR_CODE result; //A vsechno kolem
+
+  BSTInsert(&(symtable->root), "inputs", Function, undefined, true, 0);
+  BSTInsert(&(symtable->root), "inputi", Function, undefined, true, 0);
+  BSTInsert(&(symtable->root), "inputd", Function, undefined, true, 0);
+  //BSTInsert(&(Table->root), "print", Function, undefined, true, 41? lol);
+
+  BSTInsert(&(symtable->root), "len", Function, undefined, true, 1);
+  FunctionNode = BSTSearch(symtable->root, "len");
+  stringInit(&FunctionNode->paramName[0]);
+  stringAddChar(&(FunctionNode->paramName[0]), 's');
+
+  BSTInsert(&(symtable->root), "substr", Function, undefined, true, 3);
+  FunctionNode = BSTSearch(symtable->root, "substr");
+  stringInit(&FunctionNode->paramName[0]);
+  stringInit(&FunctionNode->paramName[1]);
+  stringInit(&FunctionNode->paramName[2]);
+  stringAddChar(&(FunctionNode->paramName[0]), 's');
+  stringAddChar(&(FunctionNode->paramName[1]), 'i');
+  stringAddChar(&(FunctionNode->paramName[2]), 'n');
+
+  BSTInsert(&(symtable->root), "ord", Function, undefined, true, 2);
+  FunctionNode = BSTSearch(symtable->root, "ord");
+  stringInit(&FunctionNode->paramName[0]);
+  stringInit(&FunctionNode->paramName[1]);
+  stringAddChar(&(FunctionNode->paramName[0]), 's');
+  stringAddChar(&(FunctionNode->paramName[1]), 'i');
+
+  result = BSTInsert(&(symtable->root), "chr", Function, undefined, true, 1);
+  FunctionNode = BSTSearch(symtable->root, "chr");
+  stringInit(&FunctionNode->paramName[0]);
+  stringAddChar(&(FunctionNode->paramName[0]), 'i');
+  return result;
 }
 
 ERROR_CODE symTableInsert(symtable* Table, string Key, bool isfunction) {

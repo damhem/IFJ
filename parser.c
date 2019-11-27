@@ -15,7 +15,9 @@ ERROR_CODE parse() {
   if (stackInit(&s) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  symTableInit(&glSymtable);
+  if (symTableInit(&glSymtable) == ERROR_CODE_INTERNAL) {
+    return ERROR_CODE_INTERNAL;
+  }
   exp_stackInit(&stack_expression);
   stringInit(&functionName);
 
@@ -175,7 +177,9 @@ ERROR_CODE functionDef() {
       if (result != ERROR_CODE_OK) return result;
 
       //create local symtable
-      symTableInit(&lcSymtable);
+      if (symTableInit(&lcSymtable) == ERROR_CODE_INTERNAL) {
+        return ERROR_CODE_INTERNAL;
+      }
 
       //set global symtable to pointer
       tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
@@ -589,7 +593,7 @@ ERROR_CODE command() {
         case TOKEN_EQUAL:
           //Pokracovani_id -> = Pokracovani_id_next
           //jedna se o prizareni do promenne
-          
+
           //have to update symtable
           if (functionName.length == 0) {
             //now im in main program -> looking into global symtable
@@ -610,10 +614,10 @@ ERROR_CODE command() {
 
           //take the = from stdin
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          
+
           //now we are sure that there has to be expression after =
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          
+
           //todo expression
 
           return ERROR_CODE_OK;
@@ -621,7 +625,7 @@ ERROR_CODE command() {
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
-          
+
 
           //todo there has to start expression as well
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;

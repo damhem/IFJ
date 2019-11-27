@@ -15,7 +15,7 @@ typedef struct symtable {
     tBSTNodePtr root;           //this is pointer to the root node
 } symtable;
 
-void symTableInit(symtable* symtable);
+ERROR_CODE symTableInit(symtable* symtable);
 ERROR_CODE symTableInsert(symtable* Table, string Key, bool isfunction);
 tBSTNodePtr symTableSearch(symtable* Table, string Key);
 void symTableDelete(symtable* Table, string Key);
