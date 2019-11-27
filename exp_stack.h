@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "error_code.h"
 #include "scanner.h"
+#include "expression.h"
 
 
 
@@ -16,16 +17,16 @@ typedef struct ptstack_structure{
 } ptStack;
 
 // Struktura zásboníku
-typedef struct {
+typedef struct ptrStack{
     ptStack *top_of_stack;
 } ptrStack;
 
 // Deklarace funkcí pro zásobník
-void exp_stackInit(ptrStack *);
-bool exp_stackPush(ptrStack *, void *);
-bool exp_stackPop(ptrStack *);
+ERROR_CODE exp_stackInit(ptrStack *);
+ERROR_CODE exp_stackPush(ptrStack *, void *);
+void exp_stackPop(ptrStack *);
 //tToken STop(ptrStack *, void *);
-Token exp_stackTop(ptrStack *);
+void exp_stackTop(ptrStack *);
 bool exp_stackEmpty(ptrStack *);
 bool exp_stackClear(ptrStack *);
 
