@@ -439,7 +439,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_NEG_EQUAL;
           return token;
         }else{
-          ungetc(c, stdin);
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         break;
       case(SCANNER_STRING):
