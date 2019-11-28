@@ -8,7 +8,6 @@ void DLInitList(instruction_list *List) {
     List->Last = NULL;
     addInstruction(List, START, NULL, NULL, NULL);
     addInstruction(List, COMMENT, "-------------------start------------------", NULL, NULL);
-    //todo what is this for?
     addInstruction(List, DEFVAR, "GF@tmp", NULL, NULL);
     addInstruction(List, DEFVAR, "GF@tmp1", NULL, NULL);
     addInstruction(List, DEFVAR, "GF@tmp2", NULL, NULL);
@@ -24,6 +23,7 @@ void DLInitList(instruction_list *List) {
     //writeSubstr();
     addInstruction(List, COMMENT, "konec generovani vestavench funkci", NULL, NULL);
     addInstruction(List, COMMENT, "------------------------------------------", NULL, NULL);
+    addInstruction(List, LABEL, "$$start", NULL, NULL);
 }
 
 void DLDisposeList (instruction_list *L) {

@@ -632,7 +632,7 @@ ERROR_CODE command() {
             }
             else {
               //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
-              //helper is set to that variable
+              //helper is set to global that variable
               helper = symTableSearch(&glSymtable, token.t_data.ID);
             }
 
@@ -644,6 +644,7 @@ ERROR_CODE command() {
             if (result != ERROR_CODE_OK) return result;
 
             // var -> vysledek_expression
+            helper->DataType = sth;
 
             operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
@@ -674,7 +675,7 @@ ERROR_CODE command() {
             }
             else {
               //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
-              //helper is set to that variable
+              //helper is set to local that variable
               helper = symTableSearch(&lcSymtable, token.t_data.ID);
             }
 
@@ -686,22 +687,11 @@ ERROR_CODE command() {
             if (result != ERROR_CODE_OK) return result;
 
             // var -> vysledek_expression
+            helper->DataType = sth;
 
             operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, LF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
           }
-
-          
-
-          //todo some expected value?
-
-          //take the = from stdin
-          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-          //now we are sure that there has to be expression after =
-          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-          //todo expression
 
           return ERROR_CODE_OK;
 
@@ -711,7 +701,9 @@ ERROR_CODE command() {
 
 
           //todo there has to start expression as well
+
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          
           return ERROR_CODE_OK;
         default:
           return ERROR_CODE_SYN;

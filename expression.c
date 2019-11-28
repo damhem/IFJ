@@ -180,7 +180,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
-                retVal = 1;
+                retVal = typeinteger;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             //double value
@@ -194,31 +194,29 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                retVal = typedouble;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             //string value
             else if (stack_expression->top_of_stack->value->type == TOKEN_STRING) {
-
-               // printf("string: %s\n", stack_expression->top_of_stack->value->e_data.ID.value);
-
                 operand operand = initOperand(operand, stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
+                retVal = typestring;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
+            //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
                 result = makeIdInstr();
                 if (result != ERROR_CODE_OK) return result;
-
+                //todo ID analysisi
                 return 2;
             }
-            //todo pro double a pro string a pro ID?? nvm
 
             return ERROR_CODE_OK;
 
         case TOKEN_ADDITION :
-            if(stack_expression->top_of_stack->value->type == TOKEN_STRING) {
+            if(stack_expression->top_of_stack->value->type == TOKEN_STRING) { //todo kdyz bude id string
                 string operandString;
                 stringInit(&operandString);
-                //stringAddChars(&operandString, "");
                 operand operand1 = initOperand(operand1,operandString,TOKEN_ID,LF, true, false);
                 operand operand2 = initOperand(operand2,stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
                 operand operand3 = initOperand(operand3,stack_expression->top_of_stack->left->left->value->e_data.ID, stack_expression->top_of_stack->left->left->value->type, LF, false, false);
