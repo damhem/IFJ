@@ -1,6 +1,9 @@
+"""juuu"""
 def foo(jedna, dva) :
   if sth :
-    51+5*8+7*5
+    6.99999
+    51+5.4*8+7*5
+    'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
     deeeed = kkk
     ddssd
     

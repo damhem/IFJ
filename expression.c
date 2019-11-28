@@ -32,6 +32,8 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 int expression() {/*,int expectedValue*/
     ERROR_CODE result;
 
+    exp_stackInit(&stack_expression);
+
     result = expressionAnalysis();
 
     exp_stackClear(&stack_expression);
@@ -88,8 +90,8 @@ char getSignFromTable(){
         b = token.t_type;
     }
     a = get_stack_type(&stack_expression);
-    printf("%d %d \n", a, b);
-    printf("%c \n", precedenceTable[a][b]);
+    //printf("%d %d \n", a, b);
+    //printf("%c \n", precedenceTable[a][b]);
     return precedenceTable[a][b];
 }
 
@@ -155,6 +157,7 @@ int useRule(ptrStack *stack_expression){
 
             //todo function term?
 
+            //integer value
             if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
 
                 string operandString;
@@ -162,11 +165,35 @@ int useRule(ptrStack *stack_expression){
 
                 char number[10];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
-                printf("number: %s", number);
+                printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
                 oneOperandInstr(&instrList, PUSHS, operand);
+            }
+            //double value
+            else if (stack_expression->top_of_stack->value->type == TOKEN_DOUBLE) {
+                string operandString;
+                stringInit(&operandString);
+
+                char number[10];
+                sprintf(number, "%f", stack_expression->top_of_stack->value->e_data.decimal);
+                printf("number: %s\n", number);
+
+                stringAddChars(&operandString, number);
+                operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand);
+            }
+            //string value
+            else if (stack_expression->top_of_stack->value->type == TOKEN_STRING) {
+
+                printf("string: %s\n", stack_expression->top_of_stack->value->e_data.ID.value);
+
+                operand operand = initOperand(operand, stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand);
+            }
+            else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
+                return 2;
             }
             //todo pro double a pro string a pro ID?? nvm
             
@@ -215,14 +242,17 @@ int useRule(ptrStack *stack_expression){
             noOperandInstr(&instrList, LTS);
             noOperandInstr(&instrList, NOTS);
             break;
-        
+    
         default:
           return ERROR_CODE_SEM;
     }
+
     exp_stackPop(stack_expression);
     exp_stackPop(stack_expression);
-    if(stack_expression->top_of_stack != NULL){
+
+    if (stack_expression->top_of_stack != NULL) {
         firstTerm = stack_expression->top_of_stack->left;
     }
+
     return ERROR_CODE_OK;
 }

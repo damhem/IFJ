@@ -61,9 +61,9 @@ typedef enum {
   TOKEN_EQUAL_EQUAL,        //14
   TOKEN_LEFTPAR,            //28
   TOKEN_RIGHTPAR,           //29      //2
-  TOKEN_STRING,             //19
+  TOKEN_STRING,
+  TOKEN_INT,             //19
   TOKEN_DOUBLE,             //32
-  TOKEN_INT,
   TOKEN_ID,
   TOKEN_EOF,                //1                //31
   TOKEN_COMMA,               //33

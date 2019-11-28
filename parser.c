@@ -19,7 +19,7 @@ ERROR_CODE parse() {
   if (symTableInit(&glSymtable) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  exp_stackInit(&stack_expression);
+  
   stringInit(&functionName);
 
   //get first token
