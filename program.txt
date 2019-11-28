@@ -1,33 +1,37 @@
 """juuu"""
+#jjgrgj
+ahoj
 def foo(jedna, dva) :
   if sth :
     6.99999
     51+5.4*8+7*5
     'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
-    deeeed = kkk
-    ddssd
-    
-    
+    66
     if sthn :
-      jsdff
+      99
+      #jsdff
       while fff:
-        jghgh
+        9999
+        #jghgh
+        77
         if jjd :
-          hfhfhf
-          
-          djdjjd
+          #hfhfhf
+          pass
+          #djdjjd
         else:
-          jfj
-      ffff
+          773
+          #jfj
+      #ffff
     else:
-      vvv
+      #vvv
   else :
-    dwa
-  lul
+    #dwa
+  #lul
+  7777777
   while sth :
     
-    prvni
-    treti
+    #prvni
+    #treti
     
   return U
 
@@ -38,5 +42,5 @@ def dfhsdfh() :
   return o
 
 def fooo(hdfd, ff) :
-    print
+    #print
     return OO

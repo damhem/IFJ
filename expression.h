@@ -30,7 +30,10 @@ typedef struct exp_element {
 //first terminal on stack
 ptStack* firstTerm;
 
-int expression(); /*,int expectedValue*/
+//return value int
+int retVal;
+
+int expression(int* returnValue); /*,int expectedValue*/
 int expressionAnalysis();
 char getSignFromTable();
 Exp_element *newElement(int type,bool handle);

@@ -391,11 +391,17 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
       case (SCANNER_LINE_COMMENT):
-        if (c != EOF){
-          state = SCANNER_LINE_COMMENT;
-        }else{
+        if (c == EOF){
           token.t_type = TOKEN_EOF;
-					return token;
+          return token;
+        }
+        else if (c == '\n') {
+          token.t_type = TOKEN_EOL;
+          *line_flag = true;
+          return token;
+        }
+        else {
+          state = SCANNER_LINE_COMMENT;
         }
         break;
       case (SCANNER_DIVISION):

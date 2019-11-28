@@ -29,7 +29,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 
 
 
-int expression() {/*,int expectedValue*/
+int expression(int* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
 
     exp_stackInit(&stack_expression);
@@ -37,6 +37,8 @@ int expression() {/*,int expectedValue*/
     result = expressionAnalysis();
 
     exp_stackClear(&stack_expression);
+
+    *returnValue = retVal;
     return result;
 }
 
@@ -69,6 +71,7 @@ int expressionAnalysis() {
               }
 
           } else if(sign == '$') {
+              
 
             return 0;
 
@@ -170,6 +173,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                retVal = 1;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             //double value
@@ -194,7 +198,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
-
+                printf("%s\n", firstTerm->value->e_data.ID.value);
                 result = makeIdInstr();
                 if (result != ERROR_CODE_OK) return result;
 

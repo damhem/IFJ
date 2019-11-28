@@ -44,6 +44,7 @@ ERROR_CODE skipEol() {
   ERROR_CODE result;
   switch (token.t_type) {
     case TOKEN_EOL:
+      printf("skip");
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       return skipEol();
     default:
@@ -425,6 +426,7 @@ ERROR_CODE command() {
 
   switch (token.t_type) {
     case TOKEN_IF:
+      printf("DDddd");
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
 
@@ -581,8 +583,14 @@ ERROR_CODE command() {
           //todo expression napojení (expression(token))
 
           return ERROR_CODE_SYN;
-        case TOKEN_EOL:
-          //i dont have to care or do I? this
+
+        case TOKEN_EOL: ;
+          //just a variable 
+          tBSTNodePtr helper = symTableSearch(&glSymtable, token.t_data.ID);
+          if (helper != NULL) {
+            symTableInsert(&glSymtable, token.t_data.ID, false);
+          }
+
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           return ERROR_CODE_OK;
@@ -592,11 +600,16 @@ ERROR_CODE command() {
           //jedna se o prizareni do promenne
 
           //have to update symtable
-          if (functionName.length == 0) {
+          if (functionName.length == 0) { 
             //now im in main program -> looking into global symtable
             //make sure that this var is not in table
-            if (symTableSearch(&glSymtable, token.t_data.ID) == NULL) {
+            tBSTNodePtr helper;
+            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
               symTableInsert(&glSymtable, token.t_data.ID, false);
+              helper = symTableSearch(&glSymtable, token.t_data.ID);
+
+              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
           }
           else {
@@ -607,7 +620,15 @@ ERROR_CODE command() {
             }
           }
 
-          //todo? some expected value?
+
+
+          int kkt;
+          
+          result = expression(&kkt);
+
+          // var -> vysledek_expression
+
+          //todo some expected value?
 
           //take the = from stdin
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -635,7 +656,7 @@ ERROR_CODE command() {
     case TOKEN_INT:
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
-    case TOKEN_LEFTPAR:
+    case TOKEN_LEFTPAR: ;
 
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
 
@@ -645,14 +666,18 @@ ERROR_CODE command() {
       //  if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       //}
 
-
-      result = expression();
+      int kkt2;
+      result = expression(&kkt2);
       //if (result != ERROR_CODE_OK) return result;
 
-      if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
+      if (token.t_type != TOKEN_EOL) {
+        return ERROR_CODE_SYN;
+      }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
+      printf("ven z vyrazu");
+      
       return ERROR_CODE_OK;
 
     default:
@@ -800,8 +825,12 @@ ERROR_CODE commands() {
       result = command();
       if (result != ERROR_CODE_OK) return result;
 
+      
+
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
+
+      printf("after skip elo, %d\n", token.t_type);
 
       return commands();
 
