@@ -29,7 +29,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 
 
 
-int expression(int* returnValue) {/*,int expectedValue*/
+int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
 
     exp_stackInit(&stack_expression);
@@ -113,6 +113,12 @@ Exp_element *newElement(int type,bool handle){
       if(token.t_type == TOKEN_STRING){
       new_element->e_data.ID = token.t_data.ID;
       }
+      if (token.t_type == TOKEN_ID) {
+        //printf("ddjdjd  %s\n", token.t_data.ID.value);
+
+        stringInit(&(new_element->e_data.ID));
+        stringAddChars(&(new_element->e_data.ID), new_element->e_data.ID.value);
+      }
       new_element->type = type;
       new_element->handle = handle;
       new_element->terminal = true;
@@ -141,6 +147,7 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     }
     type = token.t_type;
     Exp_element *element_to_stack = newElement(type, handle);
+    
     return element_to_stack;
 }
 
@@ -169,7 +176,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 char number[10];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
-                printf("number: %s\n", number);
+                //printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
@@ -183,7 +190,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 char number[10];
                 sprintf(number, "%f", stack_expression->top_of_stack->value->e_data.decimal);
-                printf("number: %s\n", number);
+               // printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
@@ -192,13 +199,12 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             //string value
             else if (stack_expression->top_of_stack->value->type == TOKEN_STRING) {
 
-                printf("string: %s\n", stack_expression->top_of_stack->value->e_data.ID.value);
+               // printf("string: %s\n", stack_expression->top_of_stack->value->e_data.ID.value);
 
                 operand operand = initOperand(operand, stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
-                printf("%s\n", firstTerm->value->e_data.ID.value);
                 result = makeIdInstr();
                 if (result != ERROR_CODE_OK) return result;
 
@@ -276,6 +282,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 }
 
 ERROR_CODE makeIdInstr() {
+    //todo function
     tBSTNodePtr helper = symTableSearch(&glSymtable, firstTerm->value->e_data.ID);
     if (helper != NULL) {
         switch (helper->Vartype) {
@@ -288,6 +295,7 @@ ERROR_CODE makeIdInstr() {
 
         case undefined:
             //variable is not defined -> dont know what to do with it
+            //printf("im here");
             return ERROR_CODE_SEM;
         default:
             //not initialized vartype -> err

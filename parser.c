@@ -44,7 +44,6 @@ ERROR_CODE skipEol() {
   ERROR_CODE result;
   switch (token.t_type) {
     case TOKEN_EOL:
-      printf("skip");
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       return skipEol();
     default:
@@ -203,7 +202,7 @@ ERROR_CODE functionDef() {
       }
 
       //dispose function name
-      stringClear(&functionName);
+      //stringClear(&functionName);
 
       //clear paramIndex
       paramIndex = 0;
@@ -426,7 +425,6 @@ ERROR_CODE command() {
 
   switch (token.t_type) {
     case TOKEN_IF:
-      printf("DDddd");
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       //todo vyraz expression
 
@@ -488,21 +486,17 @@ ERROR_CODE command() {
       result = commands();
       if (result != ERROR_CODE_OK) {
         return result;
-        ////printf("returning ddddwith token: %d\n", token.t_type);
       }
-      ////printf("returnsssing with token: %d\n", token.t_type);
 
       if (token.t_type != TOKEN_DEDENT) {
-       // //printf("returning with sstoken: %d\n", token.t_type);
         return ERROR_CODE_SYN;
-
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      ////printf("returning wdddith token: %d\n", token.t_type);
+      
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      ////printf("returning with token: %d\n", token.t_type);
+      
       return ERROR_CODE_OK;
 
     case TOKEN_WHILE:
@@ -563,6 +557,7 @@ ERROR_CODE command() {
       return ERROR_CODE_OK;
 
     case TOKEN_ID: ;
+
       //have to check if its expression
       token_type nextTokenType;
       if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
@@ -586,55 +581,125 @@ ERROR_CODE command() {
 
         case TOKEN_EOL: ;
           //just a variable 
-          tBSTNodePtr helper = symTableSearch(&glSymtable, token.t_data.ID);
-          if (helper != NULL) {
-            symTableInsert(&glSymtable, token.t_data.ID, false);
-          }
-
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          return ERROR_CODE_OK;
-
-        case TOKEN_EQUAL:
-          //Pokracovani_id -> = Pokracovani_id_next
-          //jedna se o prizareni do promenne
-
-          //have to update symtable
-          if (functionName.length == 0) { 
-            //now im in main program -> looking into global symtable
-            //make sure that this var is not in table
-            tBSTNodePtr helper;
-            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
+          if (functionName.length == 0) {
+            tBSTNodePtr helper = symTableSearch(&glSymtable, token.t_data.ID);
+            if (helper == NULL) {
+              //promenna jeste nebyla vytvorena -> vytvorime
               symTableInsert(&glSymtable, token.t_data.ID, false);
-              helper = symTableSearch(&glSymtable, token.t_data.ID);
 
+              //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
           }
           else {
-            //now im in function -> looking into local symtable
-            //make sure that this var is not in the table already
-            if (symTableSearch(&lcSymtable, token.t_data.ID) == NULL) {
+            //now im in function
+            tBSTNodePtr helper = symTableSearch(&lcSymtable, token.t_data.ID);
+            if (helper == NULL) {
+              //todo nepouzival jsem ji predtim?
+              //promenna jeste nebyla vytvorena -> vytvorime
               symTableInsert(&lcSymtable, token.t_data.ID, false);
+
+              //budu generovat instrukci pro vytvoreni promenne
+              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
           }
 
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //EOL
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //NEXT
+          return ERROR_CODE_OK;
 
+        case TOKEN_EQUAL:
+          //Pokracovani_id -> = Pokracovani_id_next
+          //going into variable assign
 
-          int kkt;
+          //have to update symtable
+          if (strlen(functionName.value) == 0) {
+
+            //now im in main program -> looking into global symtable
+            //make sure that this var is not in table
+            tBSTNodePtr helper;
+            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
+              //promenna jeste nebyla vytvorena
+              symTableInsert(&glSymtable, token.t_data.ID, false);
+              //nastavim si helper na prave vytvorenou promennnou
+              helper = symTableSearch(&glSymtable, token.t_data.ID);
+
+              //budu generovat instrukci pro vytvoreni promenne
+              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
+            }
+            else {
+              //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
+              //helper is set to that variable
+              helper = symTableSearch(&glSymtable, token.t_data.ID);
+            }
+
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
+
+            VarType sth;
+            result = expression(&sth);
+            if (result != ERROR_CODE_OK) return result;
+
+            // var -> vysledek_expression
+
+            operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, GF, false, false);
+            oneOperandInstr(&instrList, POPS, var_operand);
+          }
+
+          else {
+            //now im in function -> looking into local symtable
+            //make sure that this var is not in the table already
+            tBSTNodePtr helper;
+            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) != NULL) {
+              //var is in the global symtable -> create new in local
+              //todo if I already used it
+              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              //set helper to the symtable initalized node
+              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              //generate code
+              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
+            }
+            else if ((helper = symTableSearch(&lcSymtable, token.t_data.ID)) == NULL) {
+              //var is nowhere -> create new in local
+              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              //set helper to the symtable initalized node
+              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              //generate code of defvar
+              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
+            }
+            else {
+              //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
+              //helper is set to that variable
+              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+            }
+
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
+
+            VarType sth;
+            result = expression(&sth);
+            if (result != ERROR_CODE_OK) return result;
+
+            // var -> vysledek_expression
+
+            operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, LF, false, false);
+            oneOperandInstr(&instrList, POPS, var_operand);
+          }
+
           
-          result = expression(&kkt);
-
-          // var -> vysledek_expression
 
           //todo some expected value?
 
           //take the = from stdin
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
           //now we are sure that there has to be expression after =
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
           //todo expression
 
@@ -660,23 +725,20 @@ ERROR_CODE command() {
 
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
 
-      //wtf
-      //can we do sth with this?
-      //while (token.t_type != TOKEN_EOL) {
-      //  if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //}
-
-      int kkt2;
-      result = expression(&kkt2);
-      //if (result != ERROR_CODE_OK) return result;
+      VarType sth;
+      result = expression(&sth);
+      if (result != ERROR_CODE_OK) return result;
 
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
       }
+      string nil;
+      stringInit(&nil);
+      operand operand_bye = initOperand(operand_bye, nil, TOKEN_ID, GF, true, false);
+      oneOperandInstr(&instrList, POPS, operand_bye);
+      stringDispose(&nil);
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      printf("ven z vyrazu");
       
       return ERROR_CODE_OK;
 
@@ -830,7 +892,7 @@ ERROR_CODE commands() {
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
 
-      printf("after skip elo, %d\n", token.t_type);
+      //printf("after skip elo, %d\n", token.t_type);
 
       return commands();
 

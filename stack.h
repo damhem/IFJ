@@ -9,8 +9,7 @@
 
 int STACK_SIZE;
 
-typedef struct
-{
+typedef struct {
 	char arr[MAX_STACK];          /* pole pro uložení hodnot */
 	int top;                      /* index prvku na vrcholu zásobníku */
 } tStack;

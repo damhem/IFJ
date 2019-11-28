@@ -31,9 +31,9 @@ typedef struct exp_element {
 ptStack* firstTerm;
 
 //return value int
-int retVal;
+VarType retVal;
 
-int expression(int* returnValue); /*,int expectedValue*/
+int expression(VarType* returnValue); /*,int expectedValue*/
 int expressionAnalysis();
 char getSignFromTable();
 Exp_element *newElement(int type,bool handle);

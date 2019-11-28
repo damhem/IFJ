@@ -1,11 +1,16 @@
 """juuu"""
 #jjgrgj
 ahoj
+kokot
+ahoj = 6 + 8 * 7
+
 def foo(jedna, dva) :
+  7 + 7
+  #cau = 5 + 5
   if sth :
     6.99999
     51+5.4*8+7*5
-    'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
+    cau = 'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
     66
     if sthn :
       99
