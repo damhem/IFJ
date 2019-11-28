@@ -15,7 +15,7 @@ typedef struct ptstack_structure{
     struct exp_element *value;
 } ptStack;
 
-// Struktura zásboníku
+// Struktura zásobníku
 typedef struct {
     ptStack *top_of_stack;
 } ptrStack;
