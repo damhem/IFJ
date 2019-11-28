@@ -9,6 +9,7 @@ def foo(jedna, dva) :
   #cau = 5 + 5
   if sth :
     6.99999
+    (5+5)*5
     51+5.4*8+7*5
     cau = 'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
     66

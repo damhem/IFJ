@@ -50,6 +50,10 @@ int expressionAnalysis() {
           if(sign == '='){
 
               exp_stackPush(&stack_expression,tokentoExp_element(token,false));
+              result =  reducePars(&stack_expression); 
+              if (result != ERROR_CODE_OK) {
+                  return result;
+              }
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
 
@@ -278,7 +282,24 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
     return ERROR_CODE_OK;
 }
+ERROR_CODE reducePars(ptrStack *stack_expression){
+    if(stack_expression != NULL){
+        ptStack* quicksave = stack_expression->top_of_stack->left;
 
+        exp_stackPop(stack_expression);
+        exp_stackPop(stack_expression);
+        exp_stackPop(stack_expression);
+        
+        exp_stackPush(stack_expression,quicksave);
+        if((stack_expression->top_of_stack->left->value)->terminal == true) {
+
+            firstTerm = stack_expression->top_of_stack->left;
+            (firstTerm->value)->handle = false;
+            
+        }else return ERROR_CODE_SYN;
+}else return ERROR_CODE_SYN;
+return ERROR_CODE_OK;
+}
 ERROR_CODE makeIdInstr() {
     //todo function
     tBSTNodePtr helper = symTableSearch(&glSymtable, firstTerm->value->e_data.ID);
