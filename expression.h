@@ -11,7 +11,7 @@
 #include "parser.h"
 #include "bst.h"
 
-
+//velikost precedencni tabulky
 #define PT_SIZE 21
 
 typedef union element_data {

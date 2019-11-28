@@ -28,7 +28,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 };
 
 
-
+//hlavní funkce
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
 
@@ -41,7 +41,7 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
     *returnValue = retVal;
     return result;
 }
-
+//Analýza daného výrazu
 int expressionAnalysis() {
     ERROR_CODE result;
     char sign = '_';
@@ -82,7 +82,7 @@ int expressionAnalysis() {
           }
     }
 }
-
+// Funkce pro hledání znaku z precedencni tabulky
 char getSignFromTable(){
     int a;
     int b;
@@ -98,7 +98,7 @@ char getSignFromTable(){
     return precedenceTable[a][b];
 }
 
-
+//Funkce inicializující nový element
 Exp_element *newElement(int type,bool handle){
   Exp_element *new_element = malloc(sizeof(struct exp_element));
 
@@ -127,19 +127,31 @@ Exp_element *newElement(int type,bool handle){
   }
   else return NULL;
 }
+//Funkce ziskavající typ prvního terminalu na stacku
 int get_stack_type(ptrStack *stack_expression){
-    if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
+
+    if (stack_expression->top_of_stack != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
       }
-    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
-        return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
     }
-    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
+
+    if (stack_expression->top_of_stack->left != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
+        }
+    }
+    
+    if (stack_expression->top_of_stack->left->left != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->left->left->value)->terminal == true){
+        return ((Exp_element*)stack_expression->top_of_stack->left->left->value)->type;
+        }
+        
     }
     return ERROR_CODE_OK;
+    
 }
-
+// Funkce prevadejici token na element
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type;
     if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
@@ -151,7 +163,7 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     return element_to_stack;
 }
 
-
+//Funkce resici redukce vyrazu
 ERROR_CODE useRule(ptrStack *stack_expression){
     ERROR_CODE result;
 
@@ -278,7 +290,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
     return ERROR_CODE_OK;
 }
-
+//Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
     tBSTNodePtr helper = symTableSearch(&glSymtable, firstTerm->value->e_data.ID);
