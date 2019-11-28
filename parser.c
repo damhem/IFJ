@@ -142,8 +142,6 @@ ERROR_CODE programBody() {
 
 ERROR_CODE functionDef() {
 
-  //printf("IN FUNCTION DEF\n");
-
   ERROR_CODE result;
 
   switch (token.t_type) {
@@ -220,8 +218,6 @@ ERROR_CODE functionDef() {
 ERROR_CODE functionHead() {
 
   ERROR_CODE result;
-
-  //printf("IN FUNCTION HEAD\n");
 
   switch (token.t_type) {
 

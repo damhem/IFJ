@@ -10,8 +10,8 @@ void DLInitList(instruction_list *List) {
     addInstruction(List, COMMENT, "-------------------start------------------", NULL, NULL);
     //todo what is this for?
     addInstruction(List, DEFVAR, "GF@tmp", NULL, NULL);
-    addInstruction(List, DEFVAR, "GF@tmp_type", NULL, NULL);
-    addInstruction(List, DEFVAR, "GF@tmp_type2", NULL, NULL);
+    addInstruction(List, DEFVAR, "GF@tmp1", NULL, NULL);
+    addInstruction(List, DEFVAR, "GF@tmp2", NULL, NULL);
     addInstruction(List, JUMP, "$$start", NULL, NULL);
     
     //todo vestavene funkce

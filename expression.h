@@ -37,7 +37,8 @@ Exp_element *newElement(int type,bool handle);
 int get_stack_type(ptrStack *stack_expression);
 Exp_element *tokentoExp_element(Token token,bool handle);
 int convertTokenToIndex(Token token);
-int useRule(ptrStack *stack_expression);
+ERROR_CODE useRule(ptrStack *stack_expression);
+ERROR_CODE makeIdInstr();
 
 
 #endif //EXPRESSION_H

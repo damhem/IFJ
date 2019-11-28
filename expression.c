@@ -142,7 +142,8 @@ Exp_element *tokentoExp_element(Token token,bool handle){
 }
 
 
-int useRule(ptrStack *stack_expression){
+ERROR_CODE useRule(ptrStack *stack_expression){
+    ERROR_CODE result;
 
     switch(firstTerm->value->type) {
 
@@ -193,6 +194,10 @@ int useRule(ptrStack *stack_expression){
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
+
+                result = makeIdInstr();
+                if (result != ERROR_CODE_OK) return result;
+
                 return 2;
             }
             //todo pro double a pro string a pro ID?? nvm
@@ -254,5 +259,31 @@ int useRule(ptrStack *stack_expression){
         firstTerm = stack_expression->top_of_stack->left;
     }
 
+    return ERROR_CODE_OK;
+}
+
+ERROR_CODE makeIdInstr() {
+    tBSTNodePtr helper = symTableSearch(&glSymtable, firstTerm->value->e_data.ID);
+    if (helper != NULL) {
+        switch (helper->Vartype) {
+        case typeinteger:
+            
+            break;
+        case typedouble:
+
+        case typestring:
+
+        case undefined:
+            //variable is not defined -> dont know what to do with it
+            return ERROR_CODE_SEM;
+        default:
+            //not initialized vartype -> err
+            return ERROR_CODE_INTERNAL;
+        }
+    }
+    else {
+        //promenna se nenasla v tabulce
+        return ERROR_CODE_SEM;
+    }
     return ERROR_CODE_OK;
 }
