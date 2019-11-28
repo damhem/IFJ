@@ -196,12 +196,21 @@ int useRule(ptrStack *stack_expression){
                 return 2;
             }
             //todo pro double a pro string a pro ID?? nvm
-            
+
             return ERROR_CODE_OK;
 
         case TOKEN_ADDITION :
-            //todo concatenace stringu
-
+            if(stack_expression->top_of_stack->value->type == TOKEN_STRING) {
+                string operandString;
+                stringInit(&operandString);
+                //stringAddChars(&operandString, "");
+                operand operand1 = initOperand(operand1,operandString,TOKEN_ID,LF, true, false);
+                operand operand2 = initOperand(operand2,stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
+                operand operand3 = initOperand(operand3,stack_expression->top_of_stack->left->left->value->e_data.ID, stack_expression->top_of_stack->left->left->value->type, LF, false, false);
+                threeOperandInstr(&instrList, CONCAT, operand1, operand2, operand3);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            }
             noOperandInstr(&instrList, ADDS);
             break;
 
@@ -216,7 +225,7 @@ int useRule(ptrStack *stack_expression){
         case TOKEN_DIVISION:
             noOperandInstr(&instrList, DIVS);
             break;
-            
+
         case TOKEN_INTEGER_DIVISION:
             noOperandInstr(&instrList, DIVS);
             noOperandInstr(&instrList, FLOAT2INTS);
@@ -242,7 +251,7 @@ int useRule(ptrStack *stack_expression){
             noOperandInstr(&instrList, LTS);
             noOperandInstr(&instrList, NOTS);
             break;
-    
+
         default:
           return ERROR_CODE_SEM;
     }
