@@ -82,7 +82,6 @@ int expressionAnalysis() {
 
           } else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
                 if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
-                printf("djdjjddd");
                 result = makeFunction();
                 if (result != ERROR_CODE_OK) return result;
                 if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar
