@@ -1,11 +1,12 @@
 """juuu"""
 #jjgrgj
-ahoj
+ahoj = 2
+ahoj = ahoj + 2
 kokot
 ahoj = 6 + 8 * 7
 
 def foo(jedna, dva) :
-  7 + 7
+  ahoj + 7
   #cau = 5 + 5
   if sth :
     6.99999

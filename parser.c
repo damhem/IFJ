@@ -586,6 +586,7 @@ ERROR_CODE command() {
             if (helper == NULL) {
               //promenna jeste nebyla vytvorena -> vytvorime
               symTableInsert(&glSymtable, token.t_data.ID, false);
+              printf("vytvoreno: %s", token.t_data.ID.value);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -622,6 +623,7 @@ ERROR_CODE command() {
             tBSTNodePtr helper;
             if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
               //promenna jeste nebyla vytvorena
+              printf("vytvoreno: %s", token.t_data.ID.value);
               symTableInsert(&glSymtable, token.t_data.ID, false);
               //nastavim si helper na prave vytvorenou promennnou
               helper = symTableSearch(&glSymtable, token.t_data.ID);
