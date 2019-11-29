@@ -244,12 +244,100 @@ Token getNextToken(bool *line_flag, tStack *s) {
             state = SCANNER_EXPONENT_1;
             stringAddChar(&token.t_data.ID, c);
           }
+          else if (c == 'b' || c == 'B') {
+            state = SCANNER_BIN;
+            stringClear(&token.t_data.ID);
+          }
+          else if (c == 'o' || c == 'O') {
+            state = SCANNER_OCT;
+            stringClear(&token.t_data.ID);
+          }
+          else if (c == 'x' || c == 'X') {
+            state = SCANNER_HEX;
+            stringClear(&token.t_data.ID);
+          }
           else {
-            int temp;
-            sscanf(token.t_data.ID.value, "%d", &temp);
+            token.t_data.integer = 0;
+            token.t_type = TOKEN_INT;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_BIN):
+          if (c == '_') {
+            state = SCANNER_BIN_UNDERSCORE;
+          }
+          else if (c == '0' || c == '1') {
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            unsigned int temp = strtol(token.t_data.ID.value, NULL, 2);
             token.t_data.integer = temp;
             token.t_type = TOKEN_INT;
             ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_OCT):
+          if (c == '_') {
+            state = SCANNER_OCT_UNDERSCORE;
+          }
+          else if (c>='0' && c<='7') {
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            unsigned int temp = strtol(token.t_data.ID.value, NULL, 8);
+            token.t_data.integer = temp;
+            token.t_type = TOKEN_INT;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_HEX):
+          if (c == '_') {
+            state = SCANNER_HEX_UNDERSCORE;
+          }
+          else if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            unsigned int temp = strtol(token.t_data.ID.value, NULL, 16);
+            token.t_data.integer = temp;
+            token.t_type = TOKEN_INT;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+        case (SCANNER_BIN_UNDERSCORE):
+          if (c == '0' || c == '1') {
+            state = SCANNER_BIN;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
+          }
+          break;
+        case (SCANNER_OCT_UNDERSCORE):
+          if (c>='0' && c<='7') {
+            state = SCANNER_OCT;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
+          }
+          break;
+        case (SCANNER_HEX_UNDERSCORE):
+          if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
+            state = SCANNER_HEX;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
             return token;
           }
           break;
@@ -379,7 +467,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         break;
       case (SCANNER_COMMENT_02):
         if (c == '"'){                       //3"
-          if (inFunctionflag == true) {
+          if (nowExpression == true) {
             return token;
           }
           else {

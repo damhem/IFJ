@@ -1,14 +1,11 @@
-
 #include "parser.h"
-
-
 
 ERROR_CODE parse() {
 
   ERROR_CODE result;
 
   line_flag = true;
-  inFunctionflag = false;
+  nowExpression = false;
   paramIndex = 0;
   peekToken.t_type = TOKEN_UNDEF;
 
@@ -16,10 +13,10 @@ ERROR_CODE parse() {
   if (stackInit(&s) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  if (symTableInit(&glSymtable) == ERROR_CODE_INTERNAL) {
+  if (SYMInit(&glSymtable) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  
+
   stringInit(&functionName);
 
   //get first token
@@ -34,8 +31,8 @@ ERROR_CODE parse() {
   stringDispose(&functionName);
   exp_stackClear(&stack_expression);
   stackClear(&s);
-  symTableDispose(&glSymtable);
-  symTableDispose(&lcSymtable);
+  SYMDispose(&glSymtable);
+  SYMDispose(&lcSymtable);
 
   return result;
 }
@@ -151,11 +148,8 @@ ERROR_CODE functionDef() {
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
-      //todo zapis instrukce?
-
-
-      //todo symtable shit
-
+      operand operand_label = initOperand(operand_label, functionName, TOKEN_ID, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand_label);
 
       //there has to be EOL
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -176,19 +170,19 @@ ERROR_CODE functionDef() {
       if (result != ERROR_CODE_OK) return result;
 
       //create local symtable
-      if (symTableInit(&lcSymtable) == ERROR_CODE_INTERNAL) {
+      if (SYMInit(&lcSymtable) == ERROR_CODE_INTERNAL) {
         return ERROR_CODE_INTERNAL;
       }
 
       //set global symtable to pointer
-      tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper == NULL) {
         return ERROR_CODE_SEM_OTHER;
       }
       else {
         //now we have to add paramnames to local symtable
         for (int i = 0; i < helper->parametrs; i++) {
-          symTableInsert(&lcSymtable, helper->paramName[i], false);
+          SYMInsert(&lcSymtable, helper->paramName[i], false);
         }
       }
 
@@ -221,7 +215,9 @@ ERROR_CODE functionHead() {
 
   switch (token.t_type) {
 
-    case TOKEN_DEF:
+    case TOKEN_DEF: ;
+      int numberOfPrevParams = 0;
+      bool declared = false;
       //Hlavicka_funkce -> def id ( Parametry ) :
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       if (token.t_type != TOKEN_ID) {
@@ -230,7 +226,7 @@ ERROR_CODE functionHead() {
 
       // check id of function (maybe its already declared by our program or sth)
       stringAddChars(&functionName, token.t_data.ID.value);
-      tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper != NULL) {
         //oooo lol its already declared
         //have to check if its not variable
@@ -240,11 +236,13 @@ ERROR_CODE functionHead() {
         }
         //when function has been declared, but not defined
         else if (strcmp(helper->Key.value, functionName.value) == 0 && (helper->defined == false)) {
-          result = symTableInsert(&glSymtable, functionName, true);
+
+          result = SYMInsert(&glSymtable, functionName, true);
+          numberOfPrevParams = helper->parametrs;
+          declared = true;
+
           if (result != ERROR_CODE_OK) return result;
           helper->defined = true;
-
-          //todo check if the number of parametres match
         }
         else {
           //there is this function already
@@ -254,9 +252,9 @@ ERROR_CODE functionHead() {
       }
       else {
         //this is new entry to the function
-        result = symTableInsert(&glSymtable, functionName, true);
+        result = SYMInsert(&glSymtable, functionName, true);
         if (result != ERROR_CODE_OK) return result;
-        if ((helper = symTableSearch(&glSymtable, functionName)) == NULL) {
+        if ((helper = SYMSearch(&glSymtable, functionName)) == NULL) {
           return ERROR_CODE_SEM_OTHER;
         }
         else {
@@ -279,6 +277,13 @@ ERROR_CODE functionHead() {
 
       result = functionParam();
       if (result != ERROR_CODE_OK) return result;
+
+      //checking if it was called with right number of params
+      if (declared) {
+        if (numberOfPrevParams != paramIndex + 1) {
+          return ERROR_CODE_SEM;
+        }
+      }
 
       //there has to be )
       if (token.t_type != TOKEN_RIGHTPAR) {
@@ -311,14 +316,14 @@ ERROR_CODE functionParam() {
       stringInit(&Paramname);
       stringAddChars(&Paramname, token.t_data.ID.value);
 
-      tBSTNodePtr helper = symTableSearch(&glSymtable, Paramname);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, Paramname);
       if (helper != NULL) {
         //there has been function with the same ID
         fprintf(stderr, "Nemuzete mit stejny nazev funkce/promenne a nazev parametru funkce: %s\n", Paramname.value);
         return ERROR_CODE_SEM;
       }
 
-      helper = symTableSearch(&glSymtable, functionName);
+      helper = SYMSearch(&glSymtable, functionName);
 
       if (helper != NULL) {
         //means that function is in symtable
@@ -364,7 +369,6 @@ ERROR_CODE functionParam() {
 }
 
 ERROR_CODE nextFunctionParam() {
-  //todo? result
 
   switch (token.t_type) {
     case TOKEN_COMMA:
@@ -401,7 +405,7 @@ ERROR_CODE functionBody() {
     case TOKEN_LEFTPAR:
       //Telo_funkce -> Prikaz Telo_funkce
 
-      //todo? some var infunction
+      //todo????????????? some var infunction
 
       result = command();
       if (result != ERROR_CODE_OK) return result;
@@ -426,11 +430,18 @@ ERROR_CODE command() {
   switch (token.t_type) {
     case TOKEN_IF:
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
-      //todo vyraz expression
+      nowExpression = true;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      VarType type;
+      result = expression(&type);
+      if (result != ERROR_CODE_OK) return result;
+      
+      nowExpression = false;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      //todo vyhodnoceni vyrazu
+
+      //have to end with :
       if (token.t_type != TOKEN_DOUBLEDOT) {
         return ERROR_CODE_SYN;
       }
@@ -493,18 +504,24 @@ ERROR_CODE command() {
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      
+
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      
+
       return ERROR_CODE_OK;
 
     case TOKEN_WHILE:
       //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //todo vyraz here
+      nowExpression = true;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      VarType type_while;
+      result = expression(&type_while);
+      if (result != ERROR_CODE_OK) return result;
+      
+      //todo vyhodnoceni vyrazu
+      nowExpression = false;
+
       if (token.t_type != TOKEN_DOUBLEDOT) return ERROR_CODE_SYN;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -574,19 +591,25 @@ ERROR_CODE command() {
         case TOKEN_BIGGERTHEN:
         case TOKEN_BIGGERTHEN_EQUAL:
           //has to be operator
+        
+          VarType type_id;
+          result = expression(&type_id);
+          if (result != ERROR_CODE_OK) return result;
 
-          //todo expression napojení (expression(token))
-
-          return ERROR_CODE_SYN;
+          return ERROR_CODE_OK;
 
         case TOKEN_EOL: ;
-          //just a variable 
+          //just a variable
           if (functionName.length == 0) {
-            tBSTNodePtr helper = symTableSearch(&glSymtable, token.t_data.ID);
+            tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
               //promenna jeste nebyla vytvorena -> vytvorime
-              symTableInsert(&glSymtable, token.t_data.ID, false);
+
+              
               printf("vytvoreno: %s", token.t_data.ID.value);
+
+              SYMInsert(&glSymtable, token.t_data.ID, false);
+
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -595,11 +618,11 @@ ERROR_CODE command() {
           }
           else {
             //now im in function
-            tBSTNodePtr helper = symTableSearch(&lcSymtable, token.t_data.ID);
+            tBSTNodePtr helper = SYMSearch(&lcSymtable, token.t_data.ID);
             if (helper == NULL) {
               //todo nepouzival jsem ji predtim?
               //promenna jeste nebyla vytvorena -> vytvorime
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
@@ -621,12 +644,16 @@ ERROR_CODE command() {
             //now im in main program -> looking into global symtable
             //make sure that this var is not in table
             tBSTNodePtr helper;
-            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
+            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) == NULL) {
               //promenna jeste nebyla vytvorena
+
               printf("vytvoreno: %s", token.t_data.ID.value);
-              symTableInsert(&glSymtable, token.t_data.ID, false);
+              
+
+              SYMInsert(&glSymtable, token.t_data.ID, false);
+
               //nastavim si helper na prave vytvorenou promennnou
-              helper = symTableSearch(&glSymtable, token.t_data.ID);
+              helper = SYMSearch(&glSymtable, token.t_data.ID);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -635,15 +662,17 @@ ERROR_CODE command() {
             else {
               //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
               //helper is set to global that variable
-              helper = symTableSearch(&glSymtable, token.t_data.ID);
+              helper = SYMSearch(&glSymtable, token.t_data.ID);
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
+            nowExpression = false;
 
             // var -> vysledek_expression
             helper->DataType = sth;
@@ -656,21 +685,21 @@ ERROR_CODE command() {
             //now im in function -> looking into local symtable
             //make sure that this var is not in the table already
             tBSTNodePtr helper;
-            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) != NULL) {
+            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) != NULL) {
               //var is in the global symtable -> create new in local
               //todo if I already used it
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
               //set helper to the symtable initalized node
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
-            else if ((helper = symTableSearch(&lcSymtable, token.t_data.ID)) == NULL) {
+            else if ((helper = SYMSearch(&lcSymtable, token.t_data.ID)) == NULL) {
               //var is nowhere -> create new in local
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
               //set helper to the symtable initalized node
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code of defvar
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
@@ -678,15 +707,17 @@ ERROR_CODE command() {
             else {
               //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
               //helper is set to local that variable
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
+            nowExpression = false;
 
             // var -> vysledek_expression
             helper->DataType = sth;
@@ -700,12 +731,21 @@ ERROR_CODE command() {
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
-
-
-          //todo there has to start expression as well
-
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           
+          nowExpression = true;
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          VarType type_proc;
+          result = expression(&type_proc);
+          if (result != ERROR_CODE_OK) return result;
+          
+          nowExpression = false;
+
+          //todo? co bude vracet expression? nebo nic?
+
+          if (token.t_type != TOKEN_EOL) {
+            return ERROR_CODE_SYN;
+          }
+
           return ERROR_CODE_OK;
         default:
           return ERROR_CODE_SYN;
@@ -718,10 +758,11 @@ ERROR_CODE command() {
     case TOKEN_LEFTPAR: ;
 
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
-
+      nowExpression = true;
       VarType sth;
       result = expression(&sth);
       if (result != ERROR_CODE_OK) return result;
+      nowExpression = false;
 
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
@@ -733,7 +774,7 @@ ERROR_CODE command() {
       stringDispose(&nil);
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      
+
       return ERROR_CODE_OK;
 
     default:
@@ -771,9 +812,9 @@ ERROR_CODE continueID() {
         //has to be operator
 
         //printf("WILL BE DOING EXPRESSION\n");
-        //todo expression napojení (expression(token))
+        //tod expression napojení (expression(token))
 
-        //todo eol token
+        //toeol token
 
         return ERROR_CODE_SYN;
 
@@ -809,7 +850,7 @@ ERROR_CODE terms() {
 
   switch (token.t_type) {
     case TOKEN_ID:
-      //todo sth with symtable
+      // sth with symtable
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = nextTerms();
@@ -824,7 +865,7 @@ ERROR_CODE terms() {
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
 
-      //todo sth
+      // sth
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = nextTerms();
@@ -844,13 +885,13 @@ ERROR_CODE terms() {
 ERROR_CODE nextTerms() {
 
   //printf("IN NEXT TERMS:\n");
-  //todo? ERROR_CODE result;
+  
 
   switch (token.t_type) {
     case TOKEN_COMMA:
       //Next_term -> , Termy
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //todo maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
+      //tod maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
 
       return terms();
 
@@ -881,7 +922,7 @@ ERROR_CODE commands() {
       result = command();
       if (result != ERROR_CODE_OK) return result;
 
-      
+
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
