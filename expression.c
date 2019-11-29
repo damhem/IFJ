@@ -90,7 +90,7 @@ int expressionAnalysis() {
 char getSignFromTable(){
     int a;
     int b;
-    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
         b = TOKEN_UNDEF;
     }
     else {
@@ -158,7 +158,7 @@ int get_stack_type(ptrStack *stack_expression){
 // Funkce prevadejici token na element
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type;
-    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
         type = TOKEN_UNDEF;
     }
     type = token.t_type;

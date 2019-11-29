@@ -7,20 +7,20 @@ ahoj = 6 + 8 * 7
 def foo(jedna, dva) :
   7 + 7
   #cau = 5 + 5
-  if sth :
+  if 6 + 9 * 9 :
     6.99999
     (5+5)*5
     51+5.4*8+7*5
     cau = 'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
     66
-    if sthn :
+    if (10 * 3) :
       99
       #jsdff
-      while fff:
+      while 55:
         9999
         #jghgh
         77
-        if jjd :
+        if 3 - (9 + 5) :
           #hfhfhf
           pass
           #djdjjd
@@ -34,7 +34,7 @@ def foo(jedna, dva) :
     #dwa
   #lul
   7777777
-  while sth :
+  while 5 + 11 * (3 + (2 - 8)) :
     
     #prvni
     #treti
