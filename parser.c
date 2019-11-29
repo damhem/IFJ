@@ -430,7 +430,7 @@ ERROR_CODE command() {
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
       nowExpression = true;
 
-       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       VarType type;
       result = expression(&type);
       if (result != ERROR_CODE_OK) return result;
@@ -589,13 +589,12 @@ ERROR_CODE command() {
         case TOKEN_BIGGERTHEN:
         case TOKEN_BIGGERTHEN_EQUAL:
           //has to be operator
-          
-          nowExpression = true;
-          //todo expression napojení (expression(token))
-          nowExpression = false;
-          
+        
+          VarType type_id;
+          result = expression(&type_id);
+          if (result != ERROR_CODE_OK) return result;
 
-          return ERROR_CODE_SYN;
+          return ERROR_CODE_OK;
 
         case TOKEN_EOL: ;
           //just a variable 
@@ -720,12 +719,20 @@ ERROR_CODE command() {
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
-
+          
           nowExpression = true;
-          //todo there has to start expression as well
+          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          VarType type_proc;
+          result = expression(&type_proc);
+          if (result != ERROR_CODE_OK) return result;
+          
           nowExpression = false;
 
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          //todo? co bude vracet expression? nebo nic?
+
+          if (token.t_type != TOKEN_EOL) {
+            return ERROR_CODE_SYN;
+          }
 
           return ERROR_CODE_OK;
         default:
