@@ -254,7 +254,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           }
           else if (c == 'x' || c == 'X') {
             state = SCANNER_HEX;
-            stringAddChar(&token.t_data.ID, c);
+            stringClear(&token.t_data.ID);
           }
           else {
             token.t_data.integer = 0;
@@ -286,8 +286,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             stringAddChar(&token.t_data.ID, c);
           }
           else {
-            unsigned int temp;
-            sscanf(token.t_data.ID.value, "%o", &temp);
+            unsigned int temp = strtol(token.t_data.ID.value, NULL, 8);
             token.t_data.integer = temp;
             token.t_type = TOKEN_INT;
             ungetc(c, stdin);
@@ -302,8 +301,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             stringAddChar(&token.t_data.ID, c);
           }
           else {
-            unsigned int temp;
-            sscanf(token.t_data.ID.value, "%x", &temp);
+            unsigned int temp = strtol(token.t_data.ID.value, NULL, 16);
             token.t_data.integer = temp;
             token.t_type = TOKEN_INT;
             ungetc(c, stdin);

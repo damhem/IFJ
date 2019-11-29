@@ -9,7 +9,6 @@
 #include "string.h"
 #include "symtable.h"
 #include "parser.h"
-#include "bst.h"
 
 
 #define PT_SIZE 21

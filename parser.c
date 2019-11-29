@@ -16,10 +16,10 @@ ERROR_CODE parse() {
   if (stackInit(&s) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  if (symTableInit(&glSymtable) == ERROR_CODE_INTERNAL) {
+  if (SYMInit(&glSymtable) == ERROR_CODE_INTERNAL) {
     return ERROR_CODE_INTERNAL;
   }
-  
+
   stringInit(&functionName);
 
   //get first token
@@ -34,8 +34,8 @@ ERROR_CODE parse() {
   stringDispose(&functionName);
   exp_stackClear(&stack_expression);
   stackClear(&s);
-  symTableDispose(&glSymtable);
-  symTableDispose(&lcSymtable);
+  SYMDispose(&glSymtable);
+  SYMDispose(&lcSymtable);
 
   return result;
 }
@@ -176,19 +176,19 @@ ERROR_CODE functionDef() {
       if (result != ERROR_CODE_OK) return result;
 
       //create local symtable
-      if (symTableInit(&lcSymtable) == ERROR_CODE_INTERNAL) {
+      if (SYMInit(&lcSymtable) == ERROR_CODE_INTERNAL) {
         return ERROR_CODE_INTERNAL;
       }
 
       //set global symtable to pointer
-      tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper == NULL) {
         return ERROR_CODE_SEM_OTHER;
       }
       else {
         //now we have to add paramnames to local symtable
         for (int i = 0; i < helper->parametrs; i++) {
-          symTableInsert(&lcSymtable, helper->paramName[i], false);
+          SYMInsert(&lcSymtable, helper->paramName[i], false);
         }
       }
 
@@ -230,7 +230,7 @@ ERROR_CODE functionHead() {
 
       // check id of function (maybe its already declared by our program or sth)
       stringAddChars(&functionName, token.t_data.ID.value);
-      tBSTNodePtr helper = symTableSearch(&glSymtable, functionName);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper != NULL) {
         //oooo lol its already declared
         //have to check if its not variable
@@ -240,7 +240,7 @@ ERROR_CODE functionHead() {
         }
         //when function has been declared, but not defined
         else if (strcmp(helper->Key.value, functionName.value) == 0 && (helper->defined == false)) {
-          result = symTableInsert(&glSymtable, functionName, true);
+          result = SYMInsert(&glSymtable, functionName, true);
           if (result != ERROR_CODE_OK) return result;
           helper->defined = true;
 
@@ -254,9 +254,9 @@ ERROR_CODE functionHead() {
       }
       else {
         //this is new entry to the function
-        result = symTableInsert(&glSymtable, functionName, true);
+        result = SYMInsert(&glSymtable, functionName, true);
         if (result != ERROR_CODE_OK) return result;
-        if ((helper = symTableSearch(&glSymtable, functionName)) == NULL) {
+        if ((helper = SYMSearch(&glSymtable, functionName)) == NULL) {
           return ERROR_CODE_SEM_OTHER;
         }
         else {
@@ -311,14 +311,14 @@ ERROR_CODE functionParam() {
       stringInit(&Paramname);
       stringAddChars(&Paramname, token.t_data.ID.value);
 
-      tBSTNodePtr helper = symTableSearch(&glSymtable, Paramname);
+      tBSTNodePtr helper = SYMSearch(&glSymtable, Paramname);
       if (helper != NULL) {
         //there has been function with the same ID
         fprintf(stderr, "Nemuzete mit stejny nazev funkce/promenne a nazev parametru funkce: %s\n", Paramname.value);
         return ERROR_CODE_SEM;
       }
 
-      helper = symTableSearch(&glSymtable, functionName);
+      helper = SYMSearch(&glSymtable, functionName);
 
       if (helper != NULL) {
         //means that function is in symtable
@@ -493,10 +493,10 @@ ERROR_CODE command() {
       }
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      
+
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-      
+
       return ERROR_CODE_OK;
 
     case TOKEN_WHILE:
@@ -580,12 +580,12 @@ ERROR_CODE command() {
           return ERROR_CODE_SYN;
 
         case TOKEN_EOL: ;
-          //just a variable 
+          //just a variable
           if (functionName.length == 0) {
-            tBSTNodePtr helper = symTableSearch(&glSymtable, token.t_data.ID);
+            tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
               //promenna jeste nebyla vytvorena -> vytvorime
-              symTableInsert(&glSymtable, token.t_data.ID, false);
+              SYMInsert(&glSymtable, token.t_data.ID, false);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -594,11 +594,11 @@ ERROR_CODE command() {
           }
           else {
             //now im in function
-            tBSTNodePtr helper = symTableSearch(&lcSymtable, token.t_data.ID);
+            tBSTNodePtr helper = SYMSearch(&lcSymtable, token.t_data.ID);
             if (helper == NULL) {
               //todo nepouzival jsem ji predtim?
               //promenna jeste nebyla vytvorena -> vytvorime
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
@@ -620,11 +620,11 @@ ERROR_CODE command() {
             //now im in main program -> looking into global symtable
             //make sure that this var is not in table
             tBSTNodePtr helper;
-            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) == NULL) {
+            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) == NULL) {
               //promenna jeste nebyla vytvorena
-              symTableInsert(&glSymtable, token.t_data.ID, false);
+              SYMInsert(&glSymtable, token.t_data.ID, false);
               //nastavim si helper na prave vytvorenou promennnou
-              helper = symTableSearch(&glSymtable, token.t_data.ID);
+              helper = SYMSearch(&glSymtable, token.t_data.ID);
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -633,7 +633,7 @@ ERROR_CODE command() {
             else {
               //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
               //helper is set to global that variable
-              helper = symTableSearch(&glSymtable, token.t_data.ID);
+              helper = SYMSearch(&glSymtable, token.t_data.ID);
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
@@ -654,21 +654,21 @@ ERROR_CODE command() {
             //now im in function -> looking into local symtable
             //make sure that this var is not in the table already
             tBSTNodePtr helper;
-            if ((helper = symTableSearch(&glSymtable, token.t_data.ID)) != NULL) {
+            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) != NULL) {
               //var is in the global symtable -> create new in local
               //todo if I already used it
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
               //set helper to the symtable initalized node
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
-            else if ((helper = symTableSearch(&lcSymtable, token.t_data.ID)) == NULL) {
+            else if ((helper = SYMSearch(&lcSymtable, token.t_data.ID)) == NULL) {
               //var is nowhere -> create new in local
-              symTableInsert(&lcSymtable, token.t_data.ID, false);
+              SYMInsert(&lcSymtable, token.t_data.ID, false);
               //set helper to the symtable initalized node
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code of defvar
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
@@ -676,7 +676,7 @@ ERROR_CODE command() {
             else {
               //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
               //helper is set to local that variable
-              helper = symTableSearch(&lcSymtable, token.t_data.ID);
+              helper = SYMSearch(&lcSymtable, token.t_data.ID);
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
@@ -703,7 +703,7 @@ ERROR_CODE command() {
           //todo there has to start expression as well
 
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          
+
           return ERROR_CODE_OK;
         default:
           return ERROR_CODE_SYN;
@@ -731,7 +731,7 @@ ERROR_CODE command() {
       stringDispose(&nil);
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      
+
       return ERROR_CODE_OK;
 
     default:
@@ -879,7 +879,7 @@ ERROR_CODE commands() {
       result = command();
       if (result != ERROR_CODE_OK) return result;
 
-      
+
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
