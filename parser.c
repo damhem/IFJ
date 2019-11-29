@@ -604,7 +604,12 @@ ERROR_CODE command() {
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
               //promenna jeste nebyla vytvorena -> vytvorime
+
+              
+              printf("vytvoreno: %s", token.t_data.ID.value);
+
               SYMInsert(&glSymtable, token.t_data.ID, false);
+
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -641,7 +646,12 @@ ERROR_CODE command() {
             tBSTNodePtr helper;
             if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) == NULL) {
               //promenna jeste nebyla vytvorena
+
+              printf("vytvoreno: %s", token.t_data.ID.value);
+              
+
               SYMInsert(&glSymtable, token.t_data.ID, false);
+
               //nastavim si helper na prave vytvorenou promennnou
               helper = SYMSearch(&glSymtable, token.t_data.ID);
 

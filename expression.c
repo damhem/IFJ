@@ -108,20 +108,19 @@ Exp_element *newElement(int type,bool handle){
 
   //Inicializace noveho elementu
   if(new_element != NULL){
-      if(token.t_type == TOKEN_INT){
+      if(type == TOKEN_INT){
       new_element->e_data.integer = token.t_data.integer;
       }
-      if(token.t_type == TOKEN_DOUBLE){
+      if(type == TOKEN_DOUBLE){
       new_element->e_data.decimal = token.t_data.decimal;
       }
-      if(token.t_type == TOKEN_STRING){
+      if(type == TOKEN_STRING){
       new_element->e_data.ID = token.t_data.ID;
       }
-      if (token.t_type == TOKEN_ID) {
-        //printf("ddjdjd  %s\n", token.t_data.ID.value);
-
+      if (type == TOKEN_ID) {
+        printf("ddjdjd  %s\n", token.t_data.ID.value);
         stringInit(&(new_element->e_data.ID));
-        stringAddChars(&(new_element->e_data.ID), new_element->e_data.ID.value);
+        stringAddChars(&(new_element->e_data.ID), token.t_data.ID.value);
       }
       new_element->type = type;
       new_element->handle = handle;
@@ -221,10 +220,12 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
+                printf("im here");
                 result = makeIdInstr();
+
                 if (result != ERROR_CODE_OK) return result;
                 //todo ID analysisi
-                return 2;
+                
             }
 
             return ERROR_CODE_OK;
@@ -318,20 +319,27 @@ return ERROR_CODE_OK;
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
-    tBSTNodePtr helper = SYMSearch(&glSymtable, firstTerm->value->e_data.ID);
+    printf("im here");
+    tBSTNodePtr helper = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
+    printf("%s\n\n",stack_expression.top_of_stack->value->e_data.ID.value);
     if (helper != NULL) {
         switch (helper->Vartype) {
         case typeinteger:
-
+            printf("im here");
             break;
         case typedouble:
-
+            printf("im here");
+            break;
         case typestring:
-
+            printf("im here");
+            break;
         case undefined:
+            printf("im here2");
             //variable is not defined -> dont know what to do with it
             //printf("im here");
-            return ERROR_CODE_SEM;
+            switch (stack_expression.top_of_stack->value->type) {
+                case TOKEN_
+            }
         default:
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
@@ -339,6 +347,7 @@ ERROR_CODE makeIdInstr() {
     }
     else {
         //promenna se nenasla v tabulce
+        printf("gg \n");
         return ERROR_CODE_SEM;
     }
     return ERROR_CODE_OK;
