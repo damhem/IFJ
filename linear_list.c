@@ -52,7 +52,7 @@ void DLInsertFirst (instruction_list *L, instruction val) {
     //allocate memory and check if it was succesfull
     struct instruction_node *newElmPtr = (struct instruction_node*) malloc(sizeof(struct instruction_node));
     if (newElmPtr == NULL) {
-        printf("ERROR\n");
+        ;
     } else {
         newElmPtr->inst = val; //add inst to new item
         newElmPtr->rptr = L->First; //connect new one to the previous one
@@ -98,7 +98,7 @@ void DLLast (instruction_list *L) {
 
 void DLCopyFirst (instruction_list *L, instruction *val) {
     if (L->First == NULL) {
-        printf("ddd");
+        
     } else {
         *val = L->First->inst;
     }
@@ -106,7 +106,7 @@ void DLCopyFirst (instruction_list *L, instruction *val) {
 
 void DLCopyLast (instruction_list *L, instruction *val) {
     if (L->First == NULL) {
-        printf("sdss");
+        
     } else {
         *val = L->Last->inst;
     }
@@ -249,7 +249,7 @@ void DLPostInsert (instruction_list *L, instruction val) {
 
 void DLCopy (instruction_list *L, instruction *val) {
     if (L->Actual == NULL) {
-        printf("ERROR");
+        ;
     } else {
         *val = L->Actual->inst;
     }

@@ -39,6 +39,7 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
     exp_stackClear(&stack_expression);
 
     *returnValue = retVal;
+    
     return result;
 }
 //Analýza daného výrazu
@@ -79,10 +80,15 @@ int expressionAnalysis() {
 
             return 0;
 
-          }else{
-
+          } else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+                result = makeFunction();
+                if (result != ERROR_CODE_OK) return result;
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar
+                return ERROR_CODE_OK;
+          }    
+          else{
               return 2;
-
           }
     }
 }
@@ -108,20 +114,19 @@ Exp_element *newElement(int type,bool handle){
 
   //Inicializace noveho elementu
   if(new_element != NULL){
-      if(token.t_type == TOKEN_INT){
+      if(type == TOKEN_INT){
       new_element->e_data.integer = token.t_data.integer;
       }
-      if(token.t_type == TOKEN_DOUBLE){
+      if(type == TOKEN_DOUBLE){
       new_element->e_data.decimal = token.t_data.decimal;
       }
-      if(token.t_type == TOKEN_STRING){
+      if(type == TOKEN_STRING){
       new_element->e_data.ID = token.t_data.ID;
       }
-      if (token.t_type == TOKEN_ID) {
-        //printf("ddjdjd  %s\n", token.t_data.ID.value);
-
+      if (type == TOKEN_ID) {
+       
         stringInit(&(new_element->e_data.ID));
-        stringAddChars(&(new_element->e_data.ID), new_element->e_data.ID.value);
+        stringAddChars(&(new_element->e_data.ID), token.t_data.ID.value);
       }
       new_element->type = type;
       new_element->handle = handle;
@@ -221,10 +226,12 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
+                
                 result = makeIdInstr();
+
                 if (result != ERROR_CODE_OK) return result;
                 //todo ID analysisi
-                return 2;
+                
             }
 
             return ERROR_CODE_OK;
@@ -318,20 +325,36 @@ return ERROR_CODE_OK;
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
-    tBSTNodePtr helper = SYMSearch(&glSymtable, firstTerm->value->e_data.ID);
+
+    token_type next = peekNextToken();
+    if (next == TOKEN_LEFTPAR) {
+        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+        makeFunction();
+        return ERROR_CODE_OK;
+    }
+
+    tBSTNodePtr helper = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
     if (helper != NULL) {
         switch (helper->Vartype) {
-        case typeinteger:
-
+        case typeinteger:;
+            operand operand1 = initOperand(operand1, helper->Key, TOKEN_INT, LF, false, false);
+            retVal = typeinteger;
+            oneOperandInstr(&instrList, PUSHS, operand1);
             break;
         case typedouble:
-
+            retVal = typedouble;
+            operand operand2 = initOperand(operand2, helper->Key, TOKEN_DOUBLE, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand2);
+            break;
         case typestring:
-
+            retVal = typestring;
+            operand operand3 = initOperand(operand3, helper->Key, TOKEN_STRING, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand3);
+            break;
         case undefined:
-            //variable is not defined -> dont know what to do with it
-            //printf("im here");
+            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helper->Key.value);
             return ERROR_CODE_SEM;
+            break;
         default:
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
@@ -342,4 +365,58 @@ ERROR_CODE makeIdInstr() {
         return ERROR_CODE_SEM;
     }
     return ERROR_CODE_OK;
+}
+
+
+ERROR_CODE makeFunction() {
+    ERROR_CODE result;
+    switch (token.t_type) {
+    case TOKEN_ID:
+      //todo sth with symtable
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+
+      return ERROR_CODE_OK;
+
+    case TOKEN_STRING:
+    case TOKEN_INT:
+    case TOKEN_DOUBLE:
+    case TOKEN_NONE:
+
+      //todo sth
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+
+      return ERROR_CODE_OK;
+    case TOKEN_RIGHTPAR:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
+}
+}
+
+
+ERROR_CODE nextTerms() {
+  
+  switch (token.t_type) {
+    case TOKEN_COMMA:
+      //Next_term -> , Termy
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      return makeFunction();
+
+    case TOKEN_RIGHTPAR:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
+  }
+  return ERROR_CODE_SYN;
 }

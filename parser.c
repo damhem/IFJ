@@ -595,6 +595,7 @@ ERROR_CODE command() {
         case TOKEN_SMALLERTHEN:
         case TOKEN_SMALLERTHEN_EQUAL:
         case TOKEN_BIGGERTHEN:
+
         case TOKEN_BIGGERTHEN_EQUAL: ;
           //has to be operator
         
@@ -609,8 +610,10 @@ ERROR_CODE command() {
           if (functionName.length == 0) {
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
-              //promenna jeste nebyla vytvorena -> vytvorime
+              //promenna jeste nebyla vytvorena -> vytvorim
+
               SYMInsert(&glSymtable, token.t_data.ID, false);
+
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
@@ -647,7 +650,10 @@ ERROR_CODE command() {
             tBSTNodePtr helper;
             if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) == NULL) {
               //promenna jeste nebyla vytvorena
+              
+
               SYMInsert(&glSymtable, token.t_data.ID, false);
+
               //nastavim si helper na prave vytvorenou promennnou
               helper = SYMSearch(&glSymtable, token.t_data.ID);
 
@@ -671,7 +677,7 @@ ERROR_CODE command() {
             nowExpression = false;
 
             // var -> vysledek_expression
-            helper->DataType = sth;
+            helper->Vartype = sth;
 
             operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
@@ -833,66 +839,6 @@ ERROR_CODE continueID() {
       default:
         return ERROR_CODE_SYN;
       }
-    default:
-      return ERROR_CODE_SYN;
-  }
-  return ERROR_CODE_SYN;
-}
-
-ERROR_CODE terms() {
-
-  //printf("IN TERMS NOW\n");
-  ERROR_CODE result;
-
-  switch (token.t_type) {
-    case TOKEN_ID:
-      // sth with symtable
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      result = nextTerms();
-      if (result != ERROR_CODE_OK) return result;
-
-      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
-
-      return ERROR_CODE_OK;
-
-    case TOKEN_STRING:
-    case TOKEN_INT:
-    case TOKEN_DOUBLE:
-    case TOKEN_NONE:
-
-      // sth
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      result = nextTerms();
-      if (result != ERROR_CODE_OK) return result;
-
-      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
-
-      return ERROR_CODE_OK;
-    case TOKEN_RIGHTPAR:
-      return ERROR_CODE_OK;
-    default:
-      return ERROR_CODE_SYN;
-  }
-  return ERROR_CODE_SYN;
-}
-
-ERROR_CODE nextTerms() {
-
-  //printf("IN NEXT TERMS:\n");
-  
-
-  switch (token.t_type) {
-    case TOKEN_COMMA:
-      //Next_term -> , Termy
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //tod maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
-
-      return terms();
-
-    case TOKEN_RIGHTPAR:
-      return ERROR_CODE_OK;
     default:
       return ERROR_CODE_SYN;
   }
