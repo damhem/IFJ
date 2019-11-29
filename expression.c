@@ -75,7 +75,7 @@ int expressionAnalysis() {
               }
 
           } else if(sign == '$') {
-              
+
 
             return 0;
 
@@ -163,7 +163,7 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     }
     type = token.t_type;
     Exp_element *element_to_stack = newElement(type, handle);
-    
+
     return element_to_stack;
 }
 
@@ -318,11 +318,11 @@ return ERROR_CODE_OK;
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
-    tBSTNodePtr helper = symTableSearch(&glSymtable, firstTerm->value->e_data.ID);
+    tBSTNodePtr helper = SYMSearch(&glSymtable, firstTerm->value->e_data.ID);
     if (helper != NULL) {
         switch (helper->Vartype) {
         case typeinteger:
-            
+
             break;
         case typedouble:
 
