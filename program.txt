@@ -2,8 +2,11 @@
 #jjgrgj
 ahoj = 2
 ahoj = ahoj + 2
-kokot
-ahoj = 6 + 8 * 7
+kokot = ahoj
+ahoj = 6 + 8
+ahoj = foo()
+ahoj = foo(ahjo)
+ahoj = foo(jedna, dva, tri, cryt)
 
 def foo(jedna, dva) :
   ahoj + 7

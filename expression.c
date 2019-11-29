@@ -39,6 +39,7 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
     exp_stackClear(&stack_expression);
 
     *returnValue = retVal;
+    
     return result;
 }
 //Analýza daného výrazu
@@ -79,10 +80,16 @@ int expressionAnalysis() {
 
             return 0;
 
-          }else{
-
+          } else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+                printf("djdjjddd");
+                result = makeFunction();
+                if (result != ERROR_CODE_OK) return result;
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar
+                return ERROR_CODE_OK;
+          }    
+          else{
               return 2;
-
           }
     }
 }
@@ -118,7 +125,7 @@ Exp_element *newElement(int type,bool handle){
       new_element->e_data.ID = token.t_data.ID;
       }
       if (type == TOKEN_ID) {
-        printf("ddjdjd  %s\n", token.t_data.ID.value);
+       
         stringInit(&(new_element->e_data.ID));
         stringAddChars(&(new_element->e_data.ID), token.t_data.ID.value);
       }
@@ -220,7 +227,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
-                printf("im here");
+                
                 result = makeIdInstr();
 
                 if (result != ERROR_CODE_OK) return result;
@@ -319,27 +326,36 @@ return ERROR_CODE_OK;
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
-    printf("im here");
+
+    token_type next = peekNextToken();
+    if (next == TOKEN_LEFTPAR) {
+        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+        makeFunction();
+        return ERROR_CODE_OK;
+    }
+
     tBSTNodePtr helper = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
-    printf("%s\n\n",stack_expression.top_of_stack->value->e_data.ID.value);
     if (helper != NULL) {
         switch (helper->Vartype) {
-        case typeinteger:
-            printf("im here");
+        case typeinteger:;
+            operand operand1 = initOperand(operand1, helper->Key, TOKEN_INT, LF, false, false);
+            retVal = typeinteger;
+            oneOperandInstr(&instrList, PUSHS, operand1);
             break;
         case typedouble:
-            printf("im here");
+            retVal = typedouble;
+            operand operand2 = initOperand(operand2, helper->Key, TOKEN_DOUBLE, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand2);
             break;
         case typestring:
-            printf("im here");
+            retVal = typestring;
+            operand operand3 = initOperand(operand3, helper->Key, TOKEN_STRING, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-            printf("im here2");
-            //variable is not defined -> dont know what to do with it
-            //printf("im here");
-            switch (stack_expression.top_of_stack->value->type) {
-                case TOKEN_
-            }
+            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helper->Key.value);
+            return ERROR_CODE_SEM;
+            break;
         default:
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
@@ -347,8 +363,61 @@ ERROR_CODE makeIdInstr() {
     }
     else {
         //promenna se nenasla v tabulce
-        printf("gg \n");
         return ERROR_CODE_SEM;
     }
     return ERROR_CODE_OK;
+}
+
+
+ERROR_CODE makeFunction() {
+    ERROR_CODE result;
+    switch (token.t_type) {
+    case TOKEN_ID:
+      //todo sth with symtable
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+
+      return ERROR_CODE_OK;
+
+    case TOKEN_STRING:
+    case TOKEN_INT:
+    case TOKEN_DOUBLE:
+    case TOKEN_NONE:
+
+      //todo sth
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      result = nextTerms();
+      if (result != ERROR_CODE_OK) return result;
+
+      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
+
+      return ERROR_CODE_OK;
+    case TOKEN_RIGHTPAR:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
+}
+}
+
+
+ERROR_CODE nextTerms() {
+  
+  switch (token.t_type) {
+    case TOKEN_COMMA:
+      //Next_term -> , Termy
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+      return makeFunction();
+
+    case TOKEN_RIGHTPAR:
+      return ERROR_CODE_OK;
+    default:
+      return ERROR_CODE_SYN;
+  }
+  return ERROR_CODE_SYN;
 }
