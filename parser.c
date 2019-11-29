@@ -561,10 +561,16 @@ ERROR_CODE command() {
 
     case TOKEN_RETURN:
       //Prikaz -> return Vyraz eol
-      //todo vyraz again lol
+      
+      nowExpression = true;
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      VarType type_return;
+      result = expression(&type_return);
+      if (result != ERROR_CODE_OK) return result;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      //todo retvalue?
+      nowExpression = false;
+
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
       }
@@ -589,7 +595,8 @@ ERROR_CODE command() {
         case TOKEN_SMALLERTHEN:
         case TOKEN_SMALLERTHEN_EQUAL:
         case TOKEN_BIGGERTHEN:
-        case TOKEN_BIGGERTHEN_EQUAL:;
+
+        case TOKEN_BIGGERTHEN_EQUAL: ;
           //has to be operator
         
           VarType type_id;

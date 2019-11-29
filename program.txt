@@ -1,4 +1,4 @@
-"""juuu"""
+5 + 5
 #jjgrgj
 ahoj = 2
 ahoj = ahoj + 2
@@ -43,14 +43,14 @@ def foo(jedna, dva) :
     #prvni
     #treti
     
-  return U
+  return 66 + (6 * 7)
 
 def sss(rrj, ccol, ssss, cc) :
-  return o
+  return 77
 
 def dfhsdfh() :
-  return o
+  return 1 + 8
 
 def fooo(hdfd, ff) :
     #print
-    return OO
+    return 0
