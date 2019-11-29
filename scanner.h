@@ -55,41 +55,41 @@ typedef enum {
 } scanner_state;
 
 typedef enum {
-  TOKEN_MULTIPLICATION,
-  TOKEN_DIVISION,
-  TOKEN_INTEGER_DIVISION,
-  TOKEN_ADDITION,
-  TOKEN_SUBTRACTION,
-  TOKEN_EQUAL,              //12
-  TOKEN_NEG_EQUAL,
-  TOKEN_SMALLERTHEN,        //16
-  TOKEN_SMALLERTHEN_EQUAL,  //17
-  TOKEN_BIGGERTHEN,         //15
-  TOKEN_BIGGERTHEN_EQUAL,   //18
-  TOKEN_EQUAL_EQUAL,        //14
-  TOKEN_LEFTPAR,            //28
-  TOKEN_RIGHTPAR,           //29      //2
-  TOKEN_STRING,
-  TOKEN_INT,             //19
-  TOKEN_DOUBLE,             //32
-  TOKEN_ID,
-  TOKEN_EOF,                //1                //31
-  TOKEN_COMMA,               //33
-  TOKEN_UNDEF,              //0
+  TOKEN_MULTIPLICATION,     //0
+  TOKEN_DIVISION,           //1
+  TOKEN_INTEGER_DIVISION,   //2
+  TOKEN_ADDITION,           //3
+  TOKEN_SUBTRACTION,        //4
+  TOKEN_EQUAL,              //5
+  TOKEN_NEG_EQUAL,          //6
+  TOKEN_SMALLERTHEN,        //7
+  TOKEN_SMALLERTHEN_EQUAL,  //8
+  TOKEN_BIGGERTHEN,         //9
+  TOKEN_BIGGERTHEN_EQUAL,   //10
+  TOKEN_EQUAL_EQUAL,        //11
+  TOKEN_LEFTPAR,            //12
+  TOKEN_RIGHTPAR,           //13
+  TOKEN_STRING,             //14
+  TOKEN_INT,                //15
+  TOKEN_DOUBLE,             //16
+  TOKEN_ID,                 //17
+  TOKEN_EOF,                //18
+  TOKEN_COMMA,              //19
+  TOKEN_UNDEF,              //20
 
-  TOKEN_PLUS,               //3
-  TOKEN_MINUS,              //4
-  TOKEN_INDENT,             //5
-  TOKEN_DEDENT,             //6
-  TOKEN_EOL,                //20 // //
-  TOKEN_DEF,                //21
-  TOKEN_ELSE,               //22
-  TOKEN_IF,                 //23
-  TOKEN_NONE,               //24
-  TOKEN_PASS,               //25
-  TOKEN_RETURN,             //26
-  TOKEN_WHILE,              //27
-  TOKEN_DOUBLEDOT,          //30
+  TOKEN_PLUS,               //21
+  TOKEN_MINUS,              //22
+  TOKEN_INDENT,             //23
+  TOKEN_DEDENT,             //24
+  TOKEN_EOL,                //25
+  TOKEN_DEF,                //26
+  TOKEN_ELSE,               //27
+  TOKEN_IF,                 //28
+  TOKEN_NONE,               //29
+  TOKEN_PASS,               //30
+  TOKEN_RETURN,             //31
+  TOKEN_WHILE,              //32
+  TOKEN_DOUBLEDOT,          //33
 } token_type;
 
 typedef union token_data {

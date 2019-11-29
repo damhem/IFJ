@@ -1,14 +1,11 @@
-
 #include "parser.h"
-
-
 
 ERROR_CODE parse() {
 
   ERROR_CODE result;
 
   line_flag = true;
-  inFunctionflag = false;
+  nowExpression = false;
   paramIndex = 0;
   peekToken.t_type = TOKEN_UNDEF;
 
@@ -151,11 +148,8 @@ ERROR_CODE functionDef() {
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
-      //todo zapis instrukce?
-
-
-      //todo symtable shit
-
+      operand operand_label = initOperand(operand_label, functionName, TOKEN_ID, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand_label);
 
       //there has to be EOL
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -221,7 +215,9 @@ ERROR_CODE functionHead() {
 
   switch (token.t_type) {
 
-    case TOKEN_DEF:
+    case TOKEN_DEF: ;
+      int numberOfPrevParams = 0;
+      bool declared = false;
       //Hlavicka_funkce -> def id ( Parametry ) :
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       if (token.t_type != TOKEN_ID) {
@@ -240,11 +236,13 @@ ERROR_CODE functionHead() {
         }
         //when function has been declared, but not defined
         else if (strcmp(helper->Key.value, functionName.value) == 0 && (helper->defined == false)) {
+
           result = SYMInsert(&glSymtable, functionName, true);
+          numberOfPrevParams = helper->parametrs;
+          declared = true;
+
           if (result != ERROR_CODE_OK) return result;
           helper->defined = true;
-
-          //todo check if the number of parametres match
         }
         else {
           //there is this function already
@@ -279,6 +277,13 @@ ERROR_CODE functionHead() {
 
       result = functionParam();
       if (result != ERROR_CODE_OK) return result;
+
+      //checking if it was called with right number of params
+      if (declared) {
+        if (numberOfPrevParams != paramIndex + 1) {
+          return ERROR_CODE_SEM;
+        }
+      }
 
       //there has to be )
       if (token.t_type != TOKEN_RIGHTPAR) {
@@ -364,7 +369,6 @@ ERROR_CODE functionParam() {
 }
 
 ERROR_CODE nextFunctionParam() {
-  //todo? result
 
   switch (token.t_type) {
     case TOKEN_COMMA:
@@ -401,7 +405,7 @@ ERROR_CODE functionBody() {
     case TOKEN_LEFTPAR:
       //Telo_funkce -> Prikaz Telo_funkce
 
-      //todo? some var infunction
+      //todo????????????? some var infunction
 
       result = command();
       if (result != ERROR_CODE_OK) return result;
@@ -426,11 +430,18 @@ ERROR_CODE command() {
   switch (token.t_type) {
     case TOKEN_IF:
       //Prikaz -> if Vyraz : eol indent Sekvence_prikazu dedent else : eol indent Sekvence_prikazu dedent
-      //todo vyraz expression
+      nowExpression = true;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      VarType type;
+      result = expression(&type);
+      if (result != ERROR_CODE_OK) return result;
+      
+      nowExpression = false;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      //todo vyhodnoceni vyrazu
+
+      //have to end with :
       if (token.t_type != TOKEN_DOUBLEDOT) {
         return ERROR_CODE_SYN;
       }
@@ -501,10 +512,16 @@ ERROR_CODE command() {
 
     case TOKEN_WHILE:
       //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //todo vyraz here
+      nowExpression = true;
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      VarType type_while;
+      result = expression(&type_while);
+      if (result != ERROR_CODE_OK) return result;
+      
+      //todo vyhodnoceni vyrazu
+      nowExpression = false;
+
       if (token.t_type != TOKEN_DOUBLEDOT) return ERROR_CODE_SYN;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -574,8 +591,11 @@ ERROR_CODE command() {
         case TOKEN_BIGGERTHEN:
         case TOKEN_BIGGERTHEN_EQUAL:
           //has to be operator
-
+          
+          nowExpression = true;
           //todo expression napojení (expression(token))
+          nowExpression = false;
+          
 
           return ERROR_CODE_SYN;
 
@@ -637,11 +657,13 @@ ERROR_CODE command() {
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
+            nowExpression = false;
 
             // var -> vysledek_expression
             helper->DataType = sth;
@@ -680,11 +702,13 @@ ERROR_CODE command() {
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
+            nowExpression = false;
 
             // var -> vysledek_expression
             helper->DataType = sth;
@@ -699,8 +723,9 @@ ERROR_CODE command() {
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
 
-
+          nowExpression = true;
           //todo there has to start expression as well
+          nowExpression = false;
 
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
@@ -716,10 +741,11 @@ ERROR_CODE command() {
     case TOKEN_LEFTPAR: ;
 
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
-
+      nowExpression = true;
       VarType sth;
       result = expression(&sth);
       if (result != ERROR_CODE_OK) return result;
+      nowExpression = false;
 
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
@@ -769,9 +795,9 @@ ERROR_CODE continueID() {
         //has to be operator
 
         //printf("WILL BE DOING EXPRESSION\n");
-        //todo expression napojení (expression(token))
+        //tod expression napojení (expression(token))
 
-        //todo eol token
+        //toeol token
 
         return ERROR_CODE_SYN;
 
@@ -807,7 +833,7 @@ ERROR_CODE terms() {
 
   switch (token.t_type) {
     case TOKEN_ID:
-      //todo sth with symtable
+      // sth with symtable
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = nextTerms();
@@ -822,7 +848,7 @@ ERROR_CODE terms() {
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
 
-      //todo sth
+      // sth
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = nextTerms();
@@ -842,13 +868,13 @@ ERROR_CODE terms() {
 ERROR_CODE nextTerms() {
 
   //printf("IN NEXT TERMS:\n");
-  //todo? ERROR_CODE result;
+  
 
   switch (token.t_type) {
     case TOKEN_COMMA:
       //Next_term -> , Termy
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      //todo maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
+      //tod maybe theres problem with foo(one, two, ) -> now its no mistake (peek maybe?)
 
       return terms();
 

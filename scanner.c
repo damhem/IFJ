@@ -467,7 +467,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         break;
       case (SCANNER_COMMENT_02):
         if (c == '"'){                       //3"
-          if (inFunctionflag == true) {
+          if (nowExpression == true) {
             return token;
           }
           else {

@@ -28,7 +28,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 };
 
 
-
+//hlavní funkce
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
 
@@ -41,7 +41,7 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
     *returnValue = retVal;
     return result;
 }
-
+//Analýza daného výrazu
 int expressionAnalysis() {
     ERROR_CODE result;
     char sign = '_';
@@ -50,6 +50,10 @@ int expressionAnalysis() {
           if(sign == '='){
 
               exp_stackPush(&stack_expression,tokentoExp_element(token,false));
+              result =  reducePars(&stack_expression); 
+              if (result != ERROR_CODE_OK) {
+                  return result;
+              }
               if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           }else if(sign == '<'){
 
@@ -82,11 +86,11 @@ int expressionAnalysis() {
           }
     }
 }
-
+// Funkce pro hledání znaku z precedencni tabulky
 char getSignFromTable(){
     int a;
     int b;
-    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
         b = TOKEN_UNDEF;
     }
     else {
@@ -98,7 +102,7 @@ char getSignFromTable(){
     return precedenceTable[a][b];
 }
 
-
+//Funkce inicializující nový element
 Exp_element *newElement(int type,bool handle){
   Exp_element *new_element = malloc(sizeof(struct exp_element));
 
@@ -127,22 +131,34 @@ Exp_element *newElement(int type,bool handle){
   }
   else return NULL;
 }
+//Funkce ziskavající typ prvního terminalu na stacku
 int get_stack_type(ptrStack *stack_expression){
-    if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
+
+    if (stack_expression->top_of_stack != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
       }
-    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
-        return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
     }
-    if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
+
+    if (stack_expression->top_of_stack->left != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
+        }
+    }
+    
+    if (stack_expression->top_of_stack->left->left != NULL){
+        if (((Exp_element*)stack_expression->top_of_stack->left->left->value)->terminal == true){
+        return ((Exp_element*)stack_expression->top_of_stack->left->left->value)->type;
+        }
+        
     }
     return ERROR_CODE_OK;
+    
 }
-
+// Funkce prevadejici token na element
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type;
-    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF) {
+    if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
         type = TOKEN_UNDEF;
     }
     type = token.t_type;
@@ -151,7 +167,7 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     return element_to_stack;
 }
 
-
+//Funkce resici redukce vyrazu
 ERROR_CODE useRule(ptrStack *stack_expression){
     ERROR_CODE result;
 
@@ -279,6 +295,27 @@ ERROR_CODE useRule(ptrStack *stack_expression){
     return ERROR_CODE_OK;
 }
 
+
+ERROR_CODE reducePars(ptrStack *stack_expression){
+    if(stack_expression != NULL){
+        ptStack* quicksave = stack_expression->top_of_stack->left;
+
+        exp_stackPop(stack_expression);
+        exp_stackPop(stack_expression);
+        exp_stackPop(stack_expression);
+        
+        exp_stackPush(stack_expression,quicksave);
+        if((stack_expression->top_of_stack->left->value)->terminal == true) {
+
+            firstTerm = stack_expression->top_of_stack->left;
+            (firstTerm->value)->handle = false;
+            
+        }else return ERROR_CODE_SYN;
+}else return ERROR_CODE_SYN;
+return ERROR_CODE_OK;
+}
+
+//Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
     tBSTNodePtr helper = SYMSearch(&glSymtable, firstTerm->value->e_data.ID);
