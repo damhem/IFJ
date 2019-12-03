@@ -582,15 +582,20 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }else if(c == 'x'){
           state = SCANNER_STRING2;
         }
+        else {
+          stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }
         break;
       case(SCANNER_STRING2):
-        if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+        if(isdigit(c) || (c>='a' && c<='f') || (c>='A' && c<='F') ) {
           prev_c = c;
           state = SCANNER_STRING3;
         }
         break;
       case(SCANNER_STRING3):
-        if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+        if(isdigit(c) || (c>='a' && c<='f') || (c>='A' && c<='F') ) {
           char c_h;
           string String;
           stringInit(&String);
