@@ -1,9 +1,10 @@
 def ahoja() :
-  ahoj = 7
-  kkt = ahoj + 8
-  yoo = ahoj + kkt
-  return
-print('asss', 'kkkk', 55, 78.90, None)
-print('asss', 'kkkk', 55, 78.90, None)
-print('asss', 'kkkk', 55, 78.90, None)
-print('asss', 'kkkk', 55, 78.90, None)
+  return 3
+def off() :
+  ahojao = 66
+  takdd = ahoja()
+  takdd = takdd + ahojao
+  return takdd
+
+kk = off()
+print(kk)

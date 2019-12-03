@@ -83,13 +83,7 @@ int expressionAnalysis() {
         } 
         else if(sign == '$') {
             return 0;
-        } 
-        else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
-            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
-            result = makeFunction();
-            if (result != ERROR_CODE_OK) return result;
-            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar                return ERROR_CODE_OK;
-        }    
+        }
         else{
             return 2;
         }
@@ -197,7 +191,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 string operandString;
                 stringInit(&operandString);
 
-                char number[10];
+                char number[15];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
                 //printf("number: %s\n", number);
 
@@ -211,8 +205,8 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 string operandString;
                 stringInit(&operandString);
 
-                char number[10];
-                sprintf(number, "%f", stack_expression->top_of_stack->value->e_data.decimal);
+                char number[25];
+                sprintf(number, "%a", stack_expression->top_of_stack->value->e_data.decimal);
                // printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
@@ -228,7 +222,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
-                printf("yo");
+                
                 
                 result = makeIdInstr();
 
@@ -329,17 +323,6 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
 
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
-    //todo function
-
-    
-
-    token_type next = peekNextToken();
-    if (next == TOKEN_LEFTPAR) {
-        printf("yo");
-        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
-        makeFunction();
-        return ERROR_CODE_OK;
-    }
 
     tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
     tBSTNodePtr helperlf = SYMSearch(&lcSymtable,stack_expression.top_of_stack->value->e_data.ID);
@@ -361,7 +344,7 @@ ERROR_CODE makeIdInstr() {
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-
+            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helpergf->Key.value);
             return ERROR_CODE_SEM;
             break;
         default:
@@ -386,7 +369,6 @@ ERROR_CODE makeIdInstr() {
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-            printf("(%d)\n",helperlf->Vartype);
             fprintf(stderr, "Promenna nebyla definovana (%s)\n", helperlf->Key.value);
             return ERROR_CODE_SEM;
             break;
@@ -394,7 +376,8 @@ ERROR_CODE makeIdInstr() {
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
         }
-    }else{
+    }
+    else {
         //promenna se nenasla v tabulce
         return ERROR_CODE_SEM;
     }
@@ -404,30 +387,275 @@ ERROR_CODE makeIdInstr() {
 
 ERROR_CODE makeFunction() {
     ERROR_CODE result;
-    
-
-    token_type next = peekNextToken();
-
-    if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {
-        //starting function
-        //have to check if its in symtable
-
-        if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR && strcmp(token.t_data.ID.value, "print") == 0) {
+    //i know for sure that now I have token ID as function name in token and nexttoken is leftpar
+    //starting function
+    //have to check if its in symtable
+    //print function is standalone
+    if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "print") == 0) {
             return makePrintFunction();
-        }
-
-        tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
-        if (helper == NULL) return ERROR_CODE_SEM_OTHER;
-        
-        
-        
     }
 
+    tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
+    tBSTNodePtr helperLC = SYMSearch(&lcSymtable, token.t_data.ID);
+    if (helperLC != NULL) {
+        //there has been variable with the same name
+        fprintf(stderr, "Jiz jste definovali promennou s nazvem \"%s\" ve funkci \"%s\".\n", token.t_data.ID.value, functionName.value);
+        return ERROR_CODE_SEM;
+    }
+    if (helper == NULL) {
+        //now I know that this function doesnt exist yet
+        if (strlen(functionName.value) != 0) {
+            //jsem ve funkci a funkce neni definovana -> stejne ji zavolam
+            //pridam ji do symtable (ale jako nedefinovanou)
+            SYMInsert(&glSymtable, token.t_data.ID, true);
+            helper = SYMSearch(&glSymtable, token.t_data.ID);
+            helper->defined = false;
+            //create temporary frame
+            noOperandInstr(&instrList, CREATEFRAME);
+            //count params
+            int paramsCounter = 0;
+            //eat (
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            if (token.t_type != TOKEN_LEFTPAR) {
+                //co kdyby nahodou
+                return ERROR_CODE_SYN;
+            }
+            //eat term
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            //now I have to generate params
+            while (token.t_type != TOKEN_RIGHTPAR) {
+                string nextParam;
+                stringInit(&nextParam);
+                stringAddChar(&nextParam, '%');
+                char str[3];
+                sprintf(str, "%d", paramsCounter);
+                stringAddChars(&nextParam, str);
+                operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                oneOperandInstr(&instrList, DEFVAR, operand1);
+                switch(token.t_type) {
+                    case TOKEN_STRING:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        operand2 = initOperand(operand2, token.t_data.ID.value, TOKEN_STRING, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_INT:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        string intString;
+                        stringInit(&intString);
+                        char str[15];
+                        sprintf(str, "%d", token.t_data.integer);
+                        stringAddChars(&intString, str);
+                        operand2 = initOperand(operand2, intString.value, TOKEN_INT, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_DOUBLE:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        string doubleString;
+                        stringInit(&doubleString);
+                        char str2[40];
+                        sprintf(str2, "%a", token.t_data.decimal);
+                        stringAddChars(&doubleString, str2);
+                        operand2 = initOperand(operand2, doubleString.value, TOKEN_DOUBLE, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_NONE:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        operand2 = initOperand(operand2, "None", TOKEN_STRING, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_ID:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+                        tBSTNodePtr helper3 = SYMSearch(&lcSymtable, token.t_data.ID);
+                        if (helper2 == NULL && helper3 == NULL) {
+                            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"%s\" neni definovana.\n", token.t_data.ID.value, helper->Key.value);
+                            return ERROR_CODE_SEM;
+                        }
+                        else if (helper2->DataType != Variable) {
+                            fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
+                            return ERROR_CODE_SEM;
+                        }
+                        if (helper3 != NULL) {
+                            operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
+                        }
+                        else {
+                            operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                        }
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    default:
+                        fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                        return ERROR_CODE_SYN;
+                }
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+                if (token.t_type == TOKEN_COMMA) {
+                    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+                    if (token.t_type == TOKEN_RIGHTPAR) {
+                        //chyba v syntaxi volani funkce
+                        fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                        return ERROR_CODE_SYN;
+                    } 
+                }
+                else if (token.t_type == TOKEN_RIGHTPAR) {
+                    paramsCounter++;
+                    continue;
+                }
+                else {
+                    //chyba v syntaxi volani funkce
+                    fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                    return ERROR_CODE_SYN;
+                }
+
+                paramsCounter++;
+            }
+            helper->parametrs = paramsCounter;
+
+            operand1 = initOperand(operand1, helper->Key.value, TOKEN_ID, GF, false, true);
+            oneOperandInstr(&instrList, CALL, operand1);
+
+            noOperandInstr(&instrList, POPFRAME);
+
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+            return ERROR_CODE_OK;
+        }
+        else if(helper == NULL && strlen(functionName.value) == 0) {
+            //now im in main body -> error
+            fprintf(stderr, "Funkce v hlavnim tele neexistuje (%s).\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+    }
+    else {
+        //now I know that this function already exists (maybe still not defined)
+        if (helper->DataType != Function) {
+            //there has been variable with the same name
+            fprintf(stderr, "Definovali jste promennou s nazvem \"%s\", ne funkci.\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+        else if (helper->defined != true) {
+            fprintf(stderr, "Funkce jeste stale neni definovana (%s).\n", token.t_data.ID.value);
+            //check number of params
+            //todo check params?
+            //todo same as nahore 
+        }
+        else {
+            //funkce je definovana a muze v pohode probehnout volani fce
+            //create temporary frame
+            noOperandInstr(&instrList, CREATEFRAME);
+
+            //count params
+            int paramsCounter = 0;
+
+            //eat (
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            if (token.t_type != TOKEN_LEFTPAR) {
+                //co kdyby nahodou
+                return ERROR_CODE_SYN;
+            }
+
+            //eat term
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            
+            //now I have to generate params
+            while (token.t_type != TOKEN_RIGHTPAR) {
+                string nextParam;
+                stringInit(&nextParam);
+                stringAddChar(&nextParam, '%');
+                char str[3];
+                sprintf(str, "%d", paramsCounter);
+                stringAddChars(&nextParam, str);
+                operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                oneOperandInstr(&instrList, DEFVAR, operand1);
+
+                switch(token.t_type) {
+                    case TOKEN_STRING:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        operand2 = initOperand(operand2, token.t_data.ID.value, TOKEN_STRING, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_INT:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        string intString;
+                        stringInit(&intString);
+                        char str[15];
+                        sprintf(str, "%d", token.t_data.integer);
+                        stringAddChars(&intString, str);
+                        operand2 = initOperand(operand2, intString.value, TOKEN_INT, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_DOUBLE:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        string doubleString;
+                        stringInit(&doubleString);
+                        char str2[40];
+                        sprintf(str2, "%a", token.t_data.decimal);
+                        stringAddChars(&doubleString, str2);
+                        operand2 = initOperand(operand2, doubleString.value, TOKEN_DOUBLE, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_NONE:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        operand2 = initOperand(operand2, "None", TOKEN_STRING, TF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    case TOKEN_ID:
+                        operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
+                        tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+                        if (helper2 == NULL) {
+                            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"%s\" neni definovana.\n", token.t_data.ID.value, helper->Key.value);
+                            return ERROR_CODE_SEM;
+                        }
+                        else if (helper2->DataType != Variable) {
+                            fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
+                            return ERROR_CODE_SEM;
+                        }
+                        operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+                        break;
+                    default:
+                        fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                        return ERROR_CODE_SYN;
+                }
+                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+                if (token.t_type == TOKEN_COMMA) {
+                    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+                    if (token.t_type == TOKEN_RIGHTPAR) {
+                        //chyba v syntaxi volani funkce
+                        fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                        return ERROR_CODE_SYN;
+                    } 
+                }
+                else if (token.t_type == TOKEN_RIGHTPAR) {
+                    paramsCounter++;
+                    continue;
+                }
+                else {
+                    //chyba v syntaxi volani funkce
+                    fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
+                    return ERROR_CODE_SYN;
+                }
+
+                paramsCounter++;
+            }
+
+            //now check params number
+            if (paramsCounter != helper->parametrs) {
+                fprintf(stderr, "Chybny pocet parametru pri volani funkce \"%s\".\n", helper->Key.value);
+                return ERROR_CODE_SEM_FUNC;
+            }
+
+            operand1 = initOperand(operand1, helper->Key.value, TOKEN_ID, GF, false, true);
+            oneOperandInstr(&instrList, CALL, operand1);
+
+            noOperandInstr(&instrList, POPFRAME);
+
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+            return ERROR_CODE_OK;
+        }
+    }
     
-
-
-
-
+    
     switch (token.t_type) {
     case TOKEN_ID:
       //todo sth with symtable
@@ -503,6 +731,7 @@ ERROR_CODE makePrintFunction() {
         if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
         if (token.t_type == TOKEN_COMMA) {
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            if (token.t_type == TOKEN_RIGHTPAR) return ERROR_CODE_SEM_OTHER;
         }
         else if (token.t_type == TOKEN_RIGHTPAR) continue;
         else {
@@ -540,6 +769,9 @@ ERROR_CODE makePrintFunction() {
                 oneOperandInstr(&instrList, PUSHS, operand1);
                 break;
             case TOKEN_ID:
+                operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, GF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
             default:
                 return ERROR_CODE_SEM_OTHER;
 

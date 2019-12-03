@@ -24,7 +24,7 @@ typedef enum {
 //one node in binary seach tree
 typedef struct tBSTNode {
     string Key;                 //unique key
-    NodeType DataType;          //function or variable (0 or 1)
+    NodeType DataType;          //variable or function (0 or 1)
     struct tBSTNode * lPtr;     //left subtree
     struct tBSTNode * rPtr;     //right subtree
 
@@ -32,7 +32,7 @@ typedef struct tBSTNode {
     VarType Vartype;            //type of variable (-1 means undefined or unknown)
 
     //function
-    bool defined;               // if the function has been defined;
+    bool defined;               //the function has been defined
     int parametrs;              //number of function parametres
     string paramName[40];       //names of function parametres
 } *tBSTNodePtr;

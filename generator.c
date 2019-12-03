@@ -582,11 +582,27 @@ void printFunction() { //params: term1 term2 term3 ....
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
     oneOperandInstr(&instrList, POPS, operand1);
 
+    operand1 = initOperand(operand1, "tmp1", TOKEN_ID, GF, false, false);
+    operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+    twoOperandInstr(&instrList, TYPE, operand1, operand2);
+    
+    operand1 = initOperand(operand1, "fornumber", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+    operand1 = initOperand(operand1, "fornumber", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "float", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+
     operand2 = initOperand(operand2, "%endwhile", TOKEN_STRING, GF, false, false);
     operand3 = initOperand(operand3, "tmp1", TOKEN_ID, GF, false, false);
     twoOperandInstr(&instrList, MOVE, operand3, operand2);
 
     //when %endwhile is on the stack, time to end
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
     operand3 = initOperand(operand3, "endwhile", TOKEN_ID, GF, false, true);
     operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
     threeOperandInstr(&instrList, JUMPIFEQ, operand3, operand1, operand2);
@@ -606,6 +622,31 @@ void printFunction() { //params: term1 term2 term3 ....
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
     oneOperandInstr(&instrList, WRITE, operand1);
 
+
+    operand1 = initOperand(operand1, "tmp2", TOKEN_ID, GF, false, false);
+    operand2 = initOperand(operand2, "1", TOKEN_INT, GF, false, false);
+    twoOperandInstr(&instrList, MOVE, operand1, operand2); 
+
+    operand1 = initOperand(operand1, "print", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, JUMP, operand1);
+
+
+    operand1 = initOperand(operand1, "fornumber", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    operand1 = initOperand(operand1, "continue_writee", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "1", TOKEN_INT, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFNEQ, operand1, operand2, operand3);
+
+    operand1 = initOperand(operand1, "\\032", TOKEN_STRING, GF, false, false);
+    oneOperandInstr(&instrList, WRITE, operand1);
+
+    operand1 = initOperand(operand1, "continue_writee", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    oneOperandInstr(&instrList, WRITE, operand1);
 
     operand1 = initOperand(operand1, "tmp2", TOKEN_ID, GF, false, false);
     operand2 = initOperand(operand2, "1", TOKEN_INT, GF, false, false);
