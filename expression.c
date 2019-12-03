@@ -31,6 +31,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 //hlavní funkce
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
+    
 
     exp_stackInit(&stack_expression);
 
@@ -57,36 +58,41 @@ int expressionAnalysis() {
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
         }
         else if(sign == '<'){
+            token_type next = peekNextToken();
+            if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {
+                result = makeFunction();
+                if (result != ERROR_CODE_OK) return result;
+                return ERROR_CODE_OK;
+            }
+
+
             if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
-            exp_stackPush(&stack_expression,tokentoExp_element(token,true));
+                exp_stackPush(&stack_expression,tokentoExp_element(token,true));
             }
             else{
-            exp_stackPush(&stack_expression,tokentoExp_element(token,false));
+                exp_stackPush(&stack_expression,tokentoExp_element(token,false));
             }
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
             firstTerm = stack_expression.top_of_stack;
-          } 
-          else if(sign == '>') {
-              result = useRule(&stack_expression);
-              if (result != ERROR_CODE_OK) {
-                  return result;
-              }
-
-          } else if(sign == '$') {
-
-
+        } 
+        else if(sign == '>') {
+            result = useRule(&stack_expression);
+            if (result != ERROR_CODE_OK) {
+            return result;
+            }
+        } 
+        else if(sign == '$') {
             return 0;
-
-          } else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
-                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
-                result = makeFunction();
-                if (result != ERROR_CODE_OK) return result;
-                if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar
-                return ERROR_CODE_OK;
-          }    
-          else{
-              return 2;
-          }
+        } 
+        else if(sign == '_' && token.t_type == TOKEN_LEFTPAR) {
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+            result = makeFunction();
+            if (result != ERROR_CODE_OK) return result;
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar                return ERROR_CODE_OK;
+        }    
+        else{
+            return 2;
+        }
     }
 }
 // Funkce pro hledání znaku z precedencni tabulky
@@ -107,39 +113,38 @@ char getSignFromTable(){
 
 //Funkce inicializující nový element
 Exp_element *newElement(int type,bool handle){
-  Exp_element *new_element = malloc(sizeof(struct exp_element));
-
-  //Inicializace noveho elementu
-  if(new_element != NULL){
-      if(type == TOKEN_INT){
-      new_element->e_data.integer = token.t_data.integer;
-      }
-      if(type == TOKEN_DOUBLE){
-      new_element->e_data.decimal = token.t_data.decimal;
-      }
-      if(type == TOKEN_STRING){
-      new_element->e_data.ID = token.t_data.ID;
-      }
-      if (type == TOKEN_ID) {
-       
+    Exp_element *new_element = malloc(sizeof(struct exp_element));
+    //Inicializace noveho elementu
+    if(new_element != NULL){
+        if(type == TOKEN_INT){
+        new_element->e_data.integer = token.t_data.integer;
+        }
+        if(type == TOKEN_DOUBLE){
+        new_element->e_data.decimal = token.t_data.decimal;
+        }
+        if(type == TOKEN_STRING){
+        new_element->e_data.ID = token.t_data.ID;
+        }
+        if (type == TOKEN_ID) {
+        
         stringInit(&(new_element->e_data.ID));
         stringAddChars(&(new_element->e_data.ID), token.t_data.ID.value);
-      }
-      new_element->type = type;
-      new_element->handle = handle;
-      new_element->terminal = true;
-
-      return new_element;
-  }
-  else return NULL;
+        }
+        new_element->type = type;
+        new_element->handle = handle;
+        new_element->terminal = true;
+        return new_element;
+    }
+    else return NULL;
 }
+
 //Funkce ziskavající typ prvního terminalu na stacku
 int get_stack_type(ptrStack *stack_expression){
 
     if (stack_expression->top_of_stack != NULL){
         if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
-      }
+        }
     }
 
     if (stack_expression->top_of_stack->left != NULL){
@@ -155,8 +160,8 @@ int get_stack_type(ptrStack *stack_expression){
         
     }
     return ERROR_CODE_OK;
-    
 }
+
 // Funkce prevadejici token na element
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type;
@@ -165,7 +170,6 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     }
     type = token.t_type;
     Exp_element *element_to_stack = newElement(type, handle);
-
     return element_to_stack;
 }
 
@@ -185,6 +189,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             firstTerm = stack_expression->top_of_stack->left;
 
             //todo function term?
+            
 
             //integer value
             if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
@@ -223,6 +228,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
+                printf("yo");
                 
                 result = makeIdInstr();
 
@@ -286,7 +292,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             break;
 
         default:
-          return ERROR_CODE_SEM;
+            return ERROR_CODE_SEM;
     }
 
     exp_stackPop(stack_expression);
@@ -310,21 +316,26 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
         
         exp_stackPush(stack_expression,quicksave);
         if((stack_expression->top_of_stack->left->value)->terminal == true) {
-
+            
             firstTerm = stack_expression->top_of_stack->left;
             (firstTerm->value)->handle = false;
             
-        }else return ERROR_CODE_SYN;
-}else return ERROR_CODE_SYN;
-return ERROR_CODE_OK;
+        }
+        else return ERROR_CODE_SYN;
+    }
+    else return ERROR_CODE_SYN;
+    return ERROR_CODE_OK;
 }
 
 //Vyhodnocovani ID
 ERROR_CODE makeIdInstr() {
     //todo function
 
+    
+
     token_type next = peekNextToken();
     if (next == TOKEN_LEFTPAR) {
+        printf("yo");
         if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
         makeFunction();
         return ERROR_CODE_OK;
@@ -367,6 +378,30 @@ ERROR_CODE makeIdInstr() {
 
 ERROR_CODE makeFunction() {
     ERROR_CODE result;
+    
+
+    token_type next = peekNextToken();
+
+    if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {
+        //starting function
+        //have to check if its in symtable
+
+        if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR && strcmp(token.t_data.ID.value, "print") == 0) {
+            return makePrintFunction();
+        }
+
+        tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
+        if (helper == NULL) return ERROR_CODE_SEM_OTHER;
+        
+        
+        
+    }
+
+    
+
+
+
+
     switch (token.t_type) {
     case TOKEN_ID:
       //todo sth with symtable
@@ -416,4 +451,83 @@ ERROR_CODE nextTerms() {
       return ERROR_CODE_SYN;
   }
   return ERROR_CODE_SYN;
+}
+
+
+
+ERROR_CODE makePrintFunction() {
+    ERROR_CODE result;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //now leftpar
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first term
+    
+    operand1 = initOperand(operand1, "tmp2", TOKEN_ID, GF, false, false);
+    operand2 = initOperand(operand2, "2", TOKEN_INT, GF, false, false);
+    twoOperandInstr(&instrList, MOVE, operand1, operand2); 
+
+    operand1 = initOperand(operand1, "%endwhile", TOKEN_STRING, GF, false, false);
+    oneOperandInstr(&instrList, PUSHS, operand1);
+
+    ptrStack myStack;
+    exp_stackInit(&myStack);
+    exp_stackPop(&myStack);
+
+    while (token.t_type != TOKEN_RIGHTPAR ) {
+        if (token.t_type == TOKEN_STRING || token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_NONE) {
+            exp_stackPush(&myStack, tokentoExp_element(token, false));
+        }
+        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+        if (token.t_type == TOKEN_COMMA) {
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+        }
+        else if (token.t_type == TOKEN_RIGHTPAR) continue;
+        else {
+            return ERROR_CODE_SEM_OTHER;
+        }
+    }
+
+
+    while (exp_stackEmpty(&myStack) != 1) {
+        switch(myStack.top_of_stack->value->type) {
+            case TOKEN_STRING:
+                operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_STRING, GF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            case TOKEN_INT:;
+                string operandString;
+                stringInit(&operandString);
+                char number[15];
+                sprintf(number, "%d", myStack.top_of_stack->value->e_data.integer);
+                stringAddChars(&operandString, number);
+                operand1 = initOperand(operand1, operandString.value, TOKEN_STRING, GF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            case TOKEN_DOUBLE:;
+                string operandString1;
+                stringInit(&operandString1);
+                char number1[25];
+                sprintf(number1, "%a", myStack.top_of_stack->value->e_data.decimal);
+                stringAddChars(&operandString1, number1);
+                operand1 = initOperand(operand1, operandString1.value, TOKEN_STRING, GF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            case TOKEN_NONE:
+                operand1 = initOperand(operand1, "None", TOKEN_STRING, GF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            case TOKEN_ID:
+            default:
+                return ERROR_CODE_SEM_OTHER;
+
+        }
+
+        exp_stackPop(&myStack);
+    }
+
+    exp_stackClear(&myStack);
+
+    operand1 = initOperand(operand1, "print", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, CALL, operand1);
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+    return ERROR_CODE_OK;
 }
