@@ -27,31 +27,49 @@ LABEL $print
 POPS GF@tmp
 MOVE GF@tmp1 string@%endwhile
 JUMPIFEQ $endwhile GF@tmp GF@tmp1
-TYPE GF@tmp1 GF@tmp
-JUMPIFEQ $forstring GF@tmp1 string@string
-JUMPIFEQ $forint GF@tmp1 string@int
-JUMPIFEQ $forfloat GF@tmp1 string@float
-WRITE string@None\032
+JUMPIFNEQ $continue_write GF@tmp2 int@1
+WRITE string@\032
+LABEL $continue_write
+WRITE GF@tmp
+MOVE GF@tmp2 int@1
 JUMP $print
+LABEL $endwhile
+WRITE string@\010
+RETURN
 # ------------------------------------------
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-DEFVAR GF@ahoj
-PUSHS int@5
-PUSHS int@5
-ADDS
-POPS GF@ahoj
-PUSHS GF@ahoj
-PUSHS int@3
-ADDS
-POPS GF@ahoj
-PUSHS int@3
-PUSHS int@5
-PUSHS int@3
-ADDS
-MULS
-PUSHS int@4
-MULS
-POPS GF@ahoj
-PUSHS string@lol
+LABEL $ahoja
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@None
+PUSHS string@0x1.3b9999999999ap+6
+PUSHS string@55
+PUSHS string@kkkk
+PUSHS string@asss
+CALL $print
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@None
+PUSHS string@0x1.3b9999999999ap+6
+PUSHS string@55
+PUSHS string@kkkk
+PUSHS string@asss
+CALL $print
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@None
+PUSHS string@0x1.3b9999999999ap+6
+PUSHS string@55
+PUSHS string@kkkk
+PUSHS string@asss
+CALL $print
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@None
+PUSHS string@0x1.3b9999999999ap+6
+PUSHS string@55
+PUSHS string@kkkk
+PUSHS string@asss
+CALL $print
