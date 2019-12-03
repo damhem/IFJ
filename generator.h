@@ -9,6 +9,7 @@
 
 #include "string.h"
 
+
 #define STARTLABEL "$$start"
 #define TMP "GF@tmp"
 #define LABELSYMBOL "$"
@@ -154,9 +155,18 @@ operand operand3;
 
 void addInstruction(struct instruction_list *List, int instType, void *adress1, void *adress2, void *adress3);
 void noOperandInstr(struct instruction_list *List, inst_type type);
-operand initOperand(operand operand, string value, int type, frame frame, bool is_temp, bool is_label);
+operand initOperand(operand operand, char* value, int type, frame frame, bool is_temp, bool is_label);
 void printInstructionList(instruction_list *List);
 void oneOperandInstr(instruction_list *List, int instType, operand first);
 void twoOperandInstr(instruction_list *L, int instType, operand first, operand second);
 void threeOperandInstr(instruction_list *L, int instType, operand first, operand second, operand third);
+
+void lenFunction();
+void ordFunction();
+void chrFunction();
+void printFunction();
+
+#include "parser.h"
+
+
 #endif

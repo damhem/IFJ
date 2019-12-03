@@ -14,9 +14,9 @@
 
 
 
-operand initOperand(operand operand, string value, int type, frame frame, bool is_temp, bool is_label){
+operand initOperand(operand operand, char * value, int type, frame frame, bool is_temp, bool is_label){
     stringInit(&(operand.value));
-    stringAddChars(&(operand.value), value.value);
+    stringAddChars(&(operand.value), value);
     operand.type = type; //token type
     operand.frame = frame;
     operand.is_temp = is_temp;
@@ -501,4 +501,132 @@ void printInstructionList(instruction_list *List) {
 
         DLSucc(List);
     }
+}
+
+
+void lenFunction() { //params: s
+    //label
+
+    operand1 = initOperand(operand1, "len", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    //pushframe
+    noOperandInstr(&instrList, PUSHFRAME);
+
+    //make it do sth (goes to tmp)
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
+    twoOperandInstr(&instrList, STRLEN, operand1, operand2);
+
+    //popping from expression
+
+    noOperandInstr(&instrList, RETURN);
+}
+
+void ordFunction() { //params: s, i
+    //label
+
+    operand1 = initOperand(operand1, "ord", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    //pushframe
+    noOperandInstr(&instrList, PUSHFRAME);
+
+    //define strlen var
+    operand1 = initOperand(operand1, "slen", TOKEN_ID, LF, false, false);
+    oneOperandInstr(&instrList, DEFVAR, operand1);
+    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
+
+    twoOperandInstr(&instrList, STRLEN, operand1, operand2);
+
+    //sub a 1 (bcs string goes from 0) to strlen-1
+    operand1 = initOperand(operand1, "i", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "1", TOKEN_INT, LF, false, false);
+    threeOperandInstr(&instrList, SUB, operand1, operand1, operand2);
+
+    //todo checks? jumps? err?
+
+    //result is in global1 var
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
+    operand3 = initOperand(operand3, "i", TOKEN_ID, LF, false, false);
+    threeOperandInstr(&instrList, STRI2INT, operand1, operand2, operand3);
+
+    noOperandInstr(&instrList, RETURN);
+}
+
+void chrFunction() { //params: i
+    //label
+    operand1 = initOperand(operand1, "chr", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    //pushframe
+    noOperandInstr(&instrList, PUSHFRAME);
+
+    //todo some test?
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    operand2 = initOperand(operand2, "i", TOKEN_ID, LF, false, false);
+    twoOperandInstr(&instrList, INT2CHAR, operand1, operand2);
+
+    noOperandInstr(&instrList, RETURN);
+}
+
+//todo substr
+
+void printFunction() { //params: term1 term2 term3 ....
+    //label
+    operand1 = initOperand(operand1, "print", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    //pushframe
+    //noOperandInstr(&instrList, PUSHFRAME);
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    oneOperandInstr(&instrList, POPS, operand1);
+
+    operand2 = initOperand(operand2, "%endwhile", TOKEN_STRING, GF, false, false);
+    operand3 = initOperand(operand3, "tmp1", TOKEN_ID, GF, false, false);
+    twoOperandInstr(&instrList, MOVE, operand3, operand2);
+
+    //when %endwhile is on the stack, time to end
+    operand3 = initOperand(operand3, "endwhile", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand3, operand1, operand2);
+
+    //check type (important for formatting output)
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    twoOperandInstr(&instrList, TYPE, operand2, operand1);
+
+    //term is string
+    operand1 = initOperand(operand1, "forstring", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "string", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+     //term is int
+    operand1 = initOperand(operand1, "forint", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+     //term is float
+    operand1 = initOperand(operand1, "forfloat", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "float", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+    /* //term is none
+    operand1 = initOperand(operand1, "fornone", TOKEN_ID, GF, false, true);
+    operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+    operand3 = initOperand(operand3, "nil", TOKEN_STRING, GF, false, false);
+    threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+    */
+    operand1 = initOperand(operand1, "None\\032", TOKEN_STRING, GF, false, false);
+    oneOperandInstr(&instrList, WRITE, operand1);
+
+    operand1 = initOperand(operand1, "print", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, JUMP, operand1);
+
+
 }

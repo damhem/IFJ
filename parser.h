@@ -57,11 +57,6 @@ ERROR_CODE functionBody();
 ERROR_CODE command();
 ERROR_CODE functionParam();
 ERROR_CODE nextFunctionParam();
-
-ERROR_CODE continueID();
-ERROR_CODE terms();
-ERROR_CODE nextTerms();
-
 ERROR_CODE commands();
 
 #endif

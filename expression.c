@@ -47,29 +47,26 @@ int expressionAnalysis() {
     ERROR_CODE result;
     char sign = '_';
     while(true) {
-          sign = getSignFromTable();
-          if(sign == '='){
-
-              exp_stackPush(&stack_expression,tokentoExp_element(token,false));
-              result =  reducePars(&stack_expression); 
-              if (result != ERROR_CODE_OK) {
-                  return result;
-              }
-              if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-          }else if(sign == '<'){
-
-              if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
-                  exp_stackPush(&stack_expression,tokentoExp_element(token,true));
-              }else{
-
-                  exp_stackPush(&stack_expression,tokentoExp_element(token,false));
-              }
-
-              if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-              firstTerm = stack_expression.top_of_stack;
-
-          } else if(sign == '>') {
-
+        sign = getSignFromTable();
+        if(sign == '='){
+            exp_stackPush(&stack_expression,tokentoExp_element(token,false));
+            result =  reducePars(&stack_expression); 
+            if (result != ERROR_CODE_OK) {
+            return result;
+            }
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+        }
+        else if(sign == '<'){
+            if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
+            exp_stackPush(&stack_expression,tokentoExp_element(token,true));
+            }
+            else{
+            exp_stackPush(&stack_expression,tokentoExp_element(token,false));
+            }
+            if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+            firstTerm = stack_expression.top_of_stack;
+          } 
+          else if(sign == '>') {
               result = useRule(&stack_expression);
               if (result != ERROR_CODE_OK) {
                   return result;
@@ -200,7 +197,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 //printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
-                operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                operand operand = initOperand(operand, operandString.value, stack_expression->top_of_stack->value->type, LF, false, false);
                 retVal = typeinteger;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
@@ -214,13 +211,13 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                // printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
-                operand operand = initOperand(operand, operandString, stack_expression->top_of_stack->value->type, LF, false, false);
+                operand operand = initOperand(operand, operandString.value, stack_expression->top_of_stack->value->type, LF, false, false);
                 retVal = typedouble;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
             //string value
             else if (stack_expression->top_of_stack->value->type == TOKEN_STRING) {
-                operand operand = initOperand(operand, stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
+                operand operand = initOperand(operand, stack_expression->top_of_stack->value->e_data.ID.value, stack_expression->top_of_stack->value->type, LF, false, false);
                 retVal = typestring;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
@@ -240,9 +237,9 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             if(stack_expression->top_of_stack->value->type == TOKEN_STRING) { //todo kdyz bude id string
                 string operandString;
                 stringInit(&operandString);
-                operand operand1 = initOperand(operand1,operandString,TOKEN_ID,LF, true, false);
-                operand operand2 = initOperand(operand2,stack_expression->top_of_stack->value->e_data.ID, stack_expression->top_of_stack->value->type, LF, false, false);
-                operand operand3 = initOperand(operand3,stack_expression->top_of_stack->left->left->value->e_data.ID, stack_expression->top_of_stack->left->left->value->type, LF, false, false);
+                operand operand1 = initOperand(operand1,operandString.value,TOKEN_ID,LF, true, false);
+                operand operand2 = initOperand(operand2,stack_expression->top_of_stack->value->e_data.ID.value, stack_expression->top_of_stack->value->type, LF, false, false);
+                operand operand3 = initOperand(operand3,stack_expression->top_of_stack->left->left->value->e_data.ID.value, stack_expression->top_of_stack->left->left->value->type, LF, false, false);
                 threeOperandInstr(&instrList, CONCAT, operand1, operand2, operand3);
                 oneOperandInstr(&instrList, PUSHS, operand1);
                 break;
@@ -337,18 +334,18 @@ ERROR_CODE makeIdInstr() {
     if (helper != NULL) {
         switch (helper->Vartype) {
         case typeinteger:;
-            operand operand1 = initOperand(operand1, helper->Key, TOKEN_INT, LF, false, false);
+            operand operand1 = initOperand(operand1, helper->Key.value, TOKEN_ID, GF, false, false);
             retVal = typeinteger;
             oneOperandInstr(&instrList, PUSHS, operand1);
             break;
         case typedouble:
             retVal = typedouble;
-            operand operand2 = initOperand(operand2, helper->Key, TOKEN_DOUBLE, LF, false, false);
+            operand operand2 = initOperand(operand2, helper->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, PUSHS, operand2);
             break;
         case typestring:
             retVal = typestring;
-            operand operand3 = initOperand(operand3, helper->Key, TOKEN_STRING, LF, false, false);
+            operand operand3 = initOperand(operand3, helper->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:

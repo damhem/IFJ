@@ -1,56 +1,6 @@
-5 + 5
-#jjgrgj
-ahoj = 2
-ahoj = ahoj + 2
-kokot = ahoj
-ahoj = 6 + 8
-ahoj = foo()
-ahoj = foo(ahjo)
-ahoj = foo(jedna, dva, tri, cryt)
+ahoj = 5 + 5
+ahoj = ahoj + 3
+ahoj = 3 * (5 + 3) * 4
+print('lol')
 
-def foo(jedna, dva) :
-  ahoj + 7
-  #cau = 5 + 5
-  if 6 + 9 * 9 :
-    6.99999
-    (5+5)*5
-    51+5.4*8+7*5
-    cau = 'hfhhf' + 'ddddjbsdfjbsdjfjbgjbgkbrkugbsufbsekfgjzrfg'
-    66
-    if (10 * 3) :
-      99
-      #jsdff
-      while 55:
-        9999
-        #jghgh
-        77
-        if 3 - (9 + 5) :
-          #hfhfhf
-          pass
-          #djdjjd
-        else:
-          773
-          #jfj
-      #ffff
-    else:
-      #vvv
-  else :
-    #dwa
-  #lul
-  7777777
-  while 5 + 11 * (3 + (2 - 8)) :
-    
-    #prvni
-    #treti
-    
-  return 66 + (6 * 7)
 
-def sss(rrj, ccol, ssss, cc) :
-  return 77
-
-def dfhsdfh() :
-  return 1 + 8
-
-def fooo(hdfd, ff) :
-    #print
-    return 0

@@ -1,0 +1,57 @@
+.IFJcode19
+# -------------------start------------------
+DEFVAR GF@tmp
+DEFVAR GF@tmp1
+DEFVAR GF@tmp2
+JUMP $$start
+# -------------------len()------------------
+LABEL $len
+PUSHFRAME
+STRLEN GF@tmp LF@s
+RETURN
+# -------------------ord()------------------
+LABEL $ord
+PUSHFRAME
+DEFVAR LF@slen
+STRLEN LF@slen LF@s
+SUB LF@i LF@i int@1
+STRI2INT GF@tmp LF@s LF@i
+RETURN
+# -------------------chr()--------------------
+LABEL $chr
+PUSHFRAME
+INT2CHAR GF@tmp LF@i
+RETURN
+# -------------------print()--------------------
+LABEL $print
+POPS GF@tmp
+MOVE GF@tmp1 string@%endwhile
+JUMPIFEQ $endwhile GF@tmp GF@tmp1
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $forstring GF@tmp1 string@string
+JUMPIFEQ $forint GF@tmp1 string@int
+JUMPIFEQ $forfloat GF@tmp1 string@float
+WRITE string@None\032
+JUMP $print
+# ------------------------------------------
+# konec generovani vestavench funkci
+# ------------------------------------------
+LABEL $$start
+DEFVAR GF@ahoj
+PUSHS int@5
+PUSHS int@5
+ADDS
+POPS GF@ahoj
+PUSHS GF@ahoj
+PUSHS int@3
+ADDS
+POPS GF@ahoj
+PUSHS int@3
+PUSHS int@5
+PUSHS int@3
+ADDS
+MULS
+PUSHS int@4
+MULS
+POPS GF@ahoj
+PUSHS string@lol

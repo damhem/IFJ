@@ -148,7 +148,7 @@ ERROR_CODE functionDef() {
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
-      operand operand_label = initOperand(operand_label, functionName, TOKEN_ID, GF, false, true);
+      operand operand_label = initOperand(operand_label, functionName.value, TOKEN_ID, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand_label);
 
       //there has to be EOL
@@ -514,7 +514,7 @@ ERROR_CODE command() {
       //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
       nowExpression = true;
 
-       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       VarType type_while;
       result = expression(&type_while);
       if (result != ERROR_CODE_OK) return result;
@@ -616,7 +616,7 @@ ERROR_CODE command() {
 
 
               //budu generovat instrukci pro vytvoreni promenne
-              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
           }
@@ -629,7 +629,7 @@ ERROR_CODE command() {
               SYMInsert(&lcSymtable, token.t_data.ID, false);
 
               //budu generovat instrukci pro vytvoreni promenne
-              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
           }
@@ -658,7 +658,7 @@ ERROR_CODE command() {
               helper = SYMSearch(&glSymtable, token.t_data.ID);
 
               //budu generovat instrukci pro vytvoreni promenne
-              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, GF, false, false);
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
             else {
@@ -679,7 +679,7 @@ ERROR_CODE command() {
             // var -> vysledek_expression
             helper->Vartype = sth;
 
-            operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, GF, false, false);
+            operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
           }
 
@@ -694,7 +694,7 @@ ERROR_CODE command() {
               //set helper to the symtable initalized node
               helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code
-              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
             else if ((helper = SYMSearch(&lcSymtable, token.t_data.ID)) == NULL) {
@@ -703,7 +703,7 @@ ERROR_CODE command() {
               //set helper to the symtable initalized node
               helper = SYMSearch(&lcSymtable, token.t_data.ID);
               //generate code of defvar
-              operand var_operand = initOperand(var_operand, token.t_data.ID, TOKEN_ID, LF, false, false);
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
             else {
@@ -724,7 +724,7 @@ ERROR_CODE command() {
             // var -> vysledek_expression
             helper->DataType = sth;
 
-            operand var_operand = initOperand(var_operand, helper->Key, TOKEN_ID, LF, false, false);
+            operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, LF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
           }
 
@@ -769,11 +769,10 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
       }
-      string nil;
-      stringInit(&nil);
-      operand operand_bye = initOperand(operand_bye, nil, TOKEN_ID, GF, true, false);
+      
+      operand operand_bye = initOperand(operand_bye, "", TOKEN_ID, GF, true, false);
       oneOperandInstr(&instrList, POPS, operand_bye);
-      stringDispose(&nil);
+      
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
@@ -785,67 +784,6 @@ ERROR_CODE command() {
   return ERROR_CODE_SYN;
 }
 
-
-/*
-ERROR_CODE continueID() {
-
-  ERROR_CODE result;
-  //printf("IN CONTINUE ID\n");
-
-  switch (token.t_type) {
-    case TOKEN_ID: ;
-      //have to check if its expression
-      token_type nextTokenType;
-      if ((nextTokenType = peekNextToken()) == TOKEN_UNDEF) return ERROR_CODE_LEX;
-      //printf("SUCCESS CHECK OF NEXT TOKEN, Type: %d\n", nextTokenType);
-
-    switch (nextTokenType) {
-      case TOKEN_ADDITION:
-      case TOKEN_SUBTRACTION:
-      case TOKEN_MULTIPLICATION:
-      case TOKEN_DIVISION:
-      case TOKEN_EQUAL_EQUAL:
-      case TOKEN_SMALLERTHEN:
-      case TOKEN_SMALLERTHEN_EQUAL:
-      case TOKEN_BIGGERTHEN:
-      case TOKEN_BIGGERTHEN_EQUAL:
-      case TOKEN_EOL:
-        //Pokracovani_id_next -> Vyraz eol
-        //has to be operator
-
-        //printf("WILL BE DOING EXPRESSION\n");
-        //tod expression napojení (expression(token))
-
-        //toeol token
-
-        return ERROR_CODE_SYN;
-
-      case TOKEN_LEFTPAR:
-        //Pokracovani_id_next -> id ( Termy ) eol
-        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-        result = terms();
-        if (result != ERROR_CODE_OK) return result;
-
-        if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
-
-        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-        if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
-
-        if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-        return ERROR_CODE_OK;
-
-      default:
-        return ERROR_CODE_SYN;
-      }
-    default:
-      return ERROR_CODE_SYN;
-  }
-  return ERROR_CODE_SYN;
-}
-
-*/
 ERROR_CODE commands() {
 
   ERROR_CODE result;

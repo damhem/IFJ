@@ -14,13 +14,17 @@ void DLInitList(instruction_list *List) {
     addInstruction(List, JUMP, "$$start", NULL, NULL);
     
     //todo vestavene funkce
-    //writeLength();
-    //addInstruction(L, I_COMMENT, "-------------------ASC--------------------", NULL, NULL);
-    //writeAsc();
-    //addInstruction(L, I_COMMENT, "-------------------CHR--------------------", NULL, NULL);
-    //writeChr();
+    addInstruction(List, COMMENT, "-------------------len()------------------", NULL, NULL);
+    lenFunction();
+    addInstruction(List, COMMENT, "-------------------ord()------------------", NULL, NULL);
+    ordFunction();
+    addInstruction(List, COMMENT, "-------------------chr()--------------------", NULL, NULL);
+    chrFunction();
     //addInstruction(L, I_COMMENT, "------------------SUBSTR------------------", NULL, NULL);
     //writeSubstr();
+    addInstruction(List, COMMENT, "-------------------print()--------------------", NULL, NULL);
+    printFunction();
+    addInstruction(List, COMMENT, "------------------------------------------", NULL, NULL);
     addInstruction(List, COMMENT, "konec generovani vestavench funkci", NULL, NULL);
     addInstruction(List, COMMENT, "------------------------------------------", NULL, NULL);
     addInstruction(List, LABEL, "$$start", NULL, NULL);

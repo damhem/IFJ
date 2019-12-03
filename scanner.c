@@ -539,66 +539,66 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
       case(SCANNER_STRING):
-       if( c == '\''){
-         token.t_type = TOKEN_STRING;
-         return token;
-       }else if(c != '\\'){
-         stringAddChar(&token.t_data.ID, c);
-       }else if(c== '\\'){
-         state = SCANNER_STRING1;
-       }
-       break;
-     case(SCANNER_STRING1):
-      if( c == '\\'){
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }else if(c == '\''){
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }else if(c == '\"'){
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }else if(c == 'n'){
-        c = '\n';
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }else if(c == 't'){
-        c = '\t';
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }else if(c == 'x'){
-        state = SCANNER_STRING2;
-      }
-      break;
-    case(SCANNER_STRING2):
-      if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
-        prev_c = c;
-        state = SCANNER_STRING3;
-      }
-      break;
-    case(SCANNER_STRING3):
-      if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
-        char c_h;
-        string String;
-        stringInit(&String);
-        c_h = '0';
-        stringAddChar(&String, c_h);
-        c_h = 'x';
-        stringAddChar(&String, c_h);
-        stringAddChar(&String, prev_c);
-        stringAddChar(&String, c);
+        if( c == '\''){
+          token.t_type = TOKEN_STRING;
+          return token;
+        }else if(c != '\\'){
+          stringAddChar(&token.t_data.ID, c);
+        }else if(c== '\\'){
+          state = SCANNER_STRING1;
+        }
+        break;
+      case(SCANNER_STRING1):
+        if( c == '\\'){
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }else if(c == '\''){
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }else if(c == '\"'){
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }else if(c == 'n'){
+          c = '\n';
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }else if(c == 't'){
+          c = '\t';
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }else if(c == 'x'){
+          state = SCANNER_STRING2;
+        }
+        break;
+      case(SCANNER_STRING2):
+        if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+          prev_c = c;
+          state = SCANNER_STRING3;
+        }
+        break;
+      case(SCANNER_STRING3):
+        if(isdigit(c) || c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' || c == 'F' ) {
+          char c_h;
+          string String;
+          stringInit(&String);
+          c_h = '0';
+          stringAddChar(&String, c_h);
+          c_h = 'x';
+          stringAddChar(&String, c_h);
+          stringAddChar(&String, prev_c);
+          stringAddChar(&String, c);
 
-        c = (char)strtol(String.value, NULL, 16);
+          c = (char)strtol(String.value, NULL, 16);
 
-        stringDispose(&String);
-        stringAddChar(&token.t_data.ID, c);
-        state = SCANNER_STRING;
-      }
-      break;
-    default:
-      token.t_type = TOKEN_UNDEF;
-      token.t_data.integer = ERROR_CODE_LEX;
-      return token;
+          stringDispose(&String);
+          stringAddChar(&token.t_data.ID, c);
+          state = SCANNER_STRING;
+        }
+        break;
+      default:
+        token.t_type = TOKEN_UNDEF;
+        token.t_data.integer = ERROR_CODE_LEX;
+        return token;
     } //switch
   } //while
   return token;
