@@ -145,11 +145,21 @@ ERROR_CODE functionDef() {
 
     case TOKEN_DEF:
       //Definice_funkce -> Hlavicka_funkce eol indent Telo_funkce dedent
+
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
+      string functionLabel;
+      stringInit(&functionLabel);
+      stringAddChars(&functionLabel, functionName.value);
+      stringAddChars(&functionLabel, "%");
+      operand1 = initOperand(operand1, functionLabel.value, TOKEN_ID, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
       operand operand_label = initOperand(operand_label, functionName.value, TOKEN_ID, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand_label);
+
+      noOperandInstr(&instrList, PUSHFRAME);
 
       //there has to be EOL
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -195,8 +205,12 @@ ERROR_CODE functionDef() {
         return ERROR_CODE_SYN;
       }
 
-      //dispose function name
-      //stringClear(&functionName);
+      noOperandInstr(&instrList, RETURN);
+
+      operand1 = initOperand(operand1, functionLabel.value, TOKEN_ID, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      stringClear(&functionName);
 
       //clear paramIndex
       paramIndex = 0;
@@ -610,10 +624,13 @@ ERROR_CODE command() {
           if (functionName.length == 0) {
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
-              //promenna jeste nebyla vytvorena -> vytvorim
 
+              //promenna jeste nebyla vytvorena -> vytvorim
               SYMInsert(&glSymtable, token.t_data.ID, false);
 
+              helper = SYMSearch(&glSymtable, token.t_data.ID);
+
+              
 
               //budu generovat instrukci pro vytvoreni promenne
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
@@ -690,6 +707,7 @@ ERROR_CODE command() {
             if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) != NULL) {
               //var is in the global symtable -> create new in local
               //todo if I already used it
+              //todo wut
               SYMInsert(&lcSymtable, token.t_data.ID, false);
               //set helper to the symtable initalized node
               helper = SYMSearch(&lcSymtable, token.t_data.ID);
