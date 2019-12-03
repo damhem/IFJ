@@ -3,6 +3,7 @@
 #include "parser.h"
 
 token_type peekNextToken() {
+  if (peekToken.t_type != TOKEN_UNDEF) return peekToken.t_type;
   peekToken = getNextToken(&line_flag, &s);
 
   if (peekToken.t_type == TOKEN_UNDEF) {

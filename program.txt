@@ -1,6 +1,7 @@
-ahoj = 5 + 5
-ahoj = ahoj + 3
-ahoj = 3 * (5 + 3) * 4
-print('lol')
-
+def ahoja() :
+  return
+print('asss', 'kkkk', 55, 78.90, None)
+print('asss', 'kkkk', 55, 78.90, None)
+print('asss', 'kkkk', 55, 78.90, None)
+print('asss', 'kkkk', 55, 78.90, None)
 

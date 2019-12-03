@@ -164,7 +164,7 @@ ERROR_CODE functionDef() {
         return ERROR_CODE_SYN;
       }
 
-       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       //hey there can be a lot of eols izi
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
@@ -735,7 +735,8 @@ ERROR_CODE command() {
           //just a function call (without actually var to assign to) - procedure
           
           nowExpression = true;
-          if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+          
+          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           VarType type_proc;
           result = expression(&type_proc);
           if (result != ERROR_CODE_OK) return result;
