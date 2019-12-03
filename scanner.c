@@ -55,7 +55,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
-          if (c != ' ') {
+          if (c != ' ' && c != '\t') {
             while (stackEmpty(s)==0) {
             stackPop(s);
             dentcount++;
@@ -72,7 +72,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
         }
-        else if (c == ' ' && (*line_flag) == true) {
+        else if ((c == ' ' || c =='\t' )&& (*line_flag) == true) {
           state = SCANNER_DENTCOUNT;
           spacecount++;
         }
@@ -188,14 +188,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
         case (SCANNER_DENTCOUNT):
-          if (c == ' ') {
+          if (c == ' ' || c == '\t') {
             spacecount++;
           }
           else {
             *line_flag=false;
             ungetc(c, stdin);
             stackTop(s,&s_top);
-            if (spacecount>s_top || stackEmpty(s)) {
+            if (spacecount>s_top) {
               if (stackPush(s,spacecount) == ERROR_CODE_INTERNAL) {
                 token.t_type = TOKEN_UNDEF;
                 token.t_data.integer = ERROR_CODE_INTERNAL;

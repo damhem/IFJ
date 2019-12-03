@@ -49,6 +49,7 @@ void stackTop(const tStack *s, char *c)
 
 // V případě že je zásobník prázdný a vrací nulu, vrací se ERROR_CODE_INTERNAL
   if (stackEmpty(s) != 0) {
+	  *c = 0;
 		return;
   }
 
@@ -67,7 +68,6 @@ void stackPop(tStack *s)
 	if (stackEmpty(s) != 0) {
 		return;
 	}
-
 	s->top--;
 
 }
