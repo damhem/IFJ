@@ -1,7 +1,9 @@
 def ahoja() :
+  ahoj = 7
+  kkt = ahoj + 8
+  yoo = ahoj + kkt
   return
 print('asss', 'kkkk', 55, 78.90, None)
 print('asss', 'kkkk', 55, 78.90, None)
 print('asss', 'kkkk', 55, 78.90, None)
 print('asss', 'kkkk', 55, 78.90, None)
-

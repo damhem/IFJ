@@ -341,34 +341,60 @@ ERROR_CODE makeIdInstr() {
         return ERROR_CODE_OK;
     }
 
-    tBSTNodePtr helper = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
-    if (helper != NULL) {
-        switch (helper->Vartype) {
+    tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
+    tBSTNodePtr helperlf = SYMSearch(&lcSymtable,stack_expression.top_of_stack->value->e_data.ID);
+    if (helpergf != NULL) {
+        switch (helpergf->Vartype) {
         case typeinteger:;
-            operand operand1 = initOperand(operand1, helper->Key.value, TOKEN_ID, GF, false, false);
+            operand operand1 = initOperand(operand1, helpergf->Key.value, TOKEN_ID, GF, false, false);
             retVal = typeinteger;
             oneOperandInstr(&instrList, PUSHS, operand1);
             break;
         case typedouble:
             retVal = typedouble;
-            operand operand2 = initOperand(operand2, helper->Key.value, TOKEN_ID, GF, false, false);
+            operand operand2 = initOperand(operand2, helpergf->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, PUSHS, operand2);
             break;
         case typestring:
             retVal = typestring;
-            operand operand3 = initOperand(operand3, helper->Key.value, TOKEN_ID, GF, false, false);
+            operand operand3 = initOperand(operand3, helpergf->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helper->Key.value);
+
             return ERROR_CODE_SEM;
             break;
         default:
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
         }
-    }
-    else {
+    }else if(helperlf != NULL) {
+        switch (helperlf->Vartype) {
+        case typeinteger:;
+            operand operand1 = initOperand(operand1, helperlf->Key.value, TOKEN_ID, LF, false, false);
+            retVal = typeinteger;
+            oneOperandInstr(&instrList, PUSHS, operand1);
+            break;
+        case typedouble:
+            retVal = typedouble;
+            operand operand2 = initOperand(operand2, helperlf->Key.value, TOKEN_ID, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand2);
+            break;
+        case typestring:
+            retVal = typestring;
+            operand operand3 = initOperand(operand3, helperlf->Key.value, TOKEN_ID, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand3);
+            break;
+        case undefined:
+            printf("(%d)\n",helperlf->Vartype);
+            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helperlf->Key.value);
+            return ERROR_CODE_SEM;
+            break;
+        default:
+            //not initialized vartype -> err
+            return ERROR_CODE_INTERNAL;
+        }
+    }else{
         //promenna se nenasla v tabulce
         return ERROR_CODE_SEM;
     }
