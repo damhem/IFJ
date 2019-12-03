@@ -104,6 +104,7 @@ typedef struct Token {
 } Token;
 
 int dentcount;
+bool endoffile;
 
 Token getNextToken(bool *line_flag, tStack *s);
 token_type peekNextToken();

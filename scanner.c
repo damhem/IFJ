@@ -45,7 +45,19 @@ Token getNextToken(bool *line_flag, tStack *s) {
     switch (state) {
       case (SCANNER_START):
         if (c == EOF) {
-          *line_flag=false;
+          if (!endoffile) {
+            ungetc(c, stdin);
+            endoffile = true;
+            token.t_type = TOKEN_EOL;
+  					return token;
+          }
+          else if (stackEmpty(s)==0) {
+            printf("KONEC SOUBORU");
+            stackPop(s);
+            ungetc(c, stdin);
+            token.t_type = TOKEN_DEDENT;
+            return token;
+          }
 					token.t_type = TOKEN_EOF;
 					return token;
 				}
