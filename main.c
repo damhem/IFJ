@@ -38,6 +38,6 @@ int main() {
 
   fclose(fp);
   DLDisposeList(&instrList);
-  //printf("return code: %d\n", error_code);
+  printf("return code: %d\n", error_code);
   return error_code;
 }

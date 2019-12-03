@@ -1,6 +1,5 @@
-ahoj = 5 + 5
-ahoj = ahoj + 3
-ahoj = 3 * (5 + 3) * 4
-print('lol')
-
-
+def ahoja() :
+  ahoj = 7
+  kkt = ahoj + 8
+  yoo = ahoj + kkt
+  return

@@ -711,7 +711,6 @@ ERROR_CODE command() {
               //helper is set to local that variable
               helper = SYMSearch(&lcSymtable, token.t_data.ID);
             }
-
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
             nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
@@ -722,8 +721,7 @@ ERROR_CODE command() {
             nowExpression = false;
 
             // var -> vysledek_expression
-            helper->DataType = sth;
-
+            helper->Vartype = sth;
             operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, LF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
           }
