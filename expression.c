@@ -456,7 +456,6 @@ ERROR_CODE nextTerms() {
 
 
 ERROR_CODE makePrintFunction() {
-    ERROR_CODE result;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //now leftpar
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first term
     
