@@ -50,36 +50,101 @@ RETURN
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-JUMP $ahoja%
-LABEL $ahoja
+JUMP $factorial%
+LABEL $factorial
 PUSHFRAME
-PUSHS int@3
-RETURN
-LABEL $ahoja%
-JUMP $off%
-LABEL $off
-PUSHFRAME
-DEFVAR LF@ahojao
-PUSHS int@66
-POPS LF@ahojao
-DEFVAR LF@takdd
+DEFVAR LF@n
+MOVE LF@n LF@%0
+PUSHS LF@n
+PUSHS int@2
+LTS
+POPS GF@tmp
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $compare_int%0 GF@tmp1 string@int
+JUMPIFEQ $compare_double%0 GF@tmp1 string@float
+JUMPIFEQ $compare_bool%0 GF@tmp1 string@bool
+JUMP $continue%0
+LABEL $compare_int%0
+JUMPIFEQ $else%0 GF@tmp int@0
+JUMP $continue%0
+LABEL $compare_double%0
+JUMPIFEQ $else%0 GF@tmp float@0x0p+0
+JUMP $continue%0
+LABEL $compare_bool%0
+JUMPIFEQ $else%0 GF@tmp bool@false
+LABEL $continue%0
+DEFVAR LF@result
+PUSHS int@1
+POPS LF@result
+JUMP $end%0
+LABEL $else%0
+DEFVAR LF@decremented_n
+PUSHS LF@n
+PUSHS int@1
+SUBS
+POPS LF@decremented_n
+DEFVAR LF@temp_result
 CREATEFRAME
-CALL $ahoja
+DEFVAR TF@%0
+MOVE TF@%0 LF@decremented_n
+CALL $factorial
 POPFRAME
-POPS LF@takdd
-PUSHS LF@takdd
-PUSHS LF@ahojao
-ADDS
-POPS LF@takdd
-PUSHS LF@takdd
+POPS LF@temp_result
+LABEL $kkkt
+DEFVAR LF@ahoj
+JUMP $kkkt
+JUMPIFNEQ $ending%0 nil@nil LF@result
+DEFVAR LF@result
+LABEL $ending%0
+PUSHS LF@n
+PUSHS LF@temp_result
+MULS
+POPS LF@result
+LABEL $end%0
+PUSHS LF@result
 RETURN
-LABEL $off%
-DEFVAR GF@kk
-CREATEFRAME
-CALL $off
-POPFRAME
-POPS GF@kk
+LABEL $factorial%
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS GF@kk
+PUSHS string@Zadejtecislo
 CALL $print
+DEFVAR GF@a
+PUSHS int@3
+POPS GF@a
+PUSHS GF@a
+PUSHS int@0
+LTS
+POPS GF@tmp
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $compare_int%1 GF@tmp1 string@int
+JUMPIFEQ $compare_double%1 GF@tmp1 string@float
+JUMPIFEQ $compare_bool%1 GF@tmp1 string@bool
+JUMP $continue%1
+LABEL $compare_int%1
+JUMPIFEQ $else%1 GF@tmp int@0
+JUMP $continue%1
+LABEL $compare_double%1
+JUMPIFEQ $else%1 GF@tmp float@0x0p+0
+JUMP $continue%1
+LABEL $compare_bool%1
+JUMPIFEQ $else%1 GF@tmp bool@false
+LABEL $continue%1
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@Faktorialnelzespocitat
+CALL $print
+JUMP $end%1
+LABEL $else%1
+DEFVAR GF@vysl
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@a
+CALL $factorial
+POPFRAME
+POPS GF@vysl
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS GF@vysl
+PUSHS string@Vysledekje:
+CALL $print
+LABEL $end%1

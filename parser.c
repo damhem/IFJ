@@ -7,6 +7,7 @@ ERROR_CODE parse() {
   line_flag = true;
   nowExpression = false;
   paramIndex = 0;
+  labelCounter = 0;
   peekToken.t_type = TOKEN_UNDEF;
 
   //initialize structures
@@ -193,6 +194,20 @@ ERROR_CODE functionDef() {
         for (int i = 0; i < helper->parametrs; i++) {
           SYMInsert(&lcSymtable, helper->paramName[i], false);
         }
+      }
+
+      //generate parametres
+      for (int i = 0; i < helper->parametrs; i++) {
+        operand1 = initOperand(operand1, helper->paramName[i].value, TOKEN_ID, LF, false, false);
+        oneOperandInstr(&instrList, DEFVAR, operand1);
+        string operandS;
+        stringInit(&operandS);
+        stringAddChar(&operandS, '%');
+        char number[3];
+        sprintf(number, "%d", i);
+        stringAddChars(&operandS, number);
+        operand2 = initOperand(operand2, operandS.value, TOKEN_ID, LF, false, false);
+        twoOperandInstr(&instrList, MOVE, operand1, operand2);
       }
 
       //going deeper to function body
@@ -468,6 +483,106 @@ ERROR_CODE command() {
         return ERROR_CODE_SYN;
       }
 
+      //vyhodnoceni vyrazu if
+      //popnu hodnotu z vyrazu do tmp
+      operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+      oneOperandInstr(&instrList, POPS, operand1); 
+
+      operand1 = initOperand(operand1, "tmp1", TOKEN_ID, GF, false, false);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      twoOperandInstr(&instrList, TYPE, operand1, operand2);
+      
+      string lableOne;
+      stringInit(&lableOne);
+      stringAddChars(&lableOne, "compare_int%");
+      char someInt[6];
+      sprintf(someInt, "%d", labelCounter);
+      stringAddChars(&lableOne, someInt);
+      operand1 = initOperand(operand1, lableOne.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+      
+
+      string lableTwo;
+      stringInit(&lableTwo);
+      stringAddChars(&lableTwo, "compare_double%");
+      char someInt2[6];
+      sprintf(someInt2, "%d", labelCounter);
+      stringAddChars(&lableTwo, someInt2);
+      operand1 = initOperand(operand1, lableTwo.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "float", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+
+      string lableTwoHalf;
+      stringInit(&lableTwoHalf);
+      stringAddChars(&lableTwoHalf, "compare_bool%");
+      char someInt25[6];
+      sprintf(someInt25, "%d", labelCounter);
+      stringAddChars(&lableTwoHalf, someInt25);
+      operand1 = initOperand(operand1, lableTwoHalf.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "bool", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+      
+
+      string lableThree;
+      stringInit(&lableThree);
+      stringAddChars(&lableThree, "continue%");
+      char someInt3[6];
+      sprintf(someInt3, "%d", labelCounter);
+      stringAddChars(&lableThree, someInt3);
+
+      operand1 = initOperand(operand1, lableThree.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      //compare for int
+      operand1 = initOperand(operand1, lableOne.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      string lableFour;
+      stringInit(&lableFour);
+      stringAddChars(&lableFour, "else%");
+      char someInt4[6];
+      sprintf(someInt4, "%d", labelCounter);
+      stringAddChars(&lableFour, someInt4);
+      operand1 = initOperand(operand1, lableFour.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      operand3 = initOperand(operand3, "0", TOKEN_INT, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+      operand1 = initOperand(operand1, lableThree.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      //compare for double
+      operand1 = initOperand(operand1, lableTwo.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      operand1 = initOperand(operand1, lableFour.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      operand3 = initOperand(operand3, "0x0p+0", TOKEN_DOUBLE, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+      operand1 = initOperand(operand1, lableThree.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      //compare for bool
+      operand1 = initOperand(operand1, lableTwoHalf.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+      
+      string tempstring;
+      stringInit(&tempstring);
+      stringAddChars(&tempstring, "$");
+      stringAddChars(&tempstring, lableFour.value);
+      addInstruction(&instrList, JUMPIFEQ, tempstring.value, "GF@tmp", "bool@false");
+
+      //this is normal continue
+      operand1 = initOperand(operand1, lableThree.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = skipEol();
@@ -481,6 +596,18 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_DEDENT) {
         return ERROR_CODE_SYN;
       }
+
+      //there has to be jump to an end
+      string lableFive;
+      stringInit(&lableFive);
+      stringAddChars(&lableFive, "end%");
+      char someInt5[6];
+      sprintf(someInt5, "%d", labelCounter);
+      stringAddChars(&lableFive, someInt5);
+      operand1 = initOperand(operand1, lableFive.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = skipEol();
@@ -503,6 +630,11 @@ ERROR_CODE command() {
         return ERROR_CODE_SYN;
       }
 
+
+      //else now
+      operand1 = initOperand(operand1, lableFour.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = skipEol();
@@ -516,6 +648,11 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_DEDENT) {
         return ERROR_CODE_SYN;
       }
+
+      operand1 = initOperand(operand1, lableFive.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      labelCounter++;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
@@ -680,6 +817,28 @@ ERROR_CODE command() {
             }
             else {
               //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
+              operand1 = initOperand(operand1, token.t_data.ID.value, TOKEN_ID, GF, false, false);
+              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
+              twoOperandInstr(&instrList, TYPE, operand2, operand1);
+
+              //pokud se jedna o neinicializovanou promennou, vytvor znova, jinak jump
+              string anotherLabel;
+              stringInit(&anotherLabel);
+              stringAddChars(&anotherLabel, "ending%");
+              char number45[5];
+              sprintf(number45, "%d", labelCounter);
+              stringAddChars(&anotherLabel, number45); 
+              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
+              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
+              operand2 = initOperand(operand2, "", TOKEN_STRING, GF, false, false);
+              threeOperandInstr(&instrList, JUMPIFNEQ, operand1, operand2, operand3);
+
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
+              
+              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
+              oneOperandInstr(&instrList, LABEL, operand1);
+
               //helper is set to global that variable
               helper = SYMSearch(&glSymtable, token.t_data.ID);
             }
@@ -726,6 +885,32 @@ ERROR_CODE command() {
             }
             else {
               //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
+
+
+              //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
+              operand1 = initOperand(operand1, token.t_data.ID.value, TOKEN_ID, LF, false, false);
+              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
+              twoOperandInstr(&instrList, TYPE, operand2, operand1);
+
+              //pokud se jedna o neinicializovanou promennou, vytvor znova, jinak jump
+              string anotherLabel;
+              stringInit(&anotherLabel);
+              stringAddChars(&anotherLabel, "ending%");
+              char number45[5];
+              sprintf(number45, "%d", labelCounter);
+              stringAddChars(&anotherLabel, number45); 
+              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
+              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
+              operand2 = initOperand(operand2, "", TOKEN_STRING, GF, false, false);
+              threeOperandInstr(&instrList, JUMPIFNEQ, operand1, operand2, operand3);
+
+              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
+              oneOperandInstr(&instrList, DEFVAR, var_operand);
+              
+              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
+              oneOperandInstr(&instrList, LABEL, operand1);
+
+
               //helper is set to local that variable
               helper = SYMSearch(&lcSymtable, token.t_data.ID);
             }

@@ -341,14 +341,16 @@ ERROR_CODE makeIdInstr() {
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helpergf->Key.value);
-            return ERROR_CODE_SEM;
+            retVal = undefined;
+            operand operand4 = initOperand(operand4, helpergf->Key.value, TOKEN_ID, GF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         default:
             //not initialized vartype -> err
             return ERROR_CODE_INTERNAL;
         }
     }else if(helperlf != NULL) {
+        //ted jsem urcite ve funkci ne?
         switch (helperlf->Vartype) {
         case typeinteger:;
             operand operand1 = initOperand(operand1, helperlf->Key.value, TOKEN_ID, LF, false, false);
@@ -366,8 +368,9 @@ ERROR_CODE makeIdInstr() {
             oneOperandInstr(&instrList, PUSHS, operand3);
             break;
         case undefined:
-            fprintf(stderr, "Promenna nebyla definovana (%s)\n", helperlf->Key.value);
-            return ERROR_CODE_SEM;
+            retVal = undefined;
+            operand operand4 = initOperand(operand4, helperlf->Key.value, TOKEN_ID, LF, false, false);
+            oneOperandInstr(&instrList, PUSHS, operand4);
             break;
         default:
             //not initialized vartype -> err
@@ -591,15 +594,23 @@ ERROR_CODE makeFunction() {
                     case TOKEN_ID:
                         operand1 = initOperand(operand1, nextParam.value, TOKEN_ID, TF, false, false);
                         tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
-                        if (helper2 == NULL) {
+                        tBSTNodePtr helper3 = SYMSearch(&lcSymtable, token.t_data.ID);
+                        if (helper2 == NULL && helper3 == NULL) {
                             fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"%s\" neni definovana.\n", token.t_data.ID.value, helper->Key.value);
                             return ERROR_CODE_SEM;
                         }
-                        else if (helper2->DataType != Variable) {
-                            fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
-                            return ERROR_CODE_SEM;
+                        else if (helper2 != 0) {
+                            if (helper2->DataType != Variable) {
+                                fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
+                                return ERROR_CODE_SEM;
+                            }
                         }
-                        operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                        if (helper3 != NULL) {
+                            operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
+                        }
+                        else {
+                            operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                        }
                         twoOperandInstr(&instrList, MOVE, operand1, operand2);
                         break;
                     default:
