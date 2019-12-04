@@ -100,8 +100,6 @@ char getSignFromTable(){
         b = token.t_type;
     }
     a = get_stack_type(&stack_expression);
-    //printf("%d %d \n", a, b);
-    //printf("%c \n", precedenceTable[a][b]);
     return precedenceTable[a][b];
 }
 
@@ -193,7 +191,6 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 char number[15];
                 sprintf(number, "%d", stack_expression->top_of_stack->value->e_data.integer);
-                //printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString.value, stack_expression->top_of_stack->value->type, LF, false, false);
@@ -207,7 +204,6 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
                 char number[25];
                 sprintf(number, "%a", stack_expression->top_of_stack->value->e_data.decimal);
-               // printf("number: %s\n", number);
 
                 stringAddChars(&operandString, number);
                 operand operand = initOperand(operand, operandString.value, stack_expression->top_of_stack->value->type, LF, false, false);
@@ -286,6 +282,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             break;
 
         default:
+            
             return ERROR_CODE_SEM;
     }
 
@@ -532,12 +529,6 @@ ERROR_CODE makeFunction() {
             fprintf(stderr, "Definovali jste promennou s nazvem \"%s\", ne funkci.\n", token.t_data.ID.value);
             return ERROR_CODE_SEM;
         }
-        else if (helper->defined != true) {
-            fprintf(stderr, "Funkce jeste stale neni definovana (%s).\n", token.t_data.ID.value);
-            //check number of params
-            //todo check params?
-            //todo same as nahore 
-        }
         else {
             //funkce je definovana a muze v pohode probehnout volani fce
             //create temporary frame
@@ -639,9 +630,14 @@ ERROR_CODE makeFunction() {
             }
 
             //now check params number
-            if (paramsCounter != helper->parametrs) {
-                fprintf(stderr, "Chybny pocet parametru pri volani funkce \"%s\".\n", helper->Key.value);
-                return ERROR_CODE_SEM_FUNC;
+            if (helper->defined == true) {
+                if (paramsCounter != helper->parametrs) {
+                    fprintf(stderr, "Chybny pocet parametru pri volani funkce \"%s\".\n", helper->Key.value);
+                    return ERROR_CODE_SEM_FUNC;
+                }
+            }
+            else {
+                helper->parametrs = paramsCounter;
             }
 
             operand1 = initOperand(operand1, helper->Key.value, TOKEN_ID, GF, false, true);
@@ -654,57 +650,6 @@ ERROR_CODE makeFunction() {
             return ERROR_CODE_OK;
         }
     }
-    
-    
-    switch (token.t_type) {
-    case TOKEN_ID:
-      //todo sth with symtable
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      result = nextTerms();
-      if (result != ERROR_CODE_OK) return result;
-
-      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
-
-      return ERROR_CODE_OK;
-
-    case TOKEN_STRING:
-    case TOKEN_INT:
-    case TOKEN_DOUBLE:
-    case TOKEN_NONE:
-
-      //todo sth
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      result = nextTerms();
-      if (result != ERROR_CODE_OK) return result;
-
-      if (token.t_type != TOKEN_RIGHTPAR) return ERROR_CODE_SYN;
-
-      return ERROR_CODE_OK;
-    case TOKEN_RIGHTPAR:
-      return ERROR_CODE_OK;
-    default:
-      return ERROR_CODE_SYN;
-}
-}
-
-
-ERROR_CODE nextTerms() {
-  
-  switch (token.t_type) {
-    case TOKEN_COMMA:
-      //Next_term -> , Termy
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-
-      return makeFunction();
-
-    case TOKEN_RIGHTPAR:
-      return ERROR_CODE_OK;
-    default:
-      return ERROR_CODE_SYN;
-  }
-  return ERROR_CODE_SYN;
 }
 
 
@@ -731,10 +676,13 @@ ERROR_CODE makePrintFunction() {
         if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
         if (token.t_type == TOKEN_COMMA) {
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-            if (token.t_type == TOKEN_RIGHTPAR) return ERROR_CODE_SEM_OTHER;
+            if (token.t_type == TOKEN_RIGHTPAR) {
+                return ERROR_CODE_SEM_OTHER;
+            }
         }
         else if (token.t_type == TOKEN_RIGHTPAR) continue;
         else {
+            
             return ERROR_CODE_SEM_OTHER;
         }
     }
