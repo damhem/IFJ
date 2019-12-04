@@ -170,7 +170,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_COMMA;
           return token;
         }
-        else if ((c == ' ' || c == '\r')){
+        else if (isspace(c)){
           state = SCANNER_START;
         }
         else {
