@@ -43,7 +43,6 @@ int convertTokenToIndex(Token token);
 ERROR_CODE useRule(ptrStack *stack_expression);
 ERROR_CODE reducePars(ptrStack *stack_expression);
 ERROR_CODE makeIdInstr();
-ERROR_CODE nextTerms();
 ERROR_CODE makeFunction();
 ERROR_CODE makePrintFunction();
 

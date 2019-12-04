@@ -94,8 +94,6 @@ ERROR_CODE program() {
 ERROR_CODE programBody() {
   ERROR_CODE result;
 
-  //printf("IN PROGRAM BODY\n");
-
   switch (token.t_type) {
 
     case TOKEN_DEF:
@@ -187,6 +185,7 @@ ERROR_CODE functionDef() {
       //set global symtable to pointer
       tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper == NULL) {
+        
         return ERROR_CODE_SEM_OTHER;
       }
       else {
@@ -250,12 +249,10 @@ ERROR_CODE functionHead() {
         }
         //when function has been declared, but not defined
         else if (strcmp(helper->Key.value, functionName.value) == 0 && (helper->defined == false)) {
-
-          result = SYMInsert(&glSymtable, functionName, true);
+          //result = SYMInsert(&glSymtable, functionName, true);
+          //if (result != ERROR_CODE_OK) return result;
           numberOfPrevParams = helper->parametrs;
           declared = true;
-
-          if (result != ERROR_CODE_OK) return result;
           helper->defined = true;
         }
         else {
@@ -269,6 +266,7 @@ ERROR_CODE functionHead() {
         result = SYMInsert(&glSymtable, functionName, true);
         if (result != ERROR_CODE_OK) return result;
         if ((helper = SYMSearch(&glSymtable, functionName)) == NULL) {
+          
           return ERROR_CODE_SEM_OTHER;
         }
         else {
@@ -294,7 +292,8 @@ ERROR_CODE functionHead() {
 
       //checking if it was called with right number of params
       if (declared) {
-        if (numberOfPrevParams != paramIndex + 1) {
+        if (numberOfPrevParams != paramIndex) {
+          fprintf(stderr, "Funkce \"%s\" byla volana se spatnym poctem parametru.\n", functionName.value);
           return ERROR_CODE_SEM;
         }
       }
@@ -320,7 +319,6 @@ ERROR_CODE functionHead() {
 
 ERROR_CODE functionParam() {
   ERROR_CODE result;
-  //printf("IN FUNCTION PARAMS\n");
 
   switch (token.t_type) {
     case TOKEN_ID: ;
@@ -354,7 +352,7 @@ ERROR_CODE functionParam() {
         stringAddChars(&(helper->paramName[paramIndex]), Paramname.value);
 
         //increment number of function paramentres
-        (helper->parametrs)++;
+        //(helper->parametrs)++;
 
         //increment the index
         paramIndex++;
@@ -364,6 +362,8 @@ ERROR_CODE functionParam() {
         return ERROR_CODE_SEM_OTHER;
       }
 
+      helper->parametrs = paramIndex;
+
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = nextFunctionParam();
@@ -372,7 +372,7 @@ ERROR_CODE functionParam() {
       return ERROR_CODE_OK;
 
     case TOKEN_RIGHTPAR:
-      //Parametry -> eps
+      //Parametry -> eps      
       return ERROR_CODE_OK;
 
     default:
@@ -823,8 +823,6 @@ ERROR_CODE commands() {
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
-
-      //printf("after skip elo, %d\n", token.t_type);
 
       return commands();
 

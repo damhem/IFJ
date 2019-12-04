@@ -1,10 +1,12 @@
-def ahoja() :
-  return 3
-def off() :
+
+def off(lul) :
   ahojao = 66
-  takdd = ahoja()
+  takdd = ahoja(1)
   takdd = takdd + ahojao
   return takdd
 
-kk = off()
+def ahoja(ahhh) :
+  return 3
+
+kk = off(1)
 print(kk)

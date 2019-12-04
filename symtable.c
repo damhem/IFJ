@@ -24,21 +24,21 @@ tBSTNodePtr BSTSearch (tBSTNodePtr RootPtr, char* K)	{
 ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vartype, bool declared, int paramnum) {
 	ERROR_CODE result = ERROR_CODE_OK;
 	if (*RootPtr == NULL) {
-	  	if((((*RootPtr) = (tBSTNodePtr) malloc(sizeof(struct tBSTNode))) == NULL)) {
+		//jeste neni root -> musi se vytvorit
+		if((((*RootPtr) = (tBSTNodePtr) malloc(sizeof(struct tBSTNode))) == NULL)) {
 	    	result = ERROR_CODE_INTERNAL; //malloc nesehnal dost paměti
 			return result;
 		}
-	  	(*RootPtr)->lPtr = NULL;
-	  	(*RootPtr)->rPtr = NULL;
-			stringAddChars(&(*RootPtr)->Key, K);
-			(*RootPtr)->DataType = type;
-	  	(*RootPtr)->Vartype = vartype;
-			(*RootPtr)->defined = declared;
-			(*RootPtr)->parametrs = paramnum;
-		  return result;
+		(*RootPtr)->lPtr = NULL;
+		(*RootPtr)->rPtr = NULL;
+		stringAddChars(&(*RootPtr)->Key, K);
+		(*RootPtr)->DataType = type;
+		(*RootPtr)->Vartype = vartype;
+		(*RootPtr)->defined = declared;
+		(*RootPtr)->parametrs = paramnum;
+		return result;
 	}
-
-	else if ((*RootPtr)->Key.value == K) {
+	else if (strcmp((*RootPtr)->Key.value, K) == 0) {
 		(*RootPtr)->DataType = type;
 		(*RootPtr)->Vartype = vartype;
 		(*RootPtr)->defined = declared;
@@ -55,6 +55,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vart
 		result = BSTInsert(&(*RootPtr)->rPtr, K, type, vartype, declared, paramnum);
 		return result;
 	}
+	printf("Ssss");
 	return ERROR_CODE_SEM_OTHER;
 
 }
