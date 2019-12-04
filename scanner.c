@@ -507,14 +507,26 @@ Token getNextToken(bool *line_flag, tStack *s) {
       case (SCANNER_COMMENT_0):
         if (c == '"'){                        //1"
           state = SCANNER_COMMENT_01;
-        }else{
+        }
+        else if (c == EOF) {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
+        else{
           stringAddChar(&token.t_data.ID, c);
         }
         break;
       case (SCANNER_COMMENT_01):
         if (c == '"'){                        //2"
           state = SCANNER_COMMENT_02;
-        }else{
+        }
+        else if (c == EOF) {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
+        else{
           stringAddChar(&token.t_data.ID, c);
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
@@ -528,20 +540,21 @@ Token getNextToken(bool *line_flag, tStack *s) {
           else {
             state = SCANNER_START;
           }
-        }else{
+        }
+        else if (c == EOF) {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
+        else{
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_COMMENT_0;
         }
         break;
       case (SCANNER_LINE_COMMENT):
-        if (c == EOF){
-          token.t_type = TOKEN_EOF;
-          return token;
-        }
-        else if (c == '\n') {
-          token.t_type = TOKEN_EOL;
-          *line_flag = true;
-          return token;
+        if (c == EOF || c == '\n'){
+          state = SCANNER_START;
+          ungetc(c, stdin);
         }
         else {
           state = SCANNER_LINE_COMMENT;
@@ -601,30 +614,45 @@ Token getNextToken(bool *line_flag, tStack *s) {
         else if (c== '\\'){
           state = SCANNER_STRING1;
         }
+        else if (c == EOF || c == '\n') {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
         else {
           stringAddChar(&token.t_data.ID, c);
         }
         break;
       case(SCANNER_STRING1):
-        if( c == '\\'){
+        if( c == '\\') {
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
-        }else if(c == '\''){
+        }
+        else if(c == '\'') {
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
-        }else if(c == '\"'){
+        }
+        else if(c == '\"') {
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
-        }else if(c == 'n'){
+        }
+        else if(c == 'n') {
           c = '\n';
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
-        }else if(c == 't'){
+        }
+        else if(c == 't') {
           c = '\t';
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
-        }else if(c == 'x'){
+        }
+        else if(c == 'x') {
           state = SCANNER_STRING2;
+        }
+        else if (c == EOF) {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         else {
           stringAddChar(&token.t_data.ID, '\\');
