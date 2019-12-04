@@ -85,7 +85,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_ID;
           stringAddChar(&token.t_data.ID, c);
         }
-        else if ((c == ' ' || c =='\t' )&& (*line_flag) == true) {
+        else if ((c == ' ' )&& (*line_flag) == true) {
           state = SCANNER_DENTCOUNT;
           spacecount++;
         }
@@ -170,6 +170,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_type = TOKEN_COMMA;
           return token;
         }
+        else if ((c == ' ' || c == '\r')){
+          state = SCANNER_START;
+        }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
         break;
       case (SCANNER_ID):
         if (isalpha(c) || isdigit(c) || c == '_') {
@@ -201,7 +209,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
         case (SCANNER_DENTCOUNT):
-          if (c == ' ' || c == '\t') {
+          if (c == ' ') {
             spacecount++;
           }
           else {
@@ -465,6 +473,11 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '_') {
           state = SCANNER_EXPONENT_UNDERSCORE;
+        }
+        else if (c == '.') {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         else {
           double temp = atof(token.t_data.ID.value);
