@@ -37,6 +37,9 @@ string functionName;
 //index counter for params in function
 int paramIndex;
 
+//counter for generating labels
+int labelCounter;
+
 //global symtable
 symtable glSymtable;
 

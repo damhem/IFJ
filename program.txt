@@ -1,12 +1,20 @@
 
-def off(lul) :
-  ahojao = 66
-  takdd = ahoja(1)
-  takdd = takdd + ahojao
-  return takdd
+def factorial(n):
+    if n < 2:
+        result = 1
+    else:
+        decremented_n = n - 1
+        temp_result = factorial(decremented_n)
+        result = n * temp_result
+    return result
 
-def ahoja(ahhh) :
-  return 3
 
-kk = off(1)
-print(kk)
+
+print('Zadejtecislo')
+a = 3
+if a < 0:
+    print('Faktorialnelzespocitat')
+else:
+    vysl = factorial(a)
+    print('Vysledekje:', vysl)
+
