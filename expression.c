@@ -383,7 +383,6 @@ ERROR_CODE makeIdInstr() {
 
 
 ERROR_CODE makeFunction() {
-    ERROR_CODE result;
     //i know for sure that now I have token ID as function name in token and nexttoken is leftpar
     //starting function
     //have to check if its in symtable
@@ -650,6 +649,7 @@ ERROR_CODE makeFunction() {
             return ERROR_CODE_OK;
         }
     }
+    return ERROR_CODE_INTERNAL;
 }
 
 
