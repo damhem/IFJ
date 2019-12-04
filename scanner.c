@@ -366,6 +366,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
             state = SCANNER_EXPONENT_1;
             stringAddChar(&token.t_data.ID, c);
           }
+          else if (c == '_') {
+            state = SCANNER_INT_UNDERSCORE;
+          }
           else {
             int temp;
             sscanf(token.t_data.ID.value, "%d", &temp);
@@ -375,31 +378,56 @@ Token getNextToken(bool *line_flag, tStack *s) {
             return token;
           }
           break;
+        case (SCANNER_INT_UNDERSCORE):
+          if (isdigit(c)) {
+            state = SCANNER_NUMBER;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
+          }
+          break;
         case (SCANNER_DECIMAL_1):
-              if (isdigit(c)) {
-                state = SCANNER_DECIMAL_2;
-                stringAddChar(&token.t_data.ID, c);
-              }
-              else {
-                token.t_type = TOKEN_UNDEF;
-                token.t_data.integer = ERROR_CODE_LEX;
-                return token;
-              }
-            break;
+          if (isdigit(c)) {
+            state = SCANNER_DECIMAL_2;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
+          }
+          break;
         case (SCANNER_DECIMAL_2):
-              if (isdigit(c)) {
-                stringAddChar(&token.t_data.ID, c);
-              }
-              else if (c == 'e' || c == 'E') {
-                state = SCANNER_EXPONENT_1;
-                stringAddChar(&token.t_data.ID, c);
-              }
-              else {
-              double temp = atof(token.t_data.ID.value);
-              token.t_data.decimal=temp;
-              token.t_type = TOKEN_DOUBLE;
-              ungetc(c, stdin);
-        return token;
+          if (isdigit(c)) {
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else if (c == 'e' || c == 'E') {
+            state = SCANNER_EXPONENT_1;
+            stringAddChar(&token.t_data.ID, c);
+          }
+          else if (c == '_') {
+            state = SCANNER_DECIMAL_UNDERSCORE;
+          }
+          else {
+            double temp = atof(token.t_data.ID.value);
+            token.t_data.decimal=temp;
+            token.t_type = TOKEN_DOUBLE;
+            ungetc(c, stdin);
+            return token;
+          }
+          break;
+      case (SCANNER_DECIMAL_UNDERSCORE):
+        if (isdigit(c)) {
+          state = SCANNER_DECIMAL_2;
+          stringAddChar(&token.t_data.ID, c);
+        }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         break;
       case (SCANNER_EXPONENT_1):
@@ -435,11 +463,25 @@ Token getNextToken(bool *line_flag, tStack *s) {
         if (isdigit(c)) {
                 stringAddChar(&token.t_data.ID, c);
         }
+        else if (c == '_') {
+          state = SCANNER_EXPONENT_UNDERSCORE;
+        }
         else {
           double temp = atof(token.t_data.ID.value);
           token.t_data.decimal=temp;
           token.t_type = TOKEN_DOUBLE;
           ungetc(c, stdin);
+          return token;
+        }
+        break;
+      case (SCANNER_EXPONENT_UNDERSCORE):
+        if (isdigit(c)) {
+          state = SCANNER_EXPONENT_3;
+          stringAddChar(&token.t_data.ID, c);
+        }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
           return token;
         }
         break;
@@ -555,10 +597,12 @@ Token getNextToken(bool *line_flag, tStack *s) {
         if( c == '\''){
           token.t_type = TOKEN_STRING;
           return token;
-        }else if(c != '\\'){
-          stringAddChar(&token.t_data.ID, c);
-        }else if(c== '\\'){
+        }
+        else if (c== '\\'){
           state = SCANNER_STRING1;
+        }
+        else {
+          stringAddChar(&token.t_data.ID, c);
         }
         break;
       case(SCANNER_STRING1):
@@ -589,20 +633,22 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         break;
       case(SCANNER_STRING2):
-        if(isdigit(c) || (c>='a' && c<='f') || (c>='A' && c<='F') ) {
+        if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
           prev_c = c;
           state = SCANNER_STRING3;
         }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
+        }
         break;
       case(SCANNER_STRING3):
-        if(isdigit(c) || (c>='a' && c<='f') || (c>='A' && c<='F') ) {
-          char c_h;
+        if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
           string String;
           stringInit(&String);
-          c_h = '0';
-          stringAddChar(&String, c_h);
-          c_h = 'x';
-          stringAddChar(&String, c_h);
+          stringAddChar(&String, '0');
+          stringAddChar(&String, 'x');
           stringAddChar(&String, prev_c);
           stringAddChar(&String, c);
 
@@ -611,6 +657,11 @@ Token getNextToken(bool *line_flag, tStack *s) {
           stringDispose(&String);
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
+        }
+        else {
+          token.t_type = TOKEN_UNDEF;
+          token.t_data.integer = ERROR_CODE_LEX;
+          return token;
         }
         break;
       default:
