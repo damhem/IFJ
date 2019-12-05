@@ -52,10 +52,10 @@ RETURN
 LABEL $$start
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS string@Zadejtecisloprovypocetfaktorialu:
+PUSHS string@Zadejte\032cislo\032pro\032vypocet\032faktorialu:\032
 CALL $print
 DEFVAR GF@a
-PUSHS int@6
+PUSHS int@5
 POPS GF@a
 PUSHS GF@a
 PUSHS int@0
@@ -77,7 +77,7 @@ JUMPIFEQ $else%0 GF@tmp bool@false
 LABEL $continue%0
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS string@Faktorialnelzespocitat
+PUSHS string@\010Faktorial\032nelze\032spocitat\010
 CALL $print
 JUMP $end%0
 LABEL $else%0
@@ -116,8 +116,7 @@ JUMP $start_while%1
 LABEL $end_w%1
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS string@
-
+PUSHS string@\010
 PUSHS GF@vysl
-PUSHS string@Vysledekje:
+PUSHS string@Vysledek\032je:
 CALL $print
