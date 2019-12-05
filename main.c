@@ -25,18 +25,18 @@ int main() {
   ERROR_CODE error_code = EXIT_SUCCESS;
 
 
-  //open file w/ program and push it to the stdin
+  /*//open file w/ program and push it to the stdin
   FILE *fp;
   if ((fp = freopen("program.txt", "r", stdin)) == NULL) {
       return EXIT_FAILURE;
-  }
+  }*/
 
   DLInitList(&instrList);
 
   error_code = parse();
   if (error_code == ERROR_CODE_OK) printInstructionList(&instrList);
 
- fclose(fp);
+ //fclose(fp);
   DLDisposeList(&instrList);
   //printf("return code: %d\n", error_code);
   return error_code;
