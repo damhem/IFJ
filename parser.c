@@ -80,7 +80,7 @@ ERROR_CODE program() {
         return ERROR_CODE_OK;
       }
       else {
-        return ERROR_CODE_SEM;
+        return ERROR_CODE_SYN;
       }
     case TOKEN_EOF:
       return ERROR_CODE_OK;
@@ -184,8 +184,7 @@ ERROR_CODE functionDef() {
       //set global symtable to pointer
       tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper == NULL) {
-        
-        return ERROR_CODE_SEM;
+        return ERROR_CODE_INTERNAL;
       }
       else {
         //now we have to add paramnames to local symtable
@@ -280,8 +279,7 @@ ERROR_CODE functionHead() {
         result = SYMInsert(&glSymtable, functionName, true);
         if (result != ERROR_CODE_OK) return result;
         if ((helper = SYMSearch(&glSymtable, functionName)) == NULL) {
-          
-          return ERROR_CODE_SEM;
+          return ERROR_CODE_INTERNAL;
         }
         else {
           //add parametres

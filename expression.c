@@ -65,7 +65,27 @@ int expressionAnalysis() {
                 if (result != ERROR_CODE_OK) return result;
                 return ERROR_CODE_OK;
             }
-
+            if (token.t_type == TOKEN_ADDITION || token.t_type == TOKEN_SUBTRACTION || 
+            token.t_type == TOKEN_MULTIPLICATION || token.t_type == TOKEN_DIVISION || 
+            token.t_type == TOKEN_INTEGER_DIVISION || token.t_type == TOKEN_EQUAL ||
+            token.t_type == TOKEN_EQUAL_EQUAL || token.t_type == TOKEN_BIGGERTHEN ||
+            token.t_type == TOKEN_BIGGERTHEN_EQUAL || token.t_type == TOKEN_SMALLERTHEN ||
+            token.t_type == TOKEN_SMALLERTHEN_EQUAL || token.t_type == TOKEN_NEG_EQUAL) {
+                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION || 
+                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION || 
+                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION || 
+                stack_expression.top_of_stack->value->type == TOKEN_DIVISION || 
+                stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
+                stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
+                    return  ERROR_CODE_SEM_COMP; 
+                }
+            }
 
             if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
                 exp_stackPush(&stack_expression,tokentoExp_element(token,true));
@@ -80,6 +100,22 @@ int expressionAnalysis() {
             firstTerm = stack_expression.top_of_stack;
         } 
         else if(sign == '>') {
+            if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
+                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION || 
+                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION || 
+                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION || 
+                stack_expression.top_of_stack->value->type == TOKEN_DIVISION || 
+                stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
+                stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
+                    return  ERROR_CODE_SEM_COMP; 
+                }
+            }
             result = useRule(&stack_expression);
             if (result != ERROR_CODE_OK) {
             return result;
@@ -290,8 +326,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             break;
 
         default:
-            
-            return ERROR_CODE_SEM;
+            return ERROR_CODE_SEM_COMP;
     }
 
     exp_stackPop(stack_expression);
@@ -320,9 +355,9 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
             (firstTerm->value)->handle = false;
             
         }
-        else return ERROR_CODE_SYN;
+        else return ERROR_CODE_SEM_COMP;
     }
-    else return ERROR_CODE_SYN;
+    else return ERROR_CODE_SEM_COMP;
     return ERROR_CODE_OK;
 }
 
@@ -388,6 +423,7 @@ ERROR_CODE makeIdInstr() {
     }
     else {
         //promenna se nenasla v tabulce
+        fprintf(stderr, "Promenna \"%s\" se nenasla v tabulce symbolu.\n", stack_expression.top_of_stack->value->e_data.ID.value);
         return ERROR_CODE_SEM;
     }
     return ERROR_CODE_OK;
@@ -701,7 +737,7 @@ ERROR_CODE makePrintFunction() {
         if (token.t_type == TOKEN_COMMA) {
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
             if (token.t_type == TOKEN_RIGHTPAR) {
-                return ERROR_CODE_SEM_OTHER;
+                return ERROR_CODE_SYN;
             }
         }
         else if (token.t_type == TOKEN_RIGHTPAR) continue;
