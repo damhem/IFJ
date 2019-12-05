@@ -72,7 +72,7 @@ int expressionAnalysis() {
             }
             else{
                 if (exp_stackEmpty(&stack_expression)) {
-                    return ERROR_CODE_SYN;
+                    return ERROR_CODE_SEM_COMP;
                 }
                 exp_stackPush(&stack_expression,tokentoExp_element(token,false));
             }
@@ -86,10 +86,11 @@ int expressionAnalysis() {
             }
         } 
         else if(sign == '$') {
-            return 0;
+            return ERROR_CODE_OK;
         }
         else{
-            return 2;
+            fprintf(stderr, "Chybny vyraz (kompatibilita lexemu z vyrazu).\n");
+            return ERROR_CODE_SEM_COMP;
         }
     }
 }
