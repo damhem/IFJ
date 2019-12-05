@@ -8,3 +8,6 @@ all : $(PROJ)
 
 $(PROJ) : $(FILES)
 		$(CC) -g $(CFLAGS) -o $(PROJ) $(FILES) -lm
+
+test:
+	./tests.sh

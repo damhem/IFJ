@@ -25,8 +25,6 @@ RETURN
 LABEL $inputs
 PUSHFRAME
 READ GF@tmp string
-WRITE GF@tmp
-PUSHS GF@tmp
 # -------------------print()--------------------
 LABEL $print
 POPS GF@tmp
@@ -76,7 +74,6 @@ CREATEFRAME
 CALL $inputs
 POPFRAME
 POPS GF@str
-WRITE GF@str
 DEFVAR GF@str2
 CREATEFRAME
 DEFVAR TF@%0
