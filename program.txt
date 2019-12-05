@@ -1,2 +1,10 @@
-a = 5
-a++
+# Program 2: Vypocet faktorialu (rekurzivne)
+def ahoj(kkt) :
+  kkt = kkt + 5
+  return kkt
+
+str = inputs()
+
+str2 = ahoj(5)
+
+print(str, str2)

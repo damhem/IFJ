@@ -31,6 +31,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vart
 		}
 		(*RootPtr)->lPtr = NULL;
 		(*RootPtr)->rPtr = NULL;
+		stringInit(&(*RootPtr)->Key);
 		stringAddChars(&(*RootPtr)->Key, K);
 		(*RootPtr)->DataType = type;
 		(*RootPtr)->Vartype = vartype;
@@ -55,7 +56,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vart
 		result = BSTInsert(&(*RootPtr)->rPtr, K, type, vartype, declared, paramnum);
 		return result;
 	}
-	printf("Ssss");
+	//printf("Ssss");
 	return ERROR_CODE_SEM_OTHER;
 
 }

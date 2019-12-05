@@ -350,7 +350,7 @@ ERROR_CODE makeIdInstr() {
         case undefined:
             retVal = undefined;
             operand operand4 = initOperand(operand4, helpergf->Key.value, TOKEN_ID, GF, false, false);
-            oneOperandInstr(&instrList, PUSHS, operand3);
+            oneOperandInstr(&instrList, PUSHS, operand4);
             break;
         default:
             //not initialized vartype -> err
@@ -381,6 +381,7 @@ ERROR_CODE makeIdInstr() {
             break;
         default:
             //not initialized vartype -> err
+            printf("%s", helperlf->Key.value);
             return ERROR_CODE_INTERNAL;
         }
     }
@@ -393,6 +394,7 @@ ERROR_CODE makeIdInstr() {
 
 
 ERROR_CODE makeFunction() {
+    retVal = undefined;
     //i know for sure that now I have token ID as function name in token and nexttoken is leftpar
     //starting function
     //have to check if its in symtable
@@ -675,6 +677,7 @@ ERROR_CODE makeFunction() {
 
 
 ERROR_CODE makePrintFunction() {
+    retVal = undefined;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //now leftpar
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first term
     
