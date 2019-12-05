@@ -185,7 +185,7 @@ ERROR_CODE functionDef() {
       tBSTNodePtr helper = SYMSearch(&glSymtable, functionName);
       if (helper == NULL) {
         
-        return ERROR_CODE_SEM_OTHER;
+        return ERROR_CODE_SEM;
       }
       else {
         //now we have to add paramnames to local symtable
@@ -281,7 +281,7 @@ ERROR_CODE functionHead() {
         if (result != ERROR_CODE_OK) return result;
         if ((helper = SYMSearch(&glSymtable, functionName)) == NULL) {
           
-          return ERROR_CODE_SEM_OTHER;
+          return ERROR_CODE_SEM;
         }
         else {
           //add parametres

@@ -166,6 +166,8 @@ void ordFunction();
 void chrFunction();
 void printFunction();
 void inputSFunction();
+void inputIFunction();
+void inputFFunction();
 
 
 #include "parser.h"

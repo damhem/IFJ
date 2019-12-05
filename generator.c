@@ -510,6 +510,39 @@ void inputSFunction() {
     noOperandInstr(&instrList, PUSHFRAME);
     
     addInstruction(&instrList, READ, "GF@tmp", "string", NULL);
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    oneOperandInstr(&instrList, PUSHS, operand1);
+
+    noOperandInstr(&instrList, RETURN);
+}
+
+void inputIFunction() {
+    operand1 = initOperand(operand1, "inputi", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    noOperandInstr(&instrList, PUSHFRAME);
+    
+    addInstruction(&instrList, READ, "GF@tmp", "int", NULL);
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    oneOperandInstr(&instrList, PUSHS, operand1);
+
+    noOperandInstr(&instrList, RETURN);
+}
+
+void inputFFunction() {
+    operand1 = initOperand(operand1, "inputf", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    noOperandInstr(&instrList, PUSHFRAME);
+    
+    addInstruction(&instrList, READ, "GF@tmp", "float", NULL);
+
+    operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+    oneOperandInstr(&instrList, PUSHS, operand1);
+
+    noOperandInstr(&instrList, RETURN);
 }
 
 void lenFunction() { //params: s

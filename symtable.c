@@ -134,7 +134,7 @@ ERROR_CODE SYMInit(symtable* symtable) {
 
   BSTInsert(&(symtable->root), "inputs", Function, undefined, true, 0);
   BSTInsert(&(symtable->root), "inputi", Function, undefined, true, 0);
-  BSTInsert(&(symtable->root), "inputd", Function, undefined, true, 0);
+  BSTInsert(&(symtable->root), "inputf", Function, undefined, true, 0);
   //BSTInsert(&(Table->root), "print", Function, undefined, true, 41? lol);
 
   BSTInsert(&(symtable->root), "len", Function, undefined, true, 1);

@@ -34,7 +34,7 @@ typedef struct tBSTNode {
     //function
     bool defined;               //the function has been defined
     int parametrs;              //number of function parametres
-    string paramName[40];       //names of function parametres
+    string paramName[99];       //names of function parametres
 } *tBSTNodePtr;
 
 //binary seach tree itself

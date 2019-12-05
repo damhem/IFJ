@@ -22,9 +22,24 @@ LABEL $chr
 PUSHFRAME
 INT2CHAR GF@tmp LF@i
 RETURN
+# -------------------inputs()--------------------
 LABEL $inputs
 PUSHFRAME
 READ GF@tmp string
+PUSHS GF@tmp
+RETURN
+# -------------------inputi()--------------------
+LABEL $inputi
+PUSHFRAME
+READ GF@tmp int
+PUSHS GF@tmp
+RETURN
+# -------------------inputf()--------------------
+LABEL $inputf
+PUSHFRAME
+READ GF@tmp float
+PUSHS GF@tmp
+RETURN
 # -------------------print()--------------------
 LABEL $print
 POPS GF@tmp
@@ -53,36 +68,101 @@ RETURN
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-JUMP $ahoj%
-LABEL $ahoj
+JUMP $factorial%
+LABEL $factorial
 PUSHFRAME
-DEFVAR LF@kkt
-MOVE LF@kkt LF@%0
-TYPE GF@tmp2 LF@kkt
-JUMPIFNEQ $ending%0 string@ int@1
-DEFVAR LF@kkt
-LABEL $ending%0
-PUSHS LF@kkt
-PUSHS int@5
-ADDS
-POPS LF@kkt
-PUSHS LF@kkt
-RETURN
-LABEL $ahoj%
-DEFVAR GF@str
-CREATEFRAME
-CALL $inputs
-POPFRAME
-POPS GF@str
-DEFVAR GF@str2
+DEFVAR LF@n
+MOVE LF@n LF@%0
+PUSHS LF@n
+PUSHS int@2
+LTS
+POPS GF@tmp
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $compare_int%0 GF@tmp1 string@int
+JUMPIFEQ $compare_double%0 GF@tmp1 string@float
+JUMPIFEQ $compare_bool%0 GF@tmp1 string@bool
+JUMP $continue%0
+LABEL $compare_int%0
+JUMPIFEQ $else%0 GF@tmp int@0
+JUMP $continue%0
+LABEL $compare_double%0
+JUMPIFEQ $else%0 GF@tmp float@0x0p+0
+JUMP $continue%0
+LABEL $compare_bool%0
+JUMPIFEQ $else%0 GF@tmp bool@false
+LABEL $continue%0
+DEFVAR LF@result
+PUSHS int@1
+POPS LF@result
+JUMP $end%0
+LABEL $else%0
+DEFVAR LF@decremented_n
+PUSHS LF@n
+PUSHS int@1
+SUBS
+POPS LF@decremented_n
+DEFVAR LF@temp_result
 CREATEFRAME
 DEFVAR TF@%0
-MOVE TF@%0 int@5
-CALL $ahoj
+MOVE TF@%0 LF@decremented_n
+CALL $factorial
 POPFRAME
-POPS GF@str2
+POPS LF@temp_result
+TYPE GF@tmp2 LF@result
+JUMPIFNEQ $ending%0 string@ float@0x0p+0
+DEFVAR LF@result
+LABEL $ending%0
+PUSHS LF@n
+PUSHS LF@temp_result
+MULS
+POPS LF@result
+LABEL $end%0
+PUSHS LF@result
+RETURN
+LABEL $factorial%
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS GF@str2
-PUSHS GF@str
+PUSHS string@Zadejte\032cislo\032pro\032vypocet\032faktorialu:\032
 CALL $print
+DEFVAR GF@a
+CREATEFRAME
+CALL $inputi
+POPFRAME
+POPS GF@a
+PUSHS GF@a
+PUSHS int@0
+LTS
+POPS GF@tmp
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $compare_int%1 GF@tmp1 string@int
+JUMPIFEQ $compare_double%1 GF@tmp1 string@float
+JUMPIFEQ $compare_bool%1 GF@tmp1 string@bool
+JUMP $continue%1
+LABEL $compare_int%1
+JUMPIFEQ $else%1 GF@tmp int@0
+JUMP $continue%1
+LABEL $compare_double%1
+JUMPIFEQ $else%1 GF@tmp float@0x0p+0
+JUMP $continue%1
+LABEL $compare_bool%1
+JUMPIFEQ $else%1 GF@tmp bool@false
+LABEL $continue%1
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@Faktorial\032nelze\032spocitat
+CALL $print
+JUMP $end%1
+LABEL $else%1
+DEFVAR GF@vysl
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@a
+CALL $factorial
+POPFRAME
+POPS GF@vysl
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS GF@vysl
+PUSHS string@Vysledek\032je:
+CALL $print
+LABEL $end%1

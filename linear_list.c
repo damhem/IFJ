@@ -20,8 +20,12 @@ void DLInitList(instruction_list *List) {
     ordFunction();
     addInstruction(List, COMMENT, "-------------------chr()--------------------", NULL, NULL);
     chrFunction();
-    //addInstruction(L, I_COMMENT, "------------------SUBSTR------------------", NULL, NULL);
+    addInstruction(List, COMMENT, "-------------------inputs()--------------------", NULL, NULL);
     inputSFunction();
+    addInstruction(List, COMMENT, "-------------------inputi()--------------------", NULL, NULL);
+    inputIFunction();    
+    addInstruction(List, COMMENT, "-------------------inputf()--------------------", NULL, NULL);
+    inputFFunction();
     addInstruction(List, COMMENT, "-------------------print()--------------------", NULL, NULL);
     printFunction();
     addInstruction(List, COMMENT, "------------------------------------------", NULL, NULL);

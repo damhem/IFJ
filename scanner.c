@@ -52,7 +52,6 @@ Token getNextToken(bool *line_flag, tStack *s) {
   					return token;
           }
           else if (stackEmpty(s)==0) {
-            printf("KONEC SOUBORU");
             stackPop(s);
             ungetc(c, stdin);
             token.t_type = TOKEN_DEDENT;
@@ -68,7 +67,12 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
-          if (c != ' ' && c != '#') {
+          if (c == '#') {
+            *line_flag=false;
+            state = SCANNER_LINE_COMMENT;
+            break;
+          }
+          else if (c != ' ' && c != '#') {
             while (stackEmpty(s)==0) {
             stackPop(s);
             dentcount++;
@@ -585,6 +589,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         break;
       case (SCANNER_LINE_COMMENT):
         if (c == EOF || c == '\n'){
+          
           state = SCANNER_START;
           ungetc(c, stdin);
         }
