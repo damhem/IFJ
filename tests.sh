@@ -22,7 +22,7 @@ inputs_sem_internal='./tests/test_that_return99/*.py'
 i=0 # counter
 
 echo "                                                                      "
-echo "----------------COMPLETE PROGRAM TESTS ----------------"
+echo "----------------OK PROGRAM TESTS ----------------"
 echo "                                                                      "
 # testy na programy
 for file in $inputs_ok
@@ -101,10 +101,120 @@ do
 
     # vypsani testu
 	printf "%-02d  " "$i"
+	if [ "$return_value" -eq "3" ]; then
+    printf "   OK   "
+	else
+	printf "ERROR   "
+	fi
+	printf "%-16s | EXPECTED=3, RETURNED=$return_value\n" "$test_name"
+done
+echo "                                                                      "
+echo "----------------SEM_COMP ERROR TESTS ----------------"
+echo "                                                                      "
+
+# testy na syntax
+for file in $inputs_sem_comp
+do
+    test_name=$(basename "$file")
+
+    cat $file | ./p 2>/dev/null 1>/dev/null
+	return_value=$?
+	i=$(($i + 1))
+
+    # vypsani testu
+	printf "%-02d  " "$i"
 	if [ "$return_value" -eq "4" ]; then
     printf "   OK   "
 	else
 	printf "ERROR   "
 	fi
 	printf "%-16s | EXPECTED=4, RETURNED=$return_value\n" "$test_name"
+done
+echo "                                                                      "
+echo "----------------SEM_FUNC ERROR TESTS ----------------"
+echo "                                                                      "
+
+# testy na syntax
+for file in $inputs_sem_func
+do
+    test_name=$(basename "$file")
+
+    cat $file | ./p 2>/dev/null 1>/dev/null
+	return_value=$?
+	i=$(($i + 1))
+
+    # vypsani testu
+	printf "%-02d  " "$i"
+	if [ "$return_value" -eq "5" ]; then
+    printf "   OK   "
+	else
+	printf "ERROR   "
+	fi
+	printf "%-16s | EXPECTED=5, RETURNED=$return_value\n" "$test_name"
+done
+echo "                                                                      "
+echo "----------------SEM_OTHER ERROR TESTS ----------------"
+echo "                                                                      "
+
+# testy na syntax
+for file in $inputs_sem_other
+do
+    test_name=$(basename "$file")
+
+    cat $file | ./p 2>/dev/null 1>/dev/null
+	return_value=$?
+	i=$(($i + 1))
+
+    # vypsani testu
+	printf "%-02d  " "$i"
+	if [ "$return_value" -eq "6" ]; then
+    printf "   OK   "
+	else
+	printf "ERROR   "
+	fi
+	printf "%-16s | EXPECTED=6, RETURNED=$return_value\n" "$test_name"
+done
+echo "                                                                      "
+echo "----------------ZERO_DEV ERROR TESTS ----------------"
+echo "                                                                      "
+
+# testy na syntax
+for file in $inputs_zero_dev
+do
+    test_name=$(basename "$file")
+
+    cat $file | ./p 2>/dev/null 1>/dev/null
+	return_value=$?
+	i=$(($i + 1))
+
+    # vypsani testu
+	printf "%-02d  " "$i"
+	if [ "$return_value" -eq "9" ]; then
+    printf "   OK   "
+	else
+	printf "ERROR   "
+	fi
+	printf "%-16s | EXPECTED=9, RETURNED=$return_value\n" "$test_name"
+done
+echo "                                                                      "
+echo "----------------INTERNAL ERROR TESTS ----------------"
+echo "                                                                      "
+
+# testy na syntax
+for file in $inputs_sem_internal
+do
+    test_name=$(basename "$file")
+
+    cat $file | ./p 2>/dev/null 1>/dev/null
+	return_value=$?
+	i=$(($i + 1))
+
+    # vypsani testu
+	printf "%-02d  " "$i"
+	if [ "$return_value" -eq "99" ]; then
+    printf "   OK   "
+	else
+	printf "ERROR   "
+	fi
+	printf "%-16s | EXPECTED=99, RETURNED=$return_value\n" "$test_name"
 done
