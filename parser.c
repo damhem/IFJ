@@ -468,8 +468,6 @@ ERROR_CODE command() {
       
       nowExpression = false;
 
-      //todo vyhodnoceni vyrazu
-
       //have to end with :
       if (token.t_type != TOKEN_DOUBLEDOT) {
         return ERROR_CODE_SYN;
@@ -661,8 +659,20 @@ ERROR_CODE command() {
 
       return ERROR_CODE_OK;
 
-    case TOKEN_WHILE:
+    case TOKEN_WHILE:;
       //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
+
+      //have to generate lable for another start while
+      //there has to be jump to an end
+      string lableStart;
+      stringInit(&lableStart);
+      stringAddChars(&lableStart, "start_while%");
+      char someInt6[6];
+      sprintf(someInt6, "%d", labelCounter);
+      stringAddChars(&lableStart, someInt6);
+      operand1 = initOperand(operand1, lableStart.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
       nowExpression = true;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -681,6 +691,112 @@ ERROR_CODE command() {
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       if (token.t_type != TOKEN_INDENT) return ERROR_CODE_SYN;
 
+
+      //vyhodnoceni vyrazu while
+      //popnu hodnotu z vyrazu do tmp
+      operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
+      oneOperandInstr(&instrList, POPS, operand1); 
+
+      operand1 = initOperand(operand1, "tmp1", TOKEN_ID, GF, false, false);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      twoOperandInstr(&instrList, TYPE, operand1, operand2);
+
+      //jumps for comparing exit value
+      string lableInt;
+      stringInit(&lableInt);
+      stringAddChars(&lableInt, "compare_int_w%");
+      char someIntw2[6];
+      sprintf(someIntw2, "%d", labelCounter);
+      stringAddChars(&lableInt, someIntw2);
+      operand1 = initOperand(operand1, lableInt.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+      
+
+      string lableDouble;
+      stringInit(&lableDouble);
+      stringAddChars(&lableDouble, "compare_double_w%");
+      char someInt2w[6];
+      sprintf(someInt2w, "%d", labelCounter);
+      stringAddChars(&lableDouble, someInt2w);
+      operand1 = initOperand(operand1, lableDouble.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "float", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+
+      string lableTwoHalfW;
+      stringInit(&lableTwoHalfW);
+      stringAddChars(&lableTwoHalfW, "compare_bool_w%");
+      char someInt256[6];
+      sprintf(someInt256, "%d", labelCounter);
+      stringAddChars(&lableTwoHalfW, someInt256);
+      operand1 = initOperand(operand1, lableTwoHalfW.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
+      operand3 = initOperand(operand3, "bool", TOKEN_STRING, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+      
+
+      string lableThreeW;
+      stringInit(&lableThreeW);
+      stringAddChars(&lableThreeW, "continue_w%");
+      char someInt3W[6];
+      sprintf(someInt3W, "%d", labelCounter);
+      stringAddChars(&lableThreeW, someInt3);
+
+      operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+
+
+
+
+      //compare for int
+      operand1 = initOperand(operand1, lableInt.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      string lableFourW;
+      stringInit(&lableFourW);
+      stringAddChars(&lableFourW, "end_w%");
+      char someInt4W[6];
+      sprintf(someInt4W, "%d", labelCounter);
+      stringAddChars(&lableFourW, someInt4W);
+      operand1 = initOperand(operand1, lableFourW.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      operand3 = initOperand(operand3, "0", TOKEN_INT, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+      operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      //compare for double
+      operand1 = initOperand(operand1, lableDouble.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      operand1 = initOperand(operand1, lableFourW.value, LABEL, GF, false, true);
+      operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
+      operand3 = initOperand(operand3, "0x0p+0", TOKEN_DOUBLE, GF, false, false);
+      threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
+
+      operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      //compare for bool
+      operand1 = initOperand(operand1, lableTwoHalfW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+      
+      string tempstringW;
+      stringInit(&tempstringW);
+      stringAddChars(&tempstringW, "$");
+      stringAddChars(&tempstringW, lableFourW.value);
+      addInstruction(&instrList, JUMPIFEQ, tempstringW.value, "GF@tmp", "bool@false");
+
+      //this is normal continue
+      operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      //prikazy ve while
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = skipEol();
@@ -694,6 +810,14 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_DEDENT) {
         return ERROR_CODE_SYN;
       }
+
+      operand1 = initOperand(operand1, lableStart.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, JUMP, operand1);
+
+      operand1 = initOperand(operand1, lableFourW.value, LABEL, GF, false, true);
+      oneOperandInstr(&instrList, LABEL, operand1);
+
+      labelCounter++;
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
@@ -817,27 +941,12 @@ ERROR_CODE command() {
             }
             else {
               //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
-              operand1 = initOperand(operand1, token.t_data.ID.value, TOKEN_ID, GF, false, false);
-              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
-              twoOperandInstr(&instrList, TYPE, operand2, operand1);
+              
 
               //pokud se jedna o neinicializovanou promennou, vytvor znova, jinak jump
-              string anotherLabel;
-              stringInit(&anotherLabel);
-              stringAddChars(&anotherLabel, "ending%");
-              char number45[5];
-              sprintf(number45, "%d", labelCounter);
-              stringAddChars(&anotherLabel, number45); 
-              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
-              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
-              operand2 = initOperand(operand2, "", TOKEN_STRING, GF, false, false);
-              threeOperandInstr(&instrList, JUMPIFNEQ, operand1, operand2, operand3);
-
-              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
-              oneOperandInstr(&instrList, DEFVAR, var_operand);
               
-              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
-              oneOperandInstr(&instrList, LABEL, operand1);
+
+              
 
               //helper is set to global that variable
               helper = SYMSearch(&glSymtable, token.t_data.ID);

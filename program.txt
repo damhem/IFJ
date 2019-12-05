@@ -1,20 +1,12 @@
 
-def factorial(n):
-    if n < 2:
-        result = 1
-    else:
-        decremented_n = n - 1
-        temp_result = factorial(decremented_n)
-        result = n * temp_result
-    return result
-
-
-
-print('Zadejtecislo')
-a = 3
-if a < 0:
-    print('Faktorialnelzespocitat')
+# Program 1: Vypocet faktorialu (iterativne)
+print('Zadejtecisloprovypocetfaktorialu:')
+a = 6
+if a < 0: # chybi kontrola a == None pro pripad nevalidniho vstupu
+    print("""Faktorialnelzespocitat""")
 else:
-    vysl = factorial(a)
-    print('Vysledekje:', vysl)
-
+    vysl = 1
+while a > 0:
+    vysl = vysl * a
+    a = a - 1
+print('Vysledekje:', vysl, '\n')
