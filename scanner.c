@@ -3,12 +3,12 @@
 #include "parser.h"
 
 token_type peekNextToken() {
-  if (peekToken.t_type != TOKEN_UNDEF) return peekToken.t_type;
-  peekToken = getNextToken(&line_flag, &s);
-
-  if (peekToken.t_type == TOKEN_UNDEF) {
+  if (peekToken.t_data.integer  == ERROR_CODE_LEX) {
     return -1;
   }
+
+  if (peekToken.t_type != TOKEN_UNDEF) return peekToken.t_type;
+  peekToken = getNextToken(&line_flag, &s);
 
   return peekToken.t_type;
 }
@@ -67,12 +67,15 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
+          while (c =='\t') {
+            c = (char) getc(stdin);
+          }
           if (c == '#') {
             *line_flag=false;
             state = SCANNER_LINE_COMMENT;
             break;
           }
-          else if (c != ' ' && c != '#') {
+          else if (!isspace(c)) {
             while (stackEmpty(s)==0) {
             stackPop(s);
             dentcount++;
@@ -175,7 +178,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           return token;
         }
         else if (isspace(c)){
-          state = SCANNER_START;
+          ;
         }
         else {
           token.t_type = TOKEN_UNDEF;
@@ -215,6 +218,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
         case (SCANNER_DENTCOUNT):
           if (c == ' ') {
             spacecount++;
+          }
+          else if ( c == '#'){
+            *line_flag=false;
+            state = SCANNER_LINE_COMMENT;
           }
           else {
             *line_flag=false;
@@ -589,7 +596,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         break;
       case (SCANNER_LINE_COMMENT):
         if (c == EOF || c == '\n'){
-          
+
           state = SCANNER_START;
           ungetc(c, stdin);
         }

@@ -31,7 +31,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 //hlavní funkce
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
-    
+
     retVal = 8;
 
     exp_stackInit(&stack_expression);
@@ -41,7 +41,7 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
     exp_stackClear(&stack_expression);
 
     *returnValue = retVal;
-    
+
     return result;
 }
 //Analýza daného výrazu
@@ -52,7 +52,7 @@ int expressionAnalysis() {
         sign = getSignFromTable();
         if(sign == '='){
             exp_stackPush(&stack_expression,tokentoExp_element(token,false));
-            result =  reducePars(&stack_expression); 
+            result =  reducePars(&stack_expression);
             if (result != ERROR_CODE_OK) {
             return result;
             }
@@ -60,21 +60,24 @@ int expressionAnalysis() {
         }
         else if(sign == '<'){
             token_type next = peekNextToken();
+            if (next == TOKEN_UNDEF) {
+                return ERROR_CODE_LEX;
+            }
             if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {
                 result = makeFunction();
                 if (result != ERROR_CODE_OK) return result;
                 return ERROR_CODE_OK;
             }
-            if (token.t_type == TOKEN_ADDITION || token.t_type == TOKEN_SUBTRACTION || 
-            token.t_type == TOKEN_MULTIPLICATION || token.t_type == TOKEN_DIVISION || 
+            if (token.t_type == TOKEN_ADDITION || token.t_type == TOKEN_SUBTRACTION ||
+            token.t_type == TOKEN_MULTIPLICATION || token.t_type == TOKEN_DIVISION ||
             token.t_type == TOKEN_INTEGER_DIVISION || token.t_type == TOKEN_EQUAL ||
             token.t_type == TOKEN_EQUAL_EQUAL || token.t_type == TOKEN_BIGGERTHEN ||
             token.t_type == TOKEN_BIGGERTHEN_EQUAL || token.t_type == TOKEN_SMALLERTHEN ||
             token.t_type == TOKEN_SMALLERTHEN_EQUAL || token.t_type == TOKEN_NEG_EQUAL) {
-                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION || 
-                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION || 
-                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION || 
-                stack_expression.top_of_stack->value->type == TOKEN_DIVISION || 
+                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION ||
+                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION ||
+                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION ||
+                stack_expression.top_of_stack->value->type == TOKEN_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
@@ -83,7 +86,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    return  ERROR_CODE_SEM_COMP; 
+                    return  ERROR_CODE_SEM_COMP;
                 }
             }
 
@@ -98,13 +101,13 @@ int expressionAnalysis() {
             }
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
             firstTerm = stack_expression.top_of_stack;
-        } 
+        }
         else if(sign == '>') {
             if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
-                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION || 
-                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION || 
-                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION || 
-                stack_expression.top_of_stack->value->type == TOKEN_DIVISION || 
+                if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION ||
+                stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION ||
+                stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION ||
+                stack_expression.top_of_stack->value->type == TOKEN_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
@@ -113,14 +116,14 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    return  ERROR_CODE_SEM_COMP; 
+                    return  ERROR_CODE_SEM_COMP;
                 }
             }
             result = useRule(&stack_expression);
             if (result != ERROR_CODE_OK) {
             return result;
             }
-        } 
+        }
         else if(sign == '$') {
             return ERROR_CODE_OK;
         }
@@ -159,7 +162,7 @@ Exp_element *newElement(int type,bool handle){
         new_element->e_data.ID = token.t_data.ID;
         }
         if (type == TOKEN_ID) {
-        
+
         stringInit(&(new_element->e_data.ID));
         stringAddChars(&(new_element->e_data.ID), token.t_data.ID.value);
         }
@@ -178,19 +181,19 @@ int get_stack_type(ptrStack *stack_expression){
         if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
         }
-    
+
 
         if (stack_expression->top_of_stack->left != NULL){
             if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
             return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
             }
-    
-    
+
+
             if (stack_expression->top_of_stack->left->left != NULL){
                 if (((Exp_element*)stack_expression->top_of_stack->left->left->value)->terminal == true){
                 return ((Exp_element*)stack_expression->top_of_stack->left->left->value)->type;
                 }
-        
+
             }
         }
     }
@@ -224,7 +227,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             firstTerm = stack_expression->top_of_stack->left;
 
             //todo function term?
-            
+
 
             //integer value
             if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
@@ -261,14 +264,14 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
-                
-                
+
+
                 result = makeIdInstr();
                 retVal = undefined;
 
                 if (result != ERROR_CODE_OK) return result;
                 //todo ID analysisi
-                
+
             }
 
             return ERROR_CODE_OK;
@@ -347,13 +350,13 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
         exp_stackPop(stack_expression);
         exp_stackPop(stack_expression);
         exp_stackPop(stack_expression);
-        
+
         exp_stackPush(stack_expression,quicksave);
         if((stack_expression->top_of_stack->left->value)->terminal == true) {
-            
+
             firstTerm = stack_expression->top_of_stack->left;
             (firstTerm->value)->handle = false;
-            
+
         }
         else return ERROR_CODE_SEM_COMP;
     }
@@ -541,7 +544,7 @@ ERROR_CODE makeFunction() {
                         //chyba v syntaxi volani funkce
                         fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                         return ERROR_CODE_SYN;
-                    } 
+                    }
                 }
                 else if (token.t_type == TOKEN_RIGHTPAR) {
                     paramsCounter++;
@@ -596,7 +599,7 @@ ERROR_CODE makeFunction() {
 
             //eat term
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-            
+
             //now I have to generate params
             while (token.t_type != TOKEN_RIGHTPAR) {
                 string nextParam;
@@ -672,7 +675,7 @@ ERROR_CODE makeFunction() {
                         //chyba v syntaxi volani funkce
                         fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                         return ERROR_CODE_SYN;
-                    } 
+                    }
                 }
                 else if (token.t_type == TOKEN_RIGHTPAR) {
                     paramsCounter++;
@@ -717,10 +720,10 @@ ERROR_CODE makePrintFunction() {
     retVal = undefined;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //now leftpar
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first term
-    
+
     operand1 = initOperand(operand1, "tmp2", TOKEN_ID, GF, false, false);
     operand2 = initOperand(operand2, "2", TOKEN_INT, GF, false, false);
-    twoOperandInstr(&instrList, MOVE, operand1, operand2); 
+    twoOperandInstr(&instrList, MOVE, operand1, operand2);
 
     operand1 = initOperand(operand1, "%endwhile", TOKEN_STRING, GF, false, false);
     oneOperandInstr(&instrList, PUSHS, operand1);
@@ -742,7 +745,7 @@ ERROR_CODE makePrintFunction() {
         }
         else if (token.t_type == TOKEN_RIGHTPAR) continue;
         else {
-            
+
             return ERROR_CODE_SEM_OTHER;
         }
     }
