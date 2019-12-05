@@ -35,7 +35,7 @@ do
 done
 
 echo "                                                                      "
-echo "----------------LEXXICAL ERROR TESTS ----------------"
+echo "----------------LEXICAL ERROR TESTS ----------------"
 echo "                                                                      "
 # testy na scanner
 for file in $inputs_lex
