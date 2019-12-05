@@ -8,7 +8,6 @@ inputs_sem_comp='./tests/test_that_return4/*.py'
 inputs_sem_func='./tests/test_that_return5/*.py'
 inputs_sem_other='./tests/test_that_return6/*.py'
 inputs_zero_dev='./tests/test_that_return9/*.py'
-inputs_sem_internal='./tests/test_that_return99/*.py'
 
 i=0 # counter
 
@@ -186,26 +185,4 @@ do
 	printf "ERROR   "
 	fi
 	printf "%-16s | EXPECTED=9, RETURNED=$return_value\n" "$test_name"
-done
-echo "                                                                      "
-echo "----------------INTERNAL ERROR TESTS ----------------"
-echo "                                                                      "
-
-# testy na syntax
-for file in $inputs_sem_internal
-do
-    test_name=$(basename "$file")
-
-    cat $file | ./p 2>/dev/null 1>/dev/null
-	return_value=$?
-	i=$(($i + 1))
-
-    # vypsani testu
-	printf "%-02d  " "$i"
-	if [ "$return_value" -eq "99" ]; then
-    printf "   OK   "
-	else
-	printf "ERROR   "
-	fi
-	printf "%-16s | EXPECTED=99, RETURNED=$return_value\n" "$test_name"
 done
