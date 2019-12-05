@@ -22,6 +22,11 @@ LABEL $chr
 PUSHFRAME
 INT2CHAR GF@tmp LF@i
 RETURN
+LABEL $inputs
+PUSHFRAME
+READ GF@tmp string
+WRITE GF@tmp
+PUSHS GF@tmp
 # -------------------print()--------------------
 LABEL $print
 POPS GF@tmp
@@ -50,73 +55,37 @@ RETURN
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS string@Zadejte\032cislo\032pro\032vypocet\032faktorialu:\032
-CALL $print
-DEFVAR GF@a
+JUMP $ahoj%
+LABEL $ahoj
+PUSHFRAME
+DEFVAR LF@kkt
+MOVE LF@kkt LF@%0
+TYPE GF@tmp2 LF@kkt
+JUMPIFNEQ $ending%0 string@ int@1
+DEFVAR LF@kkt
+LABEL $ending%0
+PUSHS LF@kkt
 PUSHS int@5
-POPS GF@a
-PUSHS GF@a
-PUSHS int@0
-LTS
-POPS GF@tmp
-TYPE GF@tmp1 GF@tmp
-JUMPIFEQ $compare_int%0 GF@tmp1 string@int
-JUMPIFEQ $compare_double%0 GF@tmp1 string@float
-JUMPIFEQ $compare_bool%0 GF@tmp1 string@bool
-JUMP $continue%0
-LABEL $compare_int%0
-JUMPIFEQ $else%0 GF@tmp int@0
-JUMP $continue%0
-LABEL $compare_double%0
-JUMPIFEQ $else%0 GF@tmp float@0x0p+0
-JUMP $continue%0
-LABEL $compare_bool%0
-JUMPIFEQ $else%0 GF@tmp bool@false
-LABEL $continue%0
+ADDS
+POPS LF@kkt
+PUSHS LF@kkt
+RETURN
+LABEL $ahoj%
+DEFVAR GF@str
+CREATEFRAME
+CALL $inputs
+POPFRAME
+POPS GF@str
+WRITE GF@str
+DEFVAR GF@str2
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 int@5
+CALL $ahoj
+POPFRAME
+POPS GF@str2
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
-PUSHS string@\010Faktorial\032nelze\032spocitat\010
-CALL $print
-JUMP $end%0
-LABEL $else%0
-DEFVAR GF@vysl
-PUSHS int@1
-POPS GF@vysl
-LABEL $end%0
-LABEL $start_while%1
-PUSHS GF@a
-PUSHS int@0
-GTS
-POPS GF@tmp
-TYPE GF@tmp1 GF@tmp
-JUMPIFEQ $compare_int_w%1 GF@tmp1 string@int
-JUMPIFEQ $compare_double_w%1 GF@tmp1 string@float
-JUMPIFEQ $compare_bool_w%1 GF@tmp1 string@bool
-JUMP $continue_w%
-LABEL $compare_int_w%1
-JUMPIFEQ $end_w%1 GF@tmp int@0
-JUMP $continue_w%
-LABEL $compare_double_w%1
-JUMPIFEQ $end_w%1 GF@tmp float@0x0p+0
-JUMP $continue_w%
-LABEL $compare_bool_w%1
-JUMPIFEQ $end_w%1 GF@tmp bool@false
-LABEL $continue_w%
-PUSHS GF@vysl
-PUSHS GF@a
-MULS
-POPS GF@vysl
-PUSHS GF@a
-PUSHS int@1
-SUBS
-POPS GF@a
-JUMP $start_while%1
-LABEL $end_w%1
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS string@\010
-PUSHS GF@vysl
-PUSHS string@Vysledek\032je:
+PUSHS GF@str2
+PUSHS GF@str
 CALL $print

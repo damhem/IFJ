@@ -21,7 +21,7 @@ void DLInitList(instruction_list *List) {
     addInstruction(List, COMMENT, "-------------------chr()--------------------", NULL, NULL);
     chrFunction();
     //addInstruction(L, I_COMMENT, "------------------SUBSTR------------------", NULL, NULL);
-    //writeSubstr();
+    inputSFunction();
     addInstruction(List, COMMENT, "-------------------print()--------------------", NULL, NULL);
     printFunction();
     addInstruction(List, COMMENT, "------------------------------------------", NULL, NULL);

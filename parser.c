@@ -33,8 +33,6 @@ ERROR_CODE parse() {
   exp_stackClear(&stack_expression);
   stackClear(&s);
   SYMDispose(&glSymtable);
-  SYMDispose(&lcSymtable);
-
   return result;
 }
 
@@ -225,6 +223,7 @@ ERROR_CODE functionDef() {
       oneOperandInstr(&instrList, LABEL, operand1);
 
       stringClear(&functionName);
+      SYMDispose(&lcSymtable);
 
       //clear paramIndex
       paramIndex = 0;
@@ -920,7 +919,7 @@ ERROR_CODE command() {
           //going into variable assign
 
           //have to update symtable
-          if (strlen(functionName.value) == 0) {
+          if (functionName.length == 0) {
 
             //now im in main program -> looking into global symtable
             //make sure that this var is not in table
@@ -929,7 +928,9 @@ ERROR_CODE command() {
               //promenna jeste nebyla vytvorena
               
 
-              SYMInsert(&glSymtable, token.t_data.ID, false);
+              result = SYMInsert(&glSymtable, token.t_data.ID, false);
+              if (result != 0) return result;
+
 
               //nastavim si helper na prave vytvorenou promennnou
               helper = SYMSearch(&glSymtable, token.t_data.ID);

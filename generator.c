@@ -503,6 +503,14 @@ void printInstructionList(instruction_list *List) {
     }
 }
 
+void inputSFunction() {
+    operand1 = initOperand(operand1, "inputs", TOKEN_ID, GF, false, true);
+    oneOperandInstr(&instrList, LABEL, operand1);
+
+    noOperandInstr(&instrList, PUSHFRAME);
+    
+    addInstruction(&instrList, READ, "GF@tmp", "string", NULL);
+}
 
 void lenFunction() { //params: s
     //label
