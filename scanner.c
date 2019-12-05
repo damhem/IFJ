@@ -68,7 +68,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
-          if (c != ' ' && c != '\t') {
+          if (c != ' ' && c != '#') {
             while (stackEmpty(s)==0) {
             stackPop(s);
             dentcount++;
@@ -526,6 +526,28 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_data.integer = ERROR_CODE_LEX;
           return token;
         }
+        else if (c == '#') {
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '3');
+          stringAddChar(&token.t_data.ID, '5');
+        }
+        else if (c == ' ') {
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '3');
+          stringAddChar(&token.t_data.ID, '2');
+        }
+        else if (c == '\n') {
+          stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '1');
+          stringAddChar(&token.t_data.ID, '0');
+        }
+        else if( c == '\\') {
+          stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '9');
+          stringAddChar(&token.t_data.ID, '2');
+        }
         else{
           stringAddChar(&token.t_data.ID, c);
         }
@@ -632,6 +654,16 @@ Token getNextToken(bool *line_flag, tStack *s) {
           token.t_data.integer = ERROR_CODE_LEX;
           return token;
         }
+        else if (c == '#') {
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '3');
+          stringAddChar(&token.t_data.ID, '5');
+        }
+        else if (c == ' ') {
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '3');
+          stringAddChar(&token.t_data.ID, '2');
+        }
         else {
           stringAddChar(&token.t_data.ID, c);
         }
@@ -639,6 +671,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
       case(SCANNER_STRING1):
         if( c == '\\') {
           stringAddChar(&token.t_data.ID, c);
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '9');
+          stringAddChar(&token.t_data.ID, '2');
           state = SCANNER_STRING;
         }
         else if(c == '\'') {
@@ -651,7 +686,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if(c == 'n') {
           c = '\n';
-          stringAddChar(&token.t_data.ID, c);
+          stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '1');
+          stringAddChar(&token.t_data.ID, '0');
           state = SCANNER_STRING;
         }
         else if(c == 't') {
@@ -669,6 +707,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else {
           stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '9');
+          stringAddChar(&token.t_data.ID, '2');
           stringAddChar(&token.t_data.ID, c);
           state = SCANNER_STRING;
         }
