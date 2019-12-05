@@ -1,12 +1,5 @@
 #! /bin/sh
 
-#interpreter=./ic17int
-#tmp_file_ifjcode17=./tests/tmp_file_ifjcode17
-#tmp_file_interpreter=./tests/tmp_file_interpreter
-
-
-#inputs_succ_error0=./tests/vstupy/succ_error0/*.input
-#outputs_succ_error0_path=./tests/vstupy/succ_error0
 inputs_ok='./tests/test_that_return0/*.py'
 inputs_lex='./tests/test_that_return1/*.py'
 inputs_syn='./tests/test_that_return2/*.py'
@@ -17,8 +10,6 @@ inputs_sem_other='./tests/test_that_return6/*.py'
 inputs_zero_dev='./tests/test_that_return9/*.py'
 inputs_sem_internal='./tests/test_that_return99/*.py'
 
-#inputs_semm_error3=./tests/vstupy/semm_error3/*.input
-#inputs_semm_error4=./tests/vstupy/semm_error4/*.input
 i=0 # counter
 
 echo "                                                                      "
