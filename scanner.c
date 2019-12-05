@@ -561,14 +561,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
         if (c == '"'){                        //2"
           state = SCANNER_COMMENT_02;
         }
-        else if (c == EOF) {
-          token.t_type = TOKEN_UNDEF;
-          token.t_data.integer = ERROR_CODE_LEX;
-          return token;
-        }
-        else{
-          stringAddChar(&token.t_data.ID, c);
-          stringAddChar(&token.t_data.ID, c);
+        else {
+          stringAddChar(&token.t_data.ID, '"');
+          ungetc(c, stdin);
           state = SCANNER_COMMENT_0;
         }
         break;
@@ -581,13 +576,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
             state = SCANNER_START;
           }
         }
-        else if (c == EOF) {
-          token.t_type = TOKEN_UNDEF;
-          token.t_data.integer = ERROR_CODE_LEX;
-          return token;
-        }
-        else{
-          stringAddChar(&token.t_data.ID, c);
+        else {
+          stringAddChar(&token.t_data.ID, '"');
+          stringAddChar(&token.t_data.ID, '"');
+          ungetc(c, stdin);
           state = SCANNER_COMMENT_0;
         }
         break;
