@@ -1,0 +1,1 @@
+badstring = 'string with bad escape hexadecimal \xAG'
