@@ -50,13 +50,15 @@ RETURN
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-JUMP $factorial%
-LABEL $factorial
-PUSHFRAME
-DEFVAR LF@n
-MOVE LF@n LF@%0
-PUSHS LF@n
-PUSHS int@2
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS string@Zadejtecisloprovypocetfaktorialu:
+CALL $print
+DEFVAR GF@a
+PUSHS int@6
+POPS GF@a
+PUSHS GF@a
+PUSHS int@0
 LTS
 POPS GF@tmp
 TYPE GF@tmp1 GF@tmp
@@ -73,78 +75,49 @@ JUMP $continue%0
 LABEL $compare_bool%0
 JUMPIFEQ $else%0 GF@tmp bool@false
 LABEL $continue%0
-DEFVAR LF@result
-PUSHS int@1
-POPS LF@result
-JUMP $end%0
-LABEL $else%0
-DEFVAR LF@decremented_n
-PUSHS LF@n
-PUSHS int@1
-SUBS
-POPS LF@decremented_n
-DEFVAR LF@temp_result
-CREATEFRAME
-DEFVAR TF@%0
-MOVE TF@%0 LF@decremented_n
-CALL $factorial
-POPFRAME
-POPS LF@temp_result
-LABEL $kkkt
-DEFVAR LF@ahoj
-JUMP $kkkt
-JUMPIFNEQ $ending%0 nil@nil LF@result
-DEFVAR LF@result
-LABEL $ending%0
-PUSHS LF@n
-PUSHS LF@temp_result
-MULS
-POPS LF@result
-LABEL $end%0
-PUSHS LF@result
-RETURN
-LABEL $factorial%
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS string@Zadejtecislo
-CALL $print
-DEFVAR GF@a
-PUSHS int@3
-POPS GF@a
-PUSHS GF@a
-PUSHS int@0
-LTS
-POPS GF@tmp
-TYPE GF@tmp1 GF@tmp
-JUMPIFEQ $compare_int%1 GF@tmp1 string@int
-JUMPIFEQ $compare_double%1 GF@tmp1 string@float
-JUMPIFEQ $compare_bool%1 GF@tmp1 string@bool
-JUMP $continue%1
-LABEL $compare_int%1
-JUMPIFEQ $else%1 GF@tmp int@0
-JUMP $continue%1
-LABEL $compare_double%1
-JUMPIFEQ $else%1 GF@tmp float@0x0p+0
-JUMP $continue%1
-LABEL $compare_bool%1
-JUMPIFEQ $else%1 GF@tmp bool@false
-LABEL $continue%1
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
 PUSHS string@Faktorialnelzespocitat
 CALL $print
-JUMP $end%1
-LABEL $else%1
+JUMP $end%0
+LABEL $else%0
 DEFVAR GF@vysl
-CREATEFRAME
-DEFVAR TF@%0
-MOVE TF@%0 GF@a
-CALL $factorial
-POPFRAME
+PUSHS int@1
 POPS GF@vysl
+LABEL $end%0
+LABEL $start_while%1
+PUSHS GF@a
+PUSHS int@0
+GTS
+POPS GF@tmp
+TYPE GF@tmp1 GF@tmp
+JUMPIFEQ $compare_int_w%1 GF@tmp1 string@int
+JUMPIFEQ $compare_double_w%1 GF@tmp1 string@float
+JUMPIFEQ $compare_bool_w%1 GF@tmp1 string@bool
+JUMP $continue_w%
+LABEL $compare_int_w%1
+JUMPIFEQ $end_w%1 GF@tmp int@0
+JUMP $continue_w%
+LABEL $compare_double_w%1
+JUMPIFEQ $end_w%1 GF@tmp float@0x0p+0
+JUMP $continue_w%
+LABEL $compare_bool_w%1
+JUMPIFEQ $end_w%1 GF@tmp bool@false
+LABEL $continue_w%
+PUSHS GF@vysl
+PUSHS GF@a
+MULS
+POPS GF@vysl
+PUSHS GF@a
+PUSHS int@1
+SUBS
+POPS GF@a
+JUMP $start_while%1
+LABEL $end_w%1
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
+PUSHS string@
+
 PUSHS GF@vysl
 PUSHS string@Vysledekje:
 CALL $print
-LABEL $end%1
