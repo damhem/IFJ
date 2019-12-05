@@ -465,7 +465,7 @@ ERROR_CODE command() {
       VarType type;
       result = expression(&type);
       if (result != ERROR_CODE_OK) return result;
-      
+      if (type == 8) return ERROR_CODE_SYN;
       nowExpression = false;
 
       //have to end with :
@@ -679,8 +679,7 @@ ERROR_CODE command() {
       VarType type_while;
       result = expression(&type_while);
       if (result != ERROR_CODE_OK) return result;
-      
-      //todo vyhodnoceni vyrazu
+      if (type_while == 8) return ERROR_CODE_SYN;
       nowExpression = false;
 
       if (token.t_type != TOKEN_DOUBLEDOT) return ERROR_CODE_SYN;

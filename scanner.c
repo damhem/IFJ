@@ -527,11 +527,13 @@ Token getNextToken(bool *line_flag, tStack *s) {
           return token;
         }
         else if (c == '#') {
+          stringAddChar(&token.t_data.ID, '\\');
           stringAddChar(&token.t_data.ID, '0');
           stringAddChar(&token.t_data.ID, '3');
           stringAddChar(&token.t_data.ID, '5');
         }
         else if (c == ' ') {
+          stringAddChar(&token.t_data.ID, '\\');
           stringAddChar(&token.t_data.ID, '0');
           stringAddChar(&token.t_data.ID, '3');
           stringAddChar(&token.t_data.ID, '2');
@@ -547,6 +549,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
           stringAddChar(&token.t_data.ID, '0');
           stringAddChar(&token.t_data.ID, '9');
           stringAddChar(&token.t_data.ID, '2');
+        }
+        else if(c == '\r') {
+          ;
         }
         else{
           stringAddChar(&token.t_data.ID, c);
@@ -655,11 +660,13 @@ Token getNextToken(bool *line_flag, tStack *s) {
           return token;
         }
         else if (c == '#') {
+          stringAddChar(&token.t_data.ID, '\\');
           stringAddChar(&token.t_data.ID, '0');
           stringAddChar(&token.t_data.ID, '3');
           stringAddChar(&token.t_data.ID, '5');
         }
         else if (c == ' ') {
+          stringAddChar(&token.t_data.ID, '\\');
           stringAddChar(&token.t_data.ID, '0');
           stringAddChar(&token.t_data.ID, '3');
           stringAddChar(&token.t_data.ID, '2');

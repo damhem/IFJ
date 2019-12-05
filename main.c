@@ -25,7 +25,7 @@ int main() {
   ERROR_CODE error_code = EXIT_SUCCESS;
 
 
-  /*//open file w/ program and push it to the stdin
+ /* //open file w/ program and push it to the stdin
   FILE *fp;
   if ((fp = freopen("program.txt", "r", stdin)) == NULL) {
       return EXIT_FAILURE;

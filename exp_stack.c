@@ -13,7 +13,7 @@ ERROR_CODE exp_stackInit (ptrStack* stack) {
 
 // vrátí true pokud je zásobník prázdný
 bool exp_stackEmpty (ptrStack* stack ) {
-    return (stack->top_of_stack == NULL);
+    return (stack->top_of_stack->value->type == TOKEN_UNDEF);
 }
 
 // Uvolní vrchní prvek ze zásobníku

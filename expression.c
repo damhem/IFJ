@@ -4,18 +4,18 @@ Token token; //Převzatý token od scanneru
 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
 //           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID    F     ,     $
-/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  *  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  /  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/* //  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  +  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  -  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  =  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  != */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  <  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  <= */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  >  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  >= */ { '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
+/*  == */ { '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
 /*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
 /* STR */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
@@ -32,6 +32,7 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
     
+    retVal = 8;
 
     exp_stackInit(&stack_expression);
 
@@ -70,6 +71,9 @@ int expressionAnalysis() {
                 exp_stackPush(&stack_expression,tokentoExp_element(token,true));
             }
             else{
+                if (exp_stackEmpty(&stack_expression)) {
+                    return ERROR_CODE_SYN;
+                }
                 exp_stackPush(&stack_expression,tokentoExp_element(token,false));
             }
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
@@ -137,19 +141,21 @@ int get_stack_type(ptrStack *stack_expression){
         if (((Exp_element*)stack_expression->top_of_stack->value)->terminal == true){
         return ((Exp_element*)stack_expression->top_of_stack->value)->type;
         }
-    }
-
-    if (stack_expression->top_of_stack->left != NULL){
-        if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
-        return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
-        }
-    }
     
-    if (stack_expression->top_of_stack->left->left != NULL){
-        if (((Exp_element*)stack_expression->top_of_stack->left->left->value)->terminal == true){
-        return ((Exp_element*)stack_expression->top_of_stack->left->left->value)->type;
-        }
+
+        if (stack_expression->top_of_stack->left != NULL){
+            if (((Exp_element*)stack_expression->top_of_stack->left->value)->terminal == true){
+            return ((Exp_element*)stack_expression->top_of_stack->left->value)->type;
+            }
+    
+    
+            if (stack_expression->top_of_stack->left->left != NULL){
+                if (((Exp_element*)stack_expression->top_of_stack->left->left->value)->terminal == true){
+                return ((Exp_element*)stack_expression->top_of_stack->left->left->value)->type;
+                }
         
+            }
+        }
     }
     return ERROR_CODE_OK;
 }
@@ -221,6 +227,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 
                 
                 result = makeIdInstr();
+                retVal = undefined;
 
                 if (result != ERROR_CODE_OK) return result;
                 //todo ID analysisi
@@ -470,9 +477,11 @@ ERROR_CODE makeFunction() {
                             fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"%s\" neni definovana.\n", token.t_data.ID.value, helper->Key.value);
                             return ERROR_CODE_SEM;
                         }
-                        else if (helper2->DataType != Variable) {
-                            fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
-                            return ERROR_CODE_SEM;
+                        else if (helper2 != NULL) {
+                            if (helper2->DataType != Variable) {
+                                fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
+                                return ERROR_CODE_SEM;
+                            }
                         }
                         if (helper3 != NULL) {
                             operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
@@ -599,7 +608,7 @@ ERROR_CODE makeFunction() {
                             fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"%s\" neni definovana.\n", token.t_data.ID.value, helper->Key.value);
                             return ERROR_CODE_SEM;
                         }
-                        else if (helper2 != 0) {
+                        else if (helper2 != NULL) {
                             if (helper2->DataType != Variable) {
                                 fprintf(stderr, "Pri volani funkce \"%s\" pouzivate v parametrech ID funkce: %s\n", helper->Key.value, token.t_data.ID.value);
                                 return ERROR_CODE_SEM;
