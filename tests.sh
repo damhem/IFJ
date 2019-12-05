@@ -30,7 +30,7 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=0, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=0, RETURNED=$return_value\n" "$test_name"
 done
 
 echo "                                                                      "
@@ -51,7 +51,7 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=1, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=1, RETURNED=$return_value\n" "$test_name"
 done
 
 echo "                                                                      "
@@ -74,7 +74,7 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=2, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=2, RETURNED=$return_value\n" "$test_name"
 done
 echo "                                                                      "
 echo "----------------SEM ERROR TESTS ----------------"
@@ -96,7 +96,7 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=3, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=3, RETURNED=$return_value\n" "$test_name"
 done
 echo "                                                                      "
 echo "----------------SEM_COMP ERROR TESTS ----------------"
@@ -107,7 +107,7 @@ for file in $inputs_sem_comp
 do
     test_name=$(basename "$file")
 
-    cat $file | ./p  1>/dev/null
+    cat $file | ./p 2>/dev/null 1>/dev/null
 	return_value=$?
 	i=$(($i + 1))
 
@@ -118,7 +118,7 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=4, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=4, RETURNED=$return_value\n" "$test_name"
 done
 echo "                                                                      "
 echo "----------------SEM_FUNC ERROR TESTS ----------------"
@@ -140,32 +140,10 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=5, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=5, RETURNED=$return_value\n" "$test_name"
 done
 echo "                                                                      "
 echo "----------------SEM_OTHER ERROR TESTS ----------------"
-echo "                                                                      "
-
-# testy na syntax
-for file in $inputs_sem_other
-do
-    test_name=$(basename "$file")
-
-    cat $file | ./p 2>/dev/null 1>/dev/null
-	return_value=$?
-	i=$(($i + 1))
-
-    # vypsani testu
-	printf "%-02d  " "$i"
-	if [ "$return_value" -eq "6" ]; then
-    printf "   OK   "
-	else
-	printf "ERROR   "
-	fi
-	printf "%-16s | EXPECTED=6, RETURNED=$return_value\n" "$test_name"
-done
-echo "                                                                      "
-echo "----------------ZERO_DEV ERROR TESTS ----------------"
 echo "                                                                      "
 
 # testy na syntax
@@ -184,5 +162,5 @@ do
 	else
 	printf "ERROR   "
 	fi
-	printf "%-16s | EXPECTED=9, RETURNED=$return_value\n" "$test_name"
+	printf "%-34s | EXPECTED=9, RETURNED=$return_value\n" "$test_name"
 done
