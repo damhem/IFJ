@@ -83,7 +83,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    return  ERROR_CODE_SEM_COMP; 
+                    return  ERROR_CODE_SYN; 
                 }
             }
 
@@ -113,7 +113,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    return  ERROR_CODE_SEM_COMP; 
+                    return  ERROR_CODE_SYN; 
                 }
             }
             result = useRule(&stack_expression);
@@ -126,7 +126,7 @@ int expressionAnalysis() {
         }
         else{
             fprintf(stderr, "Chybny vyraz (kompatibilita lexemu z vyrazu).\n");
-            return ERROR_CODE_SEM_COMP;
+            return ERROR_CODE_SYN;
         }
     }
 }
