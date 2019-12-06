@@ -6,7 +6,6 @@ inputs_syn='./tests/test_that_return2/*.py'
 inputs_sem='./tests/test_that_return3/*.py'
 inputs_sem_comp='./tests/test_that_return4/*.py'
 inputs_sem_func='./tests/test_that_return5/*.py'
-inputs_sem_other='./tests/test_that_return6/*.py'
 inputs_zero_dev='./tests/test_that_return9/*.py'
 
 i=0 # counter
