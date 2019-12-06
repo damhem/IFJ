@@ -3,8 +3,8 @@
 #include "parser.h"
 
 token_type peekNextToken() {
-  if (peekToken.t_data.integer  == ERROR_CODE_LEX) {
-    return -1;
+  if (peekToken.t_type != TOKEN_UNDEF) {
+    return peekToken.t_type;
   }
 
   if (peekToken.t_type != TOKEN_UNDEF) return peekToken.t_type;
@@ -67,8 +67,13 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
         else if (c == '\n'){
           c = (char) getc(stdin);
-          while (c =='\t') {
+          /*while (c =='\t') {
             c = (char) getc(stdin);
+          }*/
+          if (c == '\t') {
+            token.t_type = TOKEN_UNDEF;
+            token.t_data.integer = ERROR_CODE_LEX;
+            return token;
           }
           if (c == '#') {
             *line_flag=false;

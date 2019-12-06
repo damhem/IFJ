@@ -589,6 +589,7 @@ ERROR_CODE command() {
       }
 
       if (token.t_type != TOKEN_DEDENT) {
+        fprintf(stderr, "Za prikazem if se nevyskytuje token DEDENT.\n");
         return ERROR_CODE_SYN;
       }
 
@@ -638,9 +639,11 @@ ERROR_CODE command() {
       result = commands();
       if (result != ERROR_CODE_OK) {
         return result;
-      }
+      }      
+
 
       if (token.t_type != TOKEN_DEDENT) {
+        fprintf(stderr, "Za prikazem else se nevyskytuje token DEDENT.\n");
         return ERROR_CODE_SYN;
       }
 
@@ -804,6 +807,7 @@ ERROR_CODE command() {
       }
 
       if (token.t_type != TOKEN_DEDENT) {
+        fprintf(stderr, "Za prikazem while se nevyskytuje token DEDENT.\n");
         return ERROR_CODE_SYN;
       }
 
@@ -1035,7 +1039,6 @@ ERROR_CODE command() {
             operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, LF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
           }
-
           return ERROR_CODE_OK;
 
 
@@ -1109,7 +1112,9 @@ ERROR_CODE commands() {
     case TOKEN_NONE:
       //Sekvence_prikazu -> Prikaz Sekvence_prikazu
       result = command();
-      if (result != ERROR_CODE_OK) return result;
+      if (result != ERROR_CODE_OK) {
+        return result;
+      }
 
 
 

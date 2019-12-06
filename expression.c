@@ -86,7 +86,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-
+                    fprintf(stderr, "Dva operatory za sebou ve vyrazu. \n");
                     return  ERROR_CODE_SYN; 
                 }
             }
@@ -96,7 +96,8 @@ int expressionAnalysis() {
             }
             else{
                 if (exp_stackEmpty(&stack_expression)) {
-                    return ERROR_CODE_SEM_COMP;
+                    fprintf(stderr, "Operátor musí mít obě strany.\n");
+                    return ERROR_CODE_SYN;
                 }
                 exp_stackPush(&stack_expression,tokentoExp_element(token,false));
             }
@@ -117,6 +118,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
+                    fprintf(stderr, "Vyraz konci operatorem.\n");
                     return  ERROR_CODE_SYN; 
 
                 }
@@ -747,8 +749,8 @@ ERROR_CODE makePrintFunction() {
         }
         else if (token.t_type == TOKEN_RIGHTPAR) continue;
         else {
-
-            return ERROR_CODE_SEM_OTHER;
+            fprintf(stderr, "Spatna syntax volani funkce \"print\".\n");
+            return ERROR_CODE_SYN;
         }
     }
 
