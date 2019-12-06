@@ -143,7 +143,7 @@ do
 	printf "%-34s | EXPECTED=5, RETURNED=$return_value\n" "$test_name"
 done
 echo "                                                                      "
-echo "----------------SEM_OTHER ERROR TESTS ----------------"
+echo "----------------ZERO_DEV ERROR TESTS ----------------"
 echo "                                                                      "
 
 # testy na syntax
