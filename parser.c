@@ -1035,6 +1035,11 @@ ERROR_CODE command() {
             nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
+            if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
+              fprintf(stderr, "Nezadali jste zadnou hodnotu do prirazeni k vyrazu.\n");
+              return ERROR_CODE_SYN;
+            }
+
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
