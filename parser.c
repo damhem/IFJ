@@ -26,7 +26,12 @@ ERROR_CODE parse() {
     return token.t_data.integer;
   } else {
     result = program();
+    if (result != ERROR_CODE_OK) return result;
   }
+
+  //have to check if all the functions in global symtable are defined
+  result = checkDefinedFunctions(glSymtable.root);
+  if (result != ERROR_CODE_OK) return result;
 
   //free memory
   stringDispose(&functionName);
@@ -922,124 +927,100 @@ ERROR_CODE command() {
           if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //NEXT
           return ERROR_CODE_OK;
 
-        case TOKEN_EQUAL:
+        case TOKEN_EQUAL:;
           //Pokracovani_id -> = Pokracovani_id_next
-          //going into variable assign
+          //going into variable assignment
 
           //have to update symtable
           if (functionName.length == 0) {
-
             //now im in main program -> looking into global symtable
+            string insertInGlobal;
+            stringInit(&insertInGlobal);
+            
             //make sure that this var is not in table
-            tBSTNodePtr helper;
-            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) == NULL) {
+            tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
+            if (helper == NULL) {
               //promenna jeste nebyla vytvorena
-              
+              //later, variable will be added to symtable
+              stringAddChars(&insertInGlobal, token.t_data.ID.value);
 
-              result = SYMInsert(&glSymtable, token.t_data.ID, false);
-              if (result != 0) return result;
-
-
-              //nastavim si helper na prave vytvorenou promennnou
-              helper = SYMSearch(&glSymtable, token.t_data.ID);
-
-              //budu generovat instrukci pro vytvoreni promenne
+              //generate instruction for creating the variable
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
             else {
-              //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
-              
-
-              //pokud se jedna o neinicializovanou promennou, vytvor znova, jinak jump
-              
-
-              
-
-              //helper is set to global that variable
-              helper = SYMSearch(&glSymtable, token.t_data.ID);
+              if (helper->DataType == Function) {
+                fprintf(stderr, "Jiz byla definovana funkce s nazvem : \"%s\"\n", token.t_data.ID.value);
+                return ERROR_CODE_SEM;
+              }
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+            
             nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
+            //now we have to make sure that we get expression value
             if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
               fprintf(stderr, "Nezadali jste zadnou hodnotu do prirazeni k vyrazu.\n");
               return ERROR_CODE_SYN;
             }
 
+            //proceed the expression
             VarType sth;
             result = expression(&sth);
             if (result != ERROR_CODE_OK) return result;
             nowExpression = false;
 
-            // var -> vysledek_expression
+            //now add var to symtable to avoid using it in expression
+            if (insertInGlobal.length != 0) {
+              result = SYMInsert(&glSymtable, insertInGlobal, false);
+              if (result != ERROR_CODE_OK) return result;
+              
+              helper = SYMSearch(&glSymtable, insertInGlobal);
+              if (helper == NULL) return ERROR_CODE_INTERNAL;
+            }
+
+            //update symtable type of variable
             helper->Vartype = sth;
 
+            //generate POPS for assigment to variable
             operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, GF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
-          }
 
+            stringDispose(&insertInGlobal);
+          }
           else {
             //now im in function -> looking into local symtable
+            string insertInLocal;
+            stringInit(&insertInLocal);
+
             //make sure that this var is not in the table already
-            tBSTNodePtr helper;
-            if ((helper = SYMSearch(&glSymtable, token.t_data.ID)) != NULL) {
-              //var is in the global symtable -> create new in local
-              //todo if I already used it
-              //todo wut
-              SYMInsert(&lcSymtable, token.t_data.ID, false);
-              //set helper to the symtable initalized node
-              helper = SYMSearch(&lcSymtable, token.t_data.ID);
-              //generate code
+            tBSTNodePtr helper = SYMSearch(&lcSymtable, token.t_data.ID);
+            if (helper == NULL) {
+              //var is not in symtable yet -> create new in local
+              //will have to update symtable after expression
+              stringAddChars(&insertInLocal, token.t_data.ID.value);
+
+              //generate code for cretaing the variable
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
-            else if ((helper = SYMSearch(&lcSymtable, token.t_data.ID)) == NULL) {
-              //var is nowhere -> create new in local
-              SYMInsert(&lcSymtable, token.t_data.ID, false);
-              //set helper to the symtable initalized node
-              helper = SYMSearch(&lcSymtable, token.t_data.ID);
-              //generate code of defvar
-              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
-              oneOperandInstr(&instrList, DEFVAR, var_operand);
+            
+            tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+            if (helper2 != NULL) {
+              if (helper2->DataType == Function) {
+              fprintf(stderr, "Jiz byla definovana funkce s nazvem : \"%s\"\n", token.t_data.ID.value);
+              return ERROR_CODE_SEM;
+              }
             }
-            else {
-              //promenna uz byla vytvorena v lc (nemusim generovat instrukci pro generovani promenne)
-
-
-              //promenna uz byla vytvorena (nemusim generovat instrukci pro generovani promenne)
-              operand1 = initOperand(operand1, token.t_data.ID.value, TOKEN_ID, LF, false, false);
-              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
-              twoOperandInstr(&instrList, TYPE, operand2, operand1);
-
-              //pokud se jedna o neinicializovanou promennou, vytvor znova, jinak jump
-              string anotherLabel;
-              stringInit(&anotherLabel);
-              stringAddChars(&anotherLabel, "ending%");
-              char number45[5];
-              sprintf(number45, "%d", labelCounter);
-              stringAddChars(&anotherLabel, number45); 
-              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
-              operand2 = initOperand(operand2, "tmp2", TOKEN_ID, GF, false, false);
-              operand2 = initOperand(operand2, "", TOKEN_STRING, GF, false, false);
-              threeOperandInstr(&instrList, JUMPIFNEQ, operand1, operand2, operand3);
-
-              operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
-              oneOperandInstr(&instrList, DEFVAR, var_operand);
-              
-              operand1 = initOperand(operand1, anotherLabel.value, TOKEN_ID, GF, false, true);
-              oneOperandInstr(&instrList, LABEL, operand1);
-
-
-              //helper is set to local that variable
-              helper = SYMSearch(&lcSymtable, token.t_data.ID);
-            }
+            
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
+
             nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
+            //now we have to be sure, that next token will be expression-friendly
             if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
               fprintf(stderr, "Nezadali jste zadnou hodnotu do prirazeni k vyrazu.\n");
               return ERROR_CODE_SYN;
@@ -1050,13 +1031,25 @@ ERROR_CODE command() {
             if (result != ERROR_CODE_OK) return result;
             nowExpression = false;
 
-            // var -> vysledek_expression
+            //now add var to symtable to avoid using it in expression
+            if (insertInLocal.length != 0) {
+              result = SYMInsert(&lcSymtable, insertInLocal, false);
+              if (result != ERROR_CODE_OK) return result;
+
+              helper = SYMSearch(&lcSymtable, insertInLocal);
+              if (helper == NULL) return ERROR_CODE_INTERNAL;
+            }
+
+            //update variable type in symtable
             helper->Vartype = sth;
+
+            //generate code for assinment to variable (POPS)
             operand var_operand = initOperand(var_operand, helper->Key.value, TOKEN_ID, LF, false, false);
             oneOperandInstr(&instrList, POPS, var_operand);
+
+            stringDispose(&insertInLocal);
           }
           return ERROR_CODE_OK;
-
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
@@ -1145,4 +1138,24 @@ ERROR_CODE commands() {
       return ERROR_CODE_SYN;
   }
   return ERROR_CODE_SYN;
+}
+
+
+ERROR_CODE checkDefinedFunctions(struct tBSTNode* Root) {
+  ERROR_CODE result;
+  if (Root != NULL) {
+    if (Root->DataType == Function) {
+      if (Root->defined == false) {
+        fprintf(stderr, "Funkce \"%s\" nebyla definovana.\n", Root->Key.value);
+        return ERROR_CODE_SEM;
+      }
+      //je funkce, ale je definovana, takze chill
+    }
+    //neni null, ale je to promenna, takze chill
+    result = checkDefinedFunctions(Root->lPtr);
+    if (result != ERROR_CODE_OK) return result;
+    result = checkDefinedFunctions(Root->rPtr);
+    if (result != ERROR_CODE_OK) return result;
+  }
+  return ERROR_CODE_OK;
 }

@@ -5,8 +5,6 @@ print(55)
 def foo():
   a = 34
   print(a)
-  a = a+6
-  print(a)
 
 def bar():
   a = 58

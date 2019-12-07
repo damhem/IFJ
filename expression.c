@@ -373,7 +373,37 @@ ERROR_CODE makeIdInstr() {
 
     tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
     tBSTNodePtr helperlf = SYMSearch(&lcSymtable,stack_expression.top_of_stack->value->e_data.ID);
-    if (helpergf != NULL) {
+    
+    if(helperlf != NULL) {
+        //ted jsem urcite ve funkci ne?
+        switch (helperlf->Vartype) {
+            case typeinteger:;
+                operand operand1 = initOperand(operand1, helperlf->Key.value, TOKEN_ID, LF, false, false);
+                retVal = typeinteger;
+                oneOperandInstr(&instrList, PUSHS, operand1);
+                break;
+            case typedouble:
+                retVal = typedouble;
+                operand operand2 = initOperand(operand2, helperlf->Key.value, TOKEN_ID, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand2);
+                break;
+            case typestring:
+                retVal = typestring;
+                operand operand3 = initOperand(operand3, helperlf->Key.value, TOKEN_ID, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand3);
+                break;
+            case undefined:
+                retVal = undefined;
+                operand operand4 = initOperand(operand4, helperlf->Key.value, TOKEN_ID, LF, false, false);
+                oneOperandInstr(&instrList, PUSHS, operand4);
+                break;
+            default:
+                //not initialized vartype -> err
+                printf("%s", helperlf->Key.value);
+                return ERROR_CODE_INTERNAL;
+        }
+    }
+    else if (helpergf != NULL) {
         switch (helpergf->Vartype) {
         case typeinteger:;
             operand operand1 = initOperand(operand1, helpergf->Key.value, TOKEN_ID, GF, false, false);
@@ -397,34 +427,6 @@ ERROR_CODE makeIdInstr() {
             break;
         default:
             //not initialized vartype -> err
-            return ERROR_CODE_INTERNAL;
-        }
-    }else if(helperlf != NULL) {
-        //ted jsem urcite ve funkci ne?
-        switch (helperlf->Vartype) {
-        case typeinteger:;
-            operand operand1 = initOperand(operand1, helperlf->Key.value, TOKEN_ID, LF, false, false);
-            retVal = typeinteger;
-            oneOperandInstr(&instrList, PUSHS, operand1);
-            break;
-        case typedouble:
-            retVal = typedouble;
-            operand operand2 = initOperand(operand2, helperlf->Key.value, TOKEN_ID, LF, false, false);
-            oneOperandInstr(&instrList, PUSHS, operand2);
-            break;
-        case typestring:
-            retVal = typestring;
-            operand operand3 = initOperand(operand3, helperlf->Key.value, TOKEN_ID, LF, false, false);
-            oneOperandInstr(&instrList, PUSHS, operand3);
-            break;
-        case undefined:
-            retVal = undefined;
-            operand operand4 = initOperand(operand4, helperlf->Key.value, TOKEN_ID, LF, false, false);
-            oneOperandInstr(&instrList, PUSHS, operand4);
-            break;
-        default:
-            //not initialized vartype -> err
-            printf("%s", helperlf->Key.value);
             return ERROR_CODE_INTERNAL;
         }
     }
@@ -783,9 +785,16 @@ ERROR_CODE makePrintFunction() {
                 operand1 = initOperand(operand1, "None", TOKEN_STRING, GF, false, false);
                 oneOperandInstr(&instrList, PUSHS, operand1);
                 break;
-            case TOKEN_ID:
-                operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, GF, false, false);
-                oneOperandInstr(&instrList, PUSHS, operand1);
+            case TOKEN_ID:;
+                tBSTNodePtr helper22 = SYMSearch(&lcSymtable, myStack.top_of_stack->value->e_data.ID);
+                if (helper22 != NULL) {
+                    operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, LF, false, false);
+                    oneOperandInstr(&instrList, PUSHS, operand1);
+                }
+                else {
+                    operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, GF, false, false);
+                    oneOperandInstr(&instrList, PUSHS, operand1);
+                }
                 break;
             default:
                 return ERROR_CODE_SEM_OTHER;

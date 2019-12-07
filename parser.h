@@ -61,5 +61,6 @@ ERROR_CODE command();
 ERROR_CODE functionParam();
 ERROR_CODE nextFunctionParam();
 ERROR_CODE commands();
+ERROR_CODE checkDefinedFunctions(struct tBSTNode* Root);
 
 #endif

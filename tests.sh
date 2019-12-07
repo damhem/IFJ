@@ -19,7 +19,7 @@ do
     test_name=$(basename "$file")
 
 	#test_output=
-    cat $file | ./p 2>/dev/null 1>/dev/null
+    cat $file | ./p  1>/dev/null
 	return_value=$?
 	i=$(($i + 1))
 
@@ -40,7 +40,7 @@ for file in $inputs_lex
 do
     test_name=$(basename "$file")
 
-    cat $file | ./p 2>/dev/null 1>/dev/null
+    cat $file | ./p 1>/dev/null
 	return_value=$?
 	i=$(($i + 1))
 
