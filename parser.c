@@ -936,7 +936,7 @@ ERROR_CODE command() {
             //now im in main program -> looking into global symtable
             string insertInGlobal;
             stringInit(&insertInGlobal);
-            
+
             //make sure that this var is not in table
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
@@ -1140,7 +1140,7 @@ ERROR_CODE commands() {
   return ERROR_CODE_SYN;
 }
 
-
+//finální rekurzivní kontrola, zda jsou všechny použité funkce definované
 ERROR_CODE checkDefinedFunctions(struct tBSTNode* Root) {
   ERROR_CODE result;
   if (Root != NULL) {

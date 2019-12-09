@@ -3,26 +3,26 @@
 Token token; //Převzatý token od scanneru
 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
-//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID    F     ,     $
+//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID   NONE   ,     $
 /*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
 /*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
+/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '<' , '<' , '_' },
 /*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
 /* STR */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
 /* INT */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
 /* DOUB*/ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
 /*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
-/*  F  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' },
+/* NONE*/ { '_' , '_' , '_' , '_' , '_' , '_' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
 /*  ,  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
 /*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '$' },
 };
@@ -91,12 +91,12 @@ int expressionAnalysis() {
                 }
             }
 
-            if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING){
+            if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_STRING || token.t_type == TOKEN_LEFTPAR || token.t_type == TOKEN_NONE){
                 exp_stackPush(&stack_expression,tokentoExp_element(token,true));
             }
             else{
                 if (exp_stackEmpty(&stack_expression)) {
-                    fprintf(stderr, "Operátor musí mít obě strany.\n");
+                    fprintf(stderr, "Operátor musí mít obě strany. %d\n", token.t_type);
                     return ERROR_CODE_SYN;
                 }
                 exp_stackPush(&stack_expression,tokentoExp_element(token,false));
@@ -118,9 +118,8 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    fprintf(stderr, "Vyraz konci operatorem.\n");
+                    fprintf(stderr, "Vyraz konci operatorem. %d\n", stack_expression.top_of_stack->value->type);
                     return  ERROR_CODE_SYN; 
-
                 }
             }
             result = useRule(&stack_expression);
@@ -132,7 +131,7 @@ int expressionAnalysis() {
             return ERROR_CODE_OK;
         }
         else{
-            fprintf(stderr, "Chybny vyraz (kompatibilita lexemu z vyrazu).\n");
+            fprintf(stderr, "Chybny vyraz (kompatibilita lexemu z vyrazu). %d\n", token.t_type);
             return ERROR_CODE_SYN;
         }
     }
@@ -225,6 +224,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
         case TOKEN_DOUBLE:
         case TOKEN_ID:
         case TOKEN_STRING:
+        case TOKEN_NONE:
             ((Exp_element*)stack_expression->top_of_stack->value)->terminal = false;
             ((Exp_element *)stack_expression->top_of_stack->value)->handle = false;
             ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
@@ -276,6 +276,10 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 if (result != ERROR_CODE_OK) return result;
                 //todo ID analysisi
 
+            }
+            else if (stack_expression->top_of_stack->value->type == TOKEN_NONE) {
+                retVal = undefined;
+                addInstruction(&instrList, PUSHS, "nil@nil", NULL, NULL);
             }
 
             return ERROR_CODE_OK;
@@ -349,7 +353,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
 ERROR_CODE reducePars(ptrStack *stack_expression){
     if(stack_expression != NULL){
-        ptStack* quicksave = stack_expression->top_of_stack->left;
+        Exp_element* quicksave = stack_expression->top_of_stack->left->value;
 
         exp_stackPop(stack_expression);
         exp_stackPop(stack_expression);
@@ -362,9 +366,9 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
             (firstTerm->value)->handle = false;
 
         }
-        else return ERROR_CODE_SEM_COMP;
+        else return ERROR_CODE_SYN;
     }
-    else return ERROR_CODE_SEM_COMP;
+    else return ERROR_CODE_SYN;
     return ERROR_CODE_OK;
 }
 
@@ -373,6 +377,14 @@ ERROR_CODE makeIdInstr() {
 
     tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
     tBSTNodePtr helperlf = SYMSearch(&lcSymtable,stack_expression.top_of_stack->value->e_data.ID);
+
+    //first I have to check, if the id is not a function ID
+    if (helpergf != NULL) {
+        if (helpergf->DataType == Function) {
+            fprintf(stderr, "Ve vyrazu pouzivate ID funkce. (\"%s\")\n", stack_expression.top_of_stack->value->e_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+    }
     
     if(helperlf != NULL) {
         //ted jsem urcite ve funkci ne?
@@ -447,6 +459,15 @@ ERROR_CODE makeFunction() {
     //print function is standalone
     if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "print") == 0) {
             return makePrintFunction();
+    }
+    if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "len") == 0) {
+            return makeLenFunction();
+    }
+    if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "ord") == 0) {
+            return makeOrdFunction();
+    }
+    if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "chr") == 0) {
+            return makeChrFunction();
     }
 
     tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
@@ -787,11 +808,23 @@ ERROR_CODE makePrintFunction() {
                 break;
             case TOKEN_ID:;
                 tBSTNodePtr helper22 = SYMSearch(&lcSymtable, myStack.top_of_stack->value->e_data.ID);
-                if (helper22 != NULL) {
+                tBSTNodePtr helper33 = SYMSearch(&glSymtable, myStack.top_of_stack->value->e_data.ID);
+                if (helper33 != NULL) {
+                    if (helper33->DataType == Function) {
+                        fprintf(stderr, "Pri volani funkce \"print\" jste pouzili ID funkce. (%s)\n", myStack.top_of_stack->value->e_data.ID.value);
+                        return ERROR_CODE_SEM;
+                    }
+                }
+                
+                if (helper22 == NULL && helper33 == NULL) {
+                    fprintf(stderr, "Pri volani funkce \"print\" jste pouzili nedeklarovanou promennou: \"%s\"\n", myStack.top_of_stack->value->e_data.ID.value);
+                    return ERROR_CODE_SEM;
+                }
+                else if (helper22 != NULL) {
                     operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, LF, false, false);
                     oneOperandInstr(&instrList, PUSHS, operand1);
                 }
-                else {
+                else if (helper33 != NULL) {
                     operand1 = initOperand(operand1, myStack.top_of_stack->value->e_data.ID.value, TOKEN_ID, GF, false, false);
                     oneOperandInstr(&instrList, PUSHS, operand1);
                 }
@@ -811,4 +844,73 @@ ERROR_CODE makePrintFunction() {
 
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
     return ERROR_CODE_OK;
+}
+
+ERROR_CODE makeLenFunction() {
+    retVal = typeinteger;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first and only term
+
+    noOperandInstr(&instrList, CREATEFRAME);
+
+    if (token.t_type == TOKEN_ID) {
+        tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+        tBSTNodePtr helper3 = SYMSearch(&lcSymtable, token.t_data.ID);
+        if (helper2 == NULL && helper3 == NULL) {
+            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"Len\" neni definovana.\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+        else if (helper2 != NULL) {
+            if (helper2->DataType != Variable) {
+                fprintf(stderr, "Pri volani funkce \"Len\" pouzivate v parametrech ID funkce: %s\n", token.t_data.ID.value);
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper3 != NULL) {
+            if (helper3->Vartype == undefined || helper3->Vartype == typestring) {
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Len\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+        else {
+            if (helper2->Vartype == undefined || helper2->Vartype == typestring) {
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, GF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Len\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+
+    }
+    else if (token.t_type == TOKEN_STRING) {
+        operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+        operand2 = initOperand(operand2, token.t_data.ID.value , TOKEN_STRING, GF, false, false);
+        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+    }
+    else {
+        fprintf(stderr, "Pouzili jste nespravny parametr pri volani funkce \"Len\".\n");
+        return ERROR_CODE_SEM_COMP;
+    }
+
+    addInstruction(&instrList, CALL, "$len", NULL, NULL);
+
+    noOperandInstr(&instrList, POPFRAME);
+
+    return ERROR_CODE_OK;
+}
+
+ERROR_CODE makeOrdFunction() {
+    return ERROR_CODE_SEM_OTHER;
+}
+
+ERROR_CODE makeChrFunction() {
+    return ERROR_CODE_SEM_OTHER;
 }

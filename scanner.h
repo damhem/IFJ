@@ -76,7 +76,7 @@ typedef enum {
   TOKEN_INT,                //15
   TOKEN_DOUBLE,             //16
   TOKEN_ID,                 //17
-  TOKEN_EOF,                //18
+  TOKEN_NONE,               //18
   TOKEN_COMMA,              //19
   TOKEN_UNDEF,              //20
 
@@ -88,7 +88,7 @@ typedef enum {
   TOKEN_DEF,                //26
   TOKEN_ELSE,               //27
   TOKEN_IF,                 //28
-  TOKEN_NONE,               //29
+  TOKEN_EOF,                //29
   TOKEN_PASS,               //30
   TOKEN_RETURN,             //31
   TOKEN_WHILE,              //32

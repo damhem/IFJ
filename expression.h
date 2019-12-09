@@ -45,6 +45,9 @@ ERROR_CODE reducePars(ptrStack *stack_expression);
 ERROR_CODE makeIdInstr();
 ERROR_CODE makeFunction();
 ERROR_CODE makePrintFunction();
+ERROR_CODE makeLenFunction();
+ERROR_CODE makeChrFunction();
+ERROR_CODE makeOrdFunction();
 
 
 

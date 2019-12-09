@@ -68,55 +68,24 @@ RETURN
 # konec generovani vestavench funkci
 # ------------------------------------------
 LABEL $$start
-DEFVAR GF@a
-PUSHS int@55
-POPS GF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS GF@a
-CALL $print
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS string@55
-CALL $print
 JUMP $foo%
 LABEL $foo
 PUSHFRAME
-DEFVAR LF@a
-PUSHS int@34
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
-PUSHS LF@a
-PUSHS int@6
-ADDS
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
+DEFVAR LF@ahoj
+MOVE LF@ahoj LF@%0
+DEFVAR LF@k
+PUSHS LF@ahoj
+POPS LF@k
+PUSHS LF@k
 RETURN
 LABEL $foo%
-JUMP $bar%
-LABEL $bar
-PUSHFRAME
-DEFVAR LF@a
-PUSHS int@58
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
-RETURN
-LABEL $bar%
+DEFVAR GF@a
 CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 int@2
 CALL $foo
 POPFRAME
-CREATEFRAME
-CALL $bar
-POPFRAME
+POPS GF@a
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
 PUSHS GF@a
