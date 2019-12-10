@@ -4,9 +4,6 @@
 
 // checks the next token
 token_type peekNextToken() {
-  if (peekToken.t_type != TOKEN_UNDEF) {
-    return peekToken.t_type;
-  }
 
   if (peekToken.t_type != TOKEN_UNDEF) return peekToken.t_type;
 
@@ -24,9 +21,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
     return peekThisToken;
   }
 
-  //bool run = true; // scanner ????? while (true)
-
-  // initialization of the first state and token before reading first char ???needed?
+  // initialization of the first state and token before reading first char
   Token token;
   token.t_type = TOKEN_UNDEF;
   int state = SCANNER_START;
@@ -48,7 +43,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
     c = (char) getc(stdin);
 
     switch (state) {
-      
+
       case (SCANNER_START):
 
         if (c == EOF) {
@@ -80,12 +75,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
 
         else if (c == '\n'){
+
           // looks at the next char
           c = (char) getc(stdin);
-
-          /*while (c =='\t') {
-            c = (char) getc(stdin);
-          }*/
 
           // returns error code 1 if tab is used for indentation
           if (c == '\t') {
@@ -139,8 +131,9 @@ Token getNextToken(bool *line_flag, tStack *s) {
           stringAddChar(&token.t_data.ID, c);
         }
 
-        else if (c == '"'){
+        else if (c == '"') {
           *line_flag=false;
+          token.t_type = TOKEN_STRING;
           state = SCANNER_COMMENT;
         }
 
@@ -757,12 +750,15 @@ Token getNextToken(bool *line_flag, tStack *s) {
           state = SCANNER_COMMENT_4;
         }
 
+        stringInit(&token.t_data.ID);
+
         // documentation string not correctly ended
         else if (c == EOF) {
           token.t_type = TOKEN_UNDEF;
           token.t_data.integer = ERROR_CODE_LEX;
           return token;
         }
+
         // certain characters need to be recorded as escape sequences
         else if (c == '#') {
           stringAddChar(&token.t_data.ID, '\\');
@@ -797,7 +793,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           ;
         }
 
-        else{
+        else {
           stringAddChar(&token.t_data.ID, c);
         }
 
@@ -820,6 +816,8 @@ Token getNextToken(bool *line_flag, tStack *s) {
       case (SCANNER_COMMENT_5):
 
         if (c == '"') {
+
+          // if we expect multi-line string we return token
           if (nowExpression == true) {
               return token;
           }
@@ -989,8 +987,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
         }
 
         else if(c == 't') {
-          c = '\t';
-          stringAddChar(&token.t_data.ID, c);
+          stringAddChar(&token.t_data.ID, '\\');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '0');
+          stringAddChar(&token.t_data.ID, '9');
           state = SCANNER_STRING_1;
         }
 
