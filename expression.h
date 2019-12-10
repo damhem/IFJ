@@ -11,7 +11,7 @@
 #include "parser.h"
 
 //velikost precedencni tabulky
-#define PT_SIZE 21
+#define PT_SIZE 20
 
 typedef union element_data {
   string ID;
@@ -48,7 +48,8 @@ ERROR_CODE makePrintFunction();
 ERROR_CODE makeLenFunction();
 ERROR_CODE makeChrFunction();
 ERROR_CODE makeOrdFunction();
-
+ERROR_CODE makeSubstrFunction();
+ERROR_CODE checkOperands(token_type rightResultType, Exp_element* element1, Exp_element* element2);
 
 
 #endif //EXPRESSION_H

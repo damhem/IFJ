@@ -639,7 +639,9 @@ ERROR_CODE command() {
       operand1 = initOperand(operand1, lableFour.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
 
-      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //eol nebo prikaz
+
+      labelCounter++;
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
@@ -649,7 +651,6 @@ ERROR_CODE command() {
         return result;
       }      
 
-
       if (token.t_type != TOKEN_DEDENT) {
         fprintf(stderr, "Za prikazem else se nevyskytuje token DEDENT.\n");
         return ERROR_CODE_SYN;
@@ -658,9 +659,10 @@ ERROR_CODE command() {
       operand1 = initOperand(operand1, lableFive.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
 
-      labelCounter++;
+      
 
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
@@ -850,6 +852,12 @@ ERROR_CODE command() {
       
       nowExpression = true;
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+      
+      //what if we returned function (its not allowed)
+      token_type function_cancel = peekNextToken();
+      if (function_cancel == TOKEN_LEFTPAR) {
+        return ERROR_CODE_SYN;
+      }
       VarType type_return;
       result = expression(&type_return);
       if (result != ERROR_CODE_OK) return result;
@@ -877,11 +885,11 @@ ERROR_CODE command() {
         case TOKEN_SUBTRACTION:
         case TOKEN_MULTIPLICATION:
         case TOKEN_DIVISION:
+        case TOKEN_INTEGER_DIVISION:
         case TOKEN_EQUAL_EQUAL:
         case TOKEN_SMALLERTHEN:
         case TOKEN_SMALLERTHEN_EQUAL:
         case TOKEN_BIGGERTHEN:
-
         case TOKEN_BIGGERTHEN_EQUAL: ;
           //has to be operator
         
@@ -1069,7 +1077,7 @@ ERROR_CODE command() {
             return ERROR_CODE_SYN;
           }
 
-          return ERROR_CODE_OK;
+          return ERROR_CODE_OK;   
         default:
           return ERROR_CODE_SYN;
       }
@@ -1111,6 +1119,7 @@ ERROR_CODE commands() {
 
   switch (token.t_type) {
     case TOKEN_ID:
+    case TOKEN_RETURN:
     case TOKEN_LEFTPAR:
     case TOKEN_IF:
     case TOKEN_WHILE:

@@ -1,6 +1,1 @@
-def foo(ahoj):
-   k = ahoj
-   return k
-
-a = foo(2)
-print(a)
+a = 'abc\\def\'123\"456\t789\nghi\Zjkl\x52'

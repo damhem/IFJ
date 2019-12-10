@@ -554,10 +554,14 @@ void lenFunction() { //params: s
     //pushframe
     noOperandInstr(&instrList, PUSHFRAME);
 
+
+
     //make it do sth (goes to tmp)
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
     twoOperandInstr(&instrList, STRLEN, operand1, operand2);
+
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
     //popping from expression
 
@@ -573,25 +577,18 @@ void ordFunction() { //params: s, i
     //pushframe
     noOperandInstr(&instrList, PUSHFRAME);
 
-    //define strlen var
-    operand1 = initOperand(operand1, "slen", TOKEN_ID, LF, false, false);
-    oneOperandInstr(&instrList, DEFVAR, operand1);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
-
-    twoOperandInstr(&instrList, STRLEN, operand1, operand2);
-
     //sub a 1 (bcs string goes from 0) to strlen-1
-    operand1 = initOperand(operand1, "i", TOKEN_ID, LF, false, false);
+    operand1 = initOperand(operand1, "%2", TOKEN_ID, LF, false, false);
     operand2 = initOperand(operand2, "1", TOKEN_INT, LF, false, false);
     threeOperandInstr(&instrList, SUB, operand1, operand1, operand2);
 
-    //todo checks? jumps? err?
-
     //result is in global1 var
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
-    operand3 = initOperand(operand3, "i", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
+    operand3 = initOperand(operand3, "%2", TOKEN_ID, LF, false, false);
     threeOperandInstr(&instrList, STRI2INT, operand1, operand2, operand3);
+
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
     noOperandInstr(&instrList, RETURN);
 }
@@ -604,16 +601,14 @@ void chrFunction() { //params: i
     //pushframe
     noOperandInstr(&instrList, PUSHFRAME);
 
-    //todo some test?
-
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "i", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
     twoOperandInstr(&instrList, INT2CHAR, operand1, operand2);
+
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
     noOperandInstr(&instrList, RETURN);
 }
-
-//todo substr
 
 void printFunction() { //params: term1 term2 term3 ....
     //label

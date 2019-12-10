@@ -77,9 +77,9 @@ typedef enum {
   TOKEN_DOUBLE,             //16
   TOKEN_ID,                 //17
   TOKEN_NONE,               //18
-  TOKEN_COMMA,              //19
-  TOKEN_UNDEF,              //20
+  TOKEN_UNDEF,              //19
 
+  TOKEN_COMMA,              //20
   TOKEN_PLUS,               //21
   TOKEN_MINUS,              //22
   TOKEN_INDENT,             //23

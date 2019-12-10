@@ -3,28 +3,27 @@
 Token token; //Převzatý token od scanneru
 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
-//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID   NONE   ,     $
-/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '_' , '>' },
-/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '_' , '>' },
-/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '<' , '<' , '_' },
-/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
-/* STR */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
-/* INT */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
-/* DOUB*/ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
-/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' , '>' },
-/* NONE*/ { '_' , '_' , '_' , '_' , '_' , '_' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '_' , '>' },
-/*  ,  */ { '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '_' },
-/*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '<' , '<' , '<' , '_' , '$' },
+//           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID   NONE        $
+/*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  /  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/* //  */ { '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  +  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  -  */ { '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  =  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
+/*  != */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  <  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  <= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  >  */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  >= */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  == */ { '<' , '<' , '<' , '<' , '<' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '<' , '>' },
+/*  (  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '=' , '<' , '<' , '<' , '<' , '<' , '_' },
+/*  )  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/* STR */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/* INT */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/* DOUB*/ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/*  ID */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/* NONE*/ { '_' , '_' , '_' , '_' , '_' , '_' , '>' , '>' , '>' , '>' , '>' , '>' , '_' , '>' , '_' , '_' , '_' , '_' , '_' , '>' },
+/*  $  */ { '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '<' , '_' , '<' , '<' , '<' , '<' , '<' , '$' },
 };
 
 
@@ -132,6 +131,11 @@ int expressionAnalysis() {
         }
         else{
             fprintf(stderr, "Chybny vyraz (kompatibilita lexemu z vyrazu). %d\n", token.t_type);
+            if (stack_expression.top_of_stack != NULL) {
+                if (stack_expression.top_of_stack->value->type == TOKEN_NONE || token.t_type == TOKEN_NONE) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
             return ERROR_CODE_SYN;
         }
     }
@@ -266,16 +270,13 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 retVal = typestring;
                 oneOperandInstr(&instrList, PUSHS, operand);
             }
+            
             //there has to be ID analysis
             else if (stack_expression->top_of_stack->value->type == TOKEN_ID) {
 
-
                 result = makeIdInstr();
-                retVal = undefined;
-
                 if (result != ERROR_CODE_OK) return result;
-                //todo ID analysisi
-
+                
             }
             else if (stack_expression->top_of_stack->value->type == TOKEN_NONE) {
                 retVal = undefined;
@@ -286,6 +287,8 @@ ERROR_CODE useRule(ptrStack *stack_expression){
 
         case TOKEN_ADDITION :
             if(stack_expression->top_of_stack->value->type == TOKEN_STRING) { //todo kdyz bude id string
+                result = checkOperands(TOKEN_STRING, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+                if (result != ERROR_CODE_OK) return result;
                 string operandString;
                 stringInit(&operandString);
                 operand operand1 = initOperand(operand1,operandString.value,TOKEN_ID,LF, true, false);
@@ -295,22 +298,60 @@ ERROR_CODE useRule(ptrStack *stack_expression){
                 oneOperandInstr(&instrList, PUSHS, operand1);
                 break;
             }
+            result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+            if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, ADDS);
             break;
 
         case TOKEN_MULTIPLICATION :
+        result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+            if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, MULS);
             break;
 
         case TOKEN_SUBTRACTION:
+        result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+            if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, SUBS);
             break;
 
         case TOKEN_DIVISION:
+            if (stack_expression != NULL) {
+                if (stack_expression->top_of_stack != NULL) {
+                    if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
+                        if (stack_expression->top_of_stack->value->e_data.integer == 0) {
+                            return ERROR_CODE_ZERO_DEV;
+                        }
+                    }
+                    else if(stack_expression->top_of_stack->value->type == TOKEN_DOUBLE) {
+                        if (stack_expression->top_of_stack->value->e_data.decimal == 0.0) {
+                            return ERROR_CODE_ZERO_DEV;
+                        }
+                    }
+                }
+            }
+            result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+            if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, DIVS);
             break;
 
         case TOKEN_INTEGER_DIVISION:
+            if (stack_expression != NULL) {
+                if (stack_expression->top_of_stack != NULL) {
+                    if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
+                        if (stack_expression->top_of_stack->value->e_data.integer == 0) {
+                            return ERROR_CODE_ZERO_DEV;
+                        }
+                    }
+                    else if(stack_expression->top_of_stack->value->type == TOKEN_DOUBLE) {
+                        if (stack_expression->top_of_stack->value->e_data.decimal == 0.0) {
+                            return ERROR_CODE_ZERO_DEV;
+                        }
+                    }
+                }
+            }
+            result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
+            if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, DIVS);
             noOperandInstr(&instrList, FLOAT2INTS);
             break;
@@ -469,13 +510,18 @@ ERROR_CODE makeFunction() {
     if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "chr") == 0) {
             return makeChrFunction();
     }
+    if (token.t_type == TOKEN_ID && strcmp(token.t_data.ID.value, "substr") == 0) {
+            return makeSubstrFunction();
+    }
 
     tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
     tBSTNodePtr helperLC = SYMSearch(&lcSymtable, token.t_data.ID);
     if (helperLC != NULL) {
-        //there has been variable with the same name
-        fprintf(stderr, "Jiz jste definovali promennou s nazvem \"%s\" ve funkci \"%s\".\n", token.t_data.ID.value, functionName.value);
-        return ERROR_CODE_SEM;
+        if (helperLC->DataType == Variable) {
+            //there has been variable with the same name
+            fprintf(stderr, "Jiz jste definovali promennou s nazvem \"%s\" ve funkci \"%s\".\n", token.t_data.ID.value, functionName.value);
+            return ERROR_CODE_SEM;
+        }
     }
     if (helper == NULL) {
         //now I know that this function doesnt exist yet
@@ -868,6 +914,7 @@ ERROR_CODE makeLenFunction() {
         }
         if (helper3 != NULL) {
             if (helper3->Vartype == undefined || helper3->Vartype == typestring) {
+                addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
                 operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
                 operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
                 twoOperandInstr(&instrList, MOVE, operand1, operand2);
@@ -879,8 +926,9 @@ ERROR_CODE makeLenFunction() {
         }
         else {
             if (helper2->Vartype == undefined || helper2->Vartype == typestring) {
+                addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
                 operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
-                operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, GF, false, false);
+                operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
                 twoOperandInstr(&instrList, MOVE, operand1, operand2);
             }
             else {
@@ -891,6 +939,7 @@ ERROR_CODE makeLenFunction() {
 
     }
     else if (token.t_type == TOKEN_STRING) {
+        addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
         operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
         operand2 = initOperand(operand2, token.t_data.ID.value , TOKEN_STRING, GF, false, false);
         twoOperandInstr(&instrList, MOVE, operand1, operand2);
@@ -904,13 +953,372 @@ ERROR_CODE makeLenFunction() {
 
     noOperandInstr(&instrList, POPFRAME);
 
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+    if(token.t_type != TOKEN_RIGHTPAR) {
+        return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
     return ERROR_CODE_OK;
 }
 
 ERROR_CODE makeOrdFunction() {
-    return ERROR_CODE_SEM_OTHER;
+    retVal = typeinteger;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first and only term
+
+    noOperandInstr(&instrList, CREATEFRAME);
+
+    if (token.t_type == TOKEN_ID) {
+        tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+        tBSTNodePtr helper3 = SYMSearch(&lcSymtable, token.t_data.ID);
+        if (helper2 == NULL && helper3 == NULL) {
+            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"Ord\" neni definovana.\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+        else if (helper2 != NULL) {
+            if (helper2->DataType != Variable) {
+                fprintf(stderr, "Pri volani funkce \"Ord\" pouzivate v parametrech ID funkce: %s\n", token.t_data.ID.value);
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper3 != NULL) {
+            if (helper3->Vartype == undefined || helper3->Vartype == typestring) {
+                addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Ord\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+        else {
+            if (helper2->Vartype == undefined || helper2->Vartype == typestring) {
+                addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Ord\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+
+    }
+    else if (token.t_type == TOKEN_STRING) {
+        addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
+        operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+        operand2 = initOperand(operand2, token.t_data.ID.value , TOKEN_STRING, GF, false, false);
+        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+    }
+    else {
+        fprintf(stderr, "Pouzili jste nespravny parametr pri volani funkce \"Ord\".\n");
+        return ERROR_CODE_SEM_COMP;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //comma
+    if(token.t_type != TOKEN_COMMA) {
+        return ERROR_CODE_SYN;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+    if (token.t_type == TOKEN_ID) {
+        tBSTNodePtr helper22 = SYMSearch(&glSymtable, token.t_data.ID);
+        tBSTNodePtr helper33 = SYMSearch(&lcSymtable, token.t_data.ID);
+        if (helper22 == NULL && helper33 == NULL) {
+            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"Ord\" neni definovana.\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+        else if (helper22 != NULL) {
+            if (helper22->DataType != Variable) {
+                fprintf(stderr, "Pri volani funkce \"Ord\" pouzivate v parametrech ID funkce: %s\n", token.t_data.ID.value);
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper33 != NULL) {
+            if (helper33->Vartype == undefined || helper33->Vartype == typeinteger) {
+                addInstruction(&instrList, DEFVAR, "TF@%2", NULL, NULL);
+                operand1 = initOperand(operand1, "%2", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper33->Key.value , TOKEN_ID, LF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Ord\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+        else {
+            if (helper22->Vartype == undefined || helper22->Vartype == typeinteger) {
+                addInstruction(&instrList, DEFVAR, "TF@%2", NULL, NULL);
+                operand1 = initOperand(operand1, "%2", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper22->Key.value , TOKEN_ID, GF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Ord\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+
+    }
+    else if (token.t_type == TOKEN_INT) {
+        addInstruction(&instrList, DEFVAR, "TF@%2", NULL, NULL);
+        operand1 = initOperand(operand1, "%2", TOKEN_ID, TF, false, false);
+        string temp;
+        stringInit(&temp);
+        char number[20];
+        sprintf(number, "%d", token.t_data.integer);
+        stringAddChars(&temp, number);
+        operand2 = initOperand(operand2, temp.value , TOKEN_INT, GF, false, false);
+        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+    }
+    else {
+        fprintf(stderr, "Pouzili jste nespravny parametr pri volani funkce \"Ord\".\n");
+        return ERROR_CODE_SEM_COMP;
+    }
+
+    addInstruction(&instrList, CALL, "$ord", NULL, NULL);
+
+    noOperandInstr(&instrList, POPFRAME);
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+    if(token.t_type != TOKEN_RIGHTPAR) {
+        return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+    return ERROR_CODE_OK;
 }
 
 ERROR_CODE makeChrFunction() {
-    return ERROR_CODE_SEM_OTHER;
+    retVal = typestring;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //first and only term
+
+    noOperandInstr(&instrList, CREATEFRAME);
+
+    if (token.t_type == TOKEN_ID) {
+        tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
+        tBSTNodePtr helper3 = SYMSearch(&lcSymtable, token.t_data.ID);
+        if (helper2 == NULL && helper3 == NULL) {
+            fprintf(stderr, "Promenna \"%s\" pouzita pri volani funkce \"Chr\" neni definovana.\n", token.t_data.ID.value);
+            return ERROR_CODE_SEM;
+        }
+        else if (helper2 != NULL) {
+            if (helper2->DataType != Variable) {
+                fprintf(stderr, "Pri volani funkce \"Chr\" pouzivate v parametrech ID funkce: %s\n", token.t_data.ID.value);
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper3 != NULL) {
+            if (helper3->Vartype == undefined || helper3->Vartype == typeinteger) {
+                addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper3->Key.value , TOKEN_ID, LF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"CHr\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+        else {
+            if (helper2->Vartype == undefined || helper2->Vartype == typestring) {
+                operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+                operand2 = initOperand(operand2, helper2->Key.value , TOKEN_ID, GF, false, false);
+                twoOperandInstr(&instrList, MOVE, operand1, operand2);
+            }
+            else {
+                fprintf(stderr, "Pouzili jste nespravny typ parametru pri volani funkce \"Chr\".\n (%s)", token.t_data.ID.value);
+                return ERROR_CODE_SEM_COMP;
+            }
+        }
+
+    }
+    else if (token.t_type == TOKEN_INT) {
+        addInstruction(&instrList, DEFVAR, "TF@%1", NULL, NULL);
+        operand1 = initOperand(operand1, "%1", TOKEN_ID, TF, false, false);
+        if (token.t_data.integer >= 256 || token.t_data.integer < 0) {
+            fprintf(stderr, "Pouzili jste nezname cislo pri volani funkce Chr.\n");
+            return ERROR_CODE_SEM_COMP;
+        }
+        string temp;
+        stringInit(&temp);
+        char number[20];
+        sprintf(number, "%d", token.t_data.integer);
+        stringAddChars(&temp, number);
+        operand2 = initOperand(operand2, temp.value , TOKEN_INT, GF, false, false);
+        twoOperandInstr(&instrList, MOVE, operand1, operand2);
+    }
+    else {
+        fprintf(stderr, "Pouzili jste nespravny parametr pri volani funkce \"Chr\".\n");
+        return ERROR_CODE_SEM_COMP;
+    }
+
+    addInstruction(&instrList, CALL, "$chr", NULL, NULL);
+
+    noOperandInstr(&instrList, POPFRAME);
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+    if(token.t_type != TOKEN_RIGHTPAR) {
+        return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+    return ERROR_CODE_OK;
+}
+
+ERROR_CODE makeSubstrFunction() {
+    retVal = typestring;
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar  
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //string
+    if (token.t_type == TOKEN_STRING || token.t_type == TOKEN_ID) {
+        ;
+    }
+    else {
+        return ERROR_CODE_SEM_COMP;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //comma
+    if (token.t_type != TOKEN_COMMA) {
+        return ERROR_CODE_SYN;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //integer
+    if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT) {
+        ;
+    }
+    else {
+        return ERROR_CODE_SEM_COMP;
+    }
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //comma
+    if (token.t_type != TOKEN_COMMA) {
+        return ERROR_CODE_SYN;
+    }
+     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //integer
+    if (token.t_type == TOKEN_ID || token.t_type == TOKEN_INT) {
+        ;
+    }
+    else {
+        return ERROR_CODE_SEM_COMP;
+    }
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //rightpar
+    if (token.t_type != TOKEN_RIGHTPAR) {
+        return ERROR_CODE_SYN;
+    }
+
+    addInstruction(&instrList, PUSHS, "string@NotCompltedYet", NULL, NULL);
+
+    if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
+
+    return ERROR_CODE_OK;
+}
+
+ERROR_CODE checkOperands(token_type rightResultType, Exp_element* element1, Exp_element* element2) {
+    if (element1 == NULL || element2 == NULL) {
+        return ERROR_CODE_INTERNAL;
+    }
+    if (element1->type == TOKEN_ID) {
+        tBSTNodePtr helper = SYMSearch(&glSymtable, element1->e_data.ID);
+        tBSTNodePtr helper2 = SYMSearch(&lcSymtable, element1->e_data.ID);
+        if (helper != NULL) {
+            if (helper->DataType == Function) {
+                fprintf(stderr, "Ve vyrazu jste pouzili ID funkce.\n");
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper2 == NULL && helper == NULL) {
+            fprintf(stderr, "Promenna pouzita ve vyrazu nebyla definovana.\n");
+            return ERROR_CODE_SEM;
+        }
+        else if (helper2 != NULL) {
+            if (rightResultType == TOKEN_INT) {
+                if (helper2->Vartype == typestring) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+            else if (rightResultType == TOKEN_STRING) {
+                if (helper2->Vartype == typedouble || helper2->Vartype == typeinteger) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+        }
+        else if (helper != NULL) {
+            if (rightResultType == TOKEN_INT) {
+                if (helper->Vartype == typestring) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+            else if (rightResultType == TOKEN_STRING) {
+                if (helper->Vartype == typedouble || helper->Vartype == typeinteger) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+        }
+    }
+    else if (element1->type == TOKEN_INT || element1->type == TOKEN_DOUBLE) {
+        if (rightResultType != TOKEN_INT) {
+            return ERROR_CODE_SEM_COMP;
+        }
+    }
+    else if (element1->type == TOKEN_STRING) {
+        if (rightResultType != TOKEN_STRING) {
+            return ERROR_CODE_SEM_COMP;
+        }
+    }
+
+    if (element2->type == TOKEN_ID) {
+        tBSTNodePtr helper = SYMSearch(&glSymtable, element2->e_data.ID);
+        tBSTNodePtr helper2 = SYMSearch(&lcSymtable, element2->e_data.ID);
+        if (helper != NULL) {
+            if (helper->DataType == Function) {
+                fprintf(stderr, "Ve vyrazu jste pouzili ID funkce.\n");
+                return ERROR_CODE_SEM;
+            }
+        }
+        if (helper2 == NULL && helper == NULL) {
+            fprintf(stderr, "Promenna pouzita ve vyrazu nebyla definovana.\n");
+            return ERROR_CODE_SEM;
+        }
+        else if (helper2 != NULL) {
+            if (rightResultType == TOKEN_INT) {
+                if (helper2->Vartype == typestring) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+            else if (rightResultType == TOKEN_STRING) {
+                if (helper2->Vartype == typedouble || helper2->Vartype == typeinteger) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+        }
+        else if (helper != NULL) {
+            if (rightResultType == TOKEN_INT) {
+                if (helper->Vartype == typestring) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+            else if (rightResultType == TOKEN_STRING) {
+                if (helper->Vartype == typedouble || helper->Vartype == typeinteger) {
+                    return ERROR_CODE_SEM_COMP;
+                }
+            }
+        }
+    }
+    else if (element2->type == TOKEN_INT || element2->type == TOKEN_DOUBLE) {
+        if (rightResultType != TOKEN_INT) {
+            return ERROR_CODE_SEM_COMP;
+        }
+    }
+    else if (element2->type == TOKEN_STRING) {
+        if (rightResultType != TOKEN_STRING) {
+            return ERROR_CODE_SEM_COMP;
+        }
+    }
+
+
+    return ERROR_CODE_OK;
 }
