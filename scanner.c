@@ -55,6 +55,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             token.t_type = TOKEN_EOL;
   					return token;
           }
+          
           // generates dedent tokens until the indentation stack is empty
           else if (stackEmpty(s)==0) {
             stackPop(s);
