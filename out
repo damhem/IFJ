@@ -70,5 +70,9 @@ RETURN
 # ------------------------------------------
 LABEL $$start
 DEFVAR GF@a
-PUSHS string@abc\092def'123"456	789\010ghi\092ZjklR
+PUSHS string@abc\092def'123"456\009789\010ghi\092ZjklR
 POPS GF@a
+MOVE GF@tmp2 int@2
+PUSHS string@%endwhile
+PUSHS GF@a
+CALL $print

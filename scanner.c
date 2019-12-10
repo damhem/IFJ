@@ -134,12 +134,12 @@ Token getNextToken(bool *line_flag, tStack *s) {
         else if (c == '"') {
           *line_flag=false;
           token.t_type = TOKEN_STRING;
-          state = SCANNER_COMMENT;
+          state = SCANNER_COMMENT_1;
         }
 
         else if ( c == '#'){
           *line_flag=false;
-          state = SCANNER_LINE_COMMENT_1;
+          state = SCANNER_LINE_COMMENT;
         }
 
         else if ( c == '+'){
@@ -269,7 +269,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
       case (SCANNER_DENTCOUNT):
 
         // ignores indentation in lines with line comment
-        else if ( c == '#'){
+        if ( c == '#'){
           *line_flag=false;
           state = SCANNER_LINE_COMMENT;
         }
@@ -753,7 +753,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
         stringInit(&token.t_data.ID);
 
         // documentation string not correctly ended
-        else if (c == EOF) {
+        if (c == EOF) {
           token.t_type = TOKEN_UNDEF;
           token.t_data.integer = ERROR_CODE_LEX;
           return token;
