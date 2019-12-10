@@ -1035,7 +1035,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
       case (SCANNER_STRING_4):
 
-        // coneverts hexadecimal escape sequence into respective char
+        // converts hexadecimal escape sequence into respective char
         if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
           string String;
           stringInit(&String);
