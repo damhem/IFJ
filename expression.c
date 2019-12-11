@@ -1,7 +1,8 @@
 #include "expression.h"
 
-Token token; //Převzatý token od scanneru
+Token token; //Token taken from scanner
 
+//Precedence table  with order from operands and operators from enum in scanner.h 
 const char precedenceTable[PT_SIZE][PT_SIZE] = {
 //           *     /     //    +     -     =    !=     <    <=     >    >=    ==     (     )   STR    INT   DOUB   ID   NONE        $
 /*  *  */ { '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '>' , '<' , '>' , '<' , '<' , '<' , '<' , '_' , '>' },
@@ -27,11 +28,11 @@ const char precedenceTable[PT_SIZE][PT_SIZE] = {
 };
 
 
-//hlavní funkce
+//Main funcion
 int expression(VarType* returnValue) {/*,int expectedValue*/
     ERROR_CODE result;
-
-    retVal = 8;
+    
+    retVal = 8;//is indicating error in if or while
 
     exp_stackInit(&stack_expression);
 
@@ -43,13 +44,13 @@ int expression(VarType* returnValue) {/*,int expectedValue*/
 
     return result;
 }
-//Analýza daného výrazu
+//Analysis of the expression
 int expressionAnalysis() {
     ERROR_CODE result;
-    char sign = '_';
+    char sign = '_';//indicating error in expression
     while(true) {
-        sign = getSignFromTable();
-        if(sign == '='){
+        sign = getSignFromTable();//finds sign in precedence table
+        if(sign == '='){//only time we can expected equal sign is when we are reducing pars
             exp_stackPush(&stack_expression,tokentoExp_element(token,false));
             result =  reducePars(&stack_expression);
             if (result != ERROR_CODE_OK) {
@@ -58,15 +59,16 @@ int expressionAnalysis() {
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
         }
         else if(sign == '<'){
-            token_type next = peekNextToken();
+            token_type next = peekNextToken();//checking next token for unexpected failure
             if (next == TOKEN_UNDEF) {
                 return ERROR_CODE_LEX;
             }
-            if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {
+            if (token.t_type == TOKEN_ID && next == TOKEN_LEFTPAR) {// processing function
                 result = makeFunction();
                 if (result != ERROR_CODE_OK) return result;
                 return ERROR_CODE_OK;
             }
+            //checking for two operators behind each other
             if (token.t_type == TOKEN_ADDITION || token.t_type == TOKEN_SUBTRACTION ||
             token.t_type == TOKEN_MULTIPLICATION || token.t_type == TOKEN_DIVISION ||
             token.t_type == TOKEN_INTEGER_DIVISION || token.t_type == TOKEN_EQUAL ||
@@ -104,6 +106,7 @@ int expressionAnalysis() {
             firstTerm = stack_expression.top_of_stack;
         }
         else if(sign == '>') {
+            //checking if the exoression ends with operator 
             if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
                 if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION ||
                 stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION ||
@@ -122,12 +125,13 @@ int expressionAnalysis() {
 
                 }
             }
+            //processing of the expression
             result = useRule(&stack_expression);
             if (result != ERROR_CODE_OK) {
             return result;
             }
         }
-        else if(sign == '$') {
+        else if(sign == '$') {//simulates end of the expression
             return ERROR_CODE_OK;
         }
         else{
@@ -141,10 +145,10 @@ int expressionAnalysis() {
         }
     }
 }
-// Funkce pro hledání znaku z precedencni tabulky
+// Funcion looking for sign in precedence table
 char getSignFromTable(){
-    int a;
-    int b;
+    int a;// first terminal on stack
+    int b;//input token
     if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
         b = TOKEN_UNDEF;
     }
@@ -155,10 +159,10 @@ char getSignFromTable(){
     return precedenceTable[a][b];
 }
 
-//Funkce inicializující nový element
+//Funcion initializating new element 
 Exp_element *newElement(int type,bool handle){
     Exp_element *new_element = malloc(sizeof(struct exp_element));
-    //Inicializace noveho elementu
+    //initialization if new element
     if(new_element != NULL){
         if(type == TOKEN_INT){
         new_element->e_data.integer = token.t_data.integer;
@@ -182,7 +186,7 @@ Exp_element *newElement(int type,bool handle){
     else return NULL;
 }
 
-//Funkce ziskavající typ prvního terminalu na stacku
+//Funcion getting type of first terminal on stack
 int get_stack_type(ptrStack *stack_expression){
 
     if (stack_expression->top_of_stack != NULL){
@@ -208,7 +212,7 @@ int get_stack_type(ptrStack *stack_expression){
     return ERROR_CODE_OK;
 }
 
-// Funkce prevadejici token na element
+// Funcion transforming tokent to element 
 Exp_element *tokentoExp_element(Token token,bool handle){
     int type;
     if (token.t_type == TOKEN_EOL || token.t_type == TOKEN_EOF || token.t_type == TOKEN_DOUBLEDOT) {
@@ -219,12 +223,12 @@ Exp_element *tokentoExp_element(Token token,bool handle){
     return element_to_stack;
 }
 
-//Funkce resici redukce vyrazu
+//Funcion solving the expression and generates instructions
 ERROR_CODE useRule(ptrStack *stack_expression){
     ERROR_CODE result;
-
+    //switch checking for type of the terminal and 
     switch(firstTerm->value->type) {
-
+        //analysis of operands
         case TOKEN_INT :
         case TOKEN_DOUBLE:
         case TOKEN_ID:
@@ -235,9 +239,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             ((Exp_element *)stack_expression->top_of_stack->left->value)->handle = false;
             firstTerm = stack_expression->top_of_stack->left;
 
-            //todo function term?
-
-
+         
             //integer value
             if (stack_expression->top_of_stack->value->type == TOKEN_INT) {
 
@@ -285,9 +287,9 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             }
 
             return ERROR_CODE_OK;
-
+        // prossesing of addition and concatenation
         case TOKEN_ADDITION :
-            if(stack_expression->top_of_stack->value->type == TOKEN_STRING) { //todo kdyz bude id string
+            if(stack_expression->top_of_stack->value->type == TOKEN_STRING) { 
                 result = checkOperands(TOKEN_STRING, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
                 if (result != ERROR_CODE_OK) return result;
                 string operandString;
@@ -303,19 +305,19 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, ADDS);
             break;
-
+        // prossesing of multiplication
         case TOKEN_MULTIPLICATION :
         result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
             if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, MULS);
             break;
-
+        // prossesing of substraction
         case TOKEN_SUBTRACTION:
         result = checkOperands(TOKEN_INT, stack_expression->top_of_stack->value, stack_expression->top_of_stack->left->left->value);
             if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, SUBS);
             break;
-
+        // prossesing of division
         case TOKEN_DIVISION:
             if (stack_expression != NULL) {
                 if (stack_expression->top_of_stack != NULL) {
@@ -335,7 +337,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             if (result != ERROR_CODE_OK) return result;
             noOperandInstr(&instrList, DIVS);
             break;
-
+        // prossesing of integer division
         case TOKEN_INTEGER_DIVISION:
             if (stack_expression != NULL) {
                 if (stack_expression->top_of_stack != NULL) {
@@ -356,35 +358,42 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             noOperandInstr(&instrList, DIVS);
             noOperandInstr(&instrList, FLOAT2INTS);
             break;
+        // prossesing of comparison
         case TOKEN_EQUAL_EQUAL:
             noOperandInstr(&instrList, EQS);
             break;
+        // prossesing of negetion of comparison
         case TOKEN_NEG_EQUAL:
             noOperandInstr(&instrList, EQS);
             noOperandInstr(&instrList, NOTS);
             break;
+
+        //prossesing of smallerthan
         case TOKEN_SMALLERTHAN:
             noOperandInstr(&instrList, LTS);
             break;
+        //prossesing of biggerthan
         case TOKEN_BIGGERTHAN:
             noOperandInstr(&instrList, GTS);
             break;
+        //prossesing of smallerthan equal
         case TOKEN_SMALLERTHAN_EQUAL:
             noOperandInstr(&instrList, GTS);
             noOperandInstr(&instrList, NOTS);
             break;
+        //prossesing of biggerthan equal
         case TOKEN_BIGGERTHAN_EQUAL:
             noOperandInstr(&instrList, LTS);
             noOperandInstr(&instrList, NOTS);
             break;
-
+        //else error
         default:
             return ERROR_CODE_SEM_COMP;
     }
-
+    // popping solved elements from stack
     exp_stackPop(stack_expression);
     exp_stackPop(stack_expression);
-
+    //setting first terminal 
     if (stack_expression->top_of_stack != NULL) {
         firstTerm = stack_expression->top_of_stack->left;
     }
@@ -392,7 +401,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
     return ERROR_CODE_OK;
 }
 
-
+//funcion for reducing pars
 ERROR_CODE reducePars(ptrStack *stack_expression){
     if(stack_expression != NULL){
         Exp_element* quicksave = stack_expression->top_of_stack->left->value;
@@ -414,7 +423,7 @@ ERROR_CODE reducePars(ptrStack *stack_expression){
     return ERROR_CODE_OK;
 }
 
-//Vyhodnocovani ID
+//Function for evaluation of IDs
 ERROR_CODE makeIdInstr() {
 
     tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
@@ -429,7 +438,7 @@ ERROR_CODE makeIdInstr() {
     }
    
     if(helperlf != NULL) {
-        //ted jsem urcite ve funkci ne?
+        
         switch (helperlf->Vartype) {
             case typeinteger:;
                 operand operand1 = initOperand(operand1, helperlf->Key.value, TOKEN_ID, LF, false, false);
@@ -485,7 +494,7 @@ ERROR_CODE makeIdInstr() {
         }
     }
     else {
-        //promenna se nenasla v tabulce
+        //ID wasnt found in symtable
         fprintf(stderr, "Promenna \"%s\" se nenasla v tabulce symbolu.\n", stack_expression.top_of_stack->value->e_data.ID.value);
         return ERROR_CODE_SEM;
     }
@@ -527,8 +536,8 @@ ERROR_CODE makeFunction() {
     if (helper == NULL) {
         //now I know that this function doesnt exist yet
         if (strlen(functionName.value) != 0) {
-            //jsem ve funkci a funkce neni definovana -> stejne ji zavolam
-            //pridam ji do symtable (ale jako nedefinovanou)
+            //im in funcion and funcion is nost defined => still calling this funcion
+            //adding it to symtable (but as not defined)
             SYMInsert(&glSymtable, token.t_data.ID, true);
             helper = SYMSearch(&glSymtable, token.t_data.ID);
             helper->defined = false;
@@ -539,7 +548,7 @@ ERROR_CODE makeFunction() {
             //eat (
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
             if (token.t_type != TOKEN_LEFTPAR) {
-                //co kdyby nahodou
+                
                 return ERROR_CODE_SYN;
             }
             //eat term
@@ -615,7 +624,7 @@ ERROR_CODE makeFunction() {
                 if (token.t_type == TOKEN_COMMA) {
                     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
                     if (token.t_type == TOKEN_RIGHTPAR) {
-                        //chyba v syntaxi volani funkce
+                        //error in calling of the funcion
                         fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                         return ERROR_CODE_SYN;
                     }
@@ -625,7 +634,7 @@ ERROR_CODE makeFunction() {
                     continue;
                 }
                 else {
-                    //chyba v syntaxi volani funkce
+                    //error in calling of the funcion
                     fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                     return ERROR_CODE_SYN;
                 }
@@ -657,7 +666,7 @@ ERROR_CODE makeFunction() {
             return ERROR_CODE_SEM;
         }
         else {
-            //funkce je definovana a muze v pohode probehnout volani fce
+            //funcion is defined so 
             //create temporary frame
             noOperandInstr(&instrList, CREATEFRAME);
 
@@ -667,7 +676,7 @@ ERROR_CODE makeFunction() {
             //eat (
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
             if (token.t_type != TOKEN_LEFTPAR) {
-                //co kdyby nahodou
+                
                 return ERROR_CODE_SYN;
             }
 
@@ -746,7 +755,7 @@ ERROR_CODE makeFunction() {
                 if (token.t_type == TOKEN_COMMA) {
                     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
                     if (token.t_type == TOKEN_RIGHTPAR) {
-                        //chyba v syntaxi volani funkce
+                        //error in calling of the funcion
                         fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                         return ERROR_CODE_SYN;
                     }
@@ -756,7 +765,7 @@ ERROR_CODE makeFunction() {
                     continue;
                 }
                 else {
-                    //chyba v syntaxi volani funkce
+                    //error in calling of the funcion
                     fprintf(stderr, "Chyba v syntaxi volani funkce \"%s\".\n", helper->Key.value);
                     return ERROR_CODE_SYN;
                 }
