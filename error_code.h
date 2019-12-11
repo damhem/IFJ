@@ -1,6 +1,10 @@
-//TODO: hlavička (autoři atd..)
-
-//todo: doplnit do komentu dalsi mozne chyby (vsechny ze zadani) - english yo xd
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file error_code.h
+*
+* @author Daniel Pátek (xpatek08)
+*/
 
 #ifndef IFJ_ERROR_CODE_H
 #define IFJ_ERROR_CODE_H
@@ -17,9 +21,6 @@ typedef enum error_code{
     ERROR_CODE_SEM_OTHER = 6, //other semantic errors
     ERROR_CODE_ZERO_DEV = 9, //deviding zero
     ERROR_CODE_INTERNAL = 99, //internal errors (bad allocation, ..)
-
-    ERROR_CODE_FALSE = 0,
-    ERROR_CODE_TRUE = 100
 } ERROR_CODE;
 
 #endif
