@@ -12,7 +12,7 @@
 unsigned int deletedItems = 0;
 unsigned int stackSize = 0;
 
-// Inicializuje zásobník
+// Inicialization of stack
 ERROR_CODE exp_stackInit (ptrStack* stack) {
     stack->top_of_stack = NULL;
     int type = TOKEN_UNDEF;
@@ -20,7 +20,8 @@ ERROR_CODE exp_stackInit (ptrStack* stack) {
     return exp_stackPush(stack, new_element);
 }
 
-// vrátí true pokud je zásobník prázdný
+// Checking top of the stack if the stack is empty
+// if it is returning true 
 bool exp_stackEmpty (ptrStack* stack ) {
     if (stack->top_of_stack != NULL) {
         return (stack->top_of_stack->value->type == TOKEN_UNDEF);
@@ -31,7 +32,7 @@ bool exp_stackEmpty (ptrStack* stack ) {
     
 }
 
-// Uvolní vrchní prvek ze zásobníku
+//Releases uppermost element on the stack
 void exp_stackPop (ptrStack* stack ) {
     ptStack *tmp = NULL;
     if (stack->top_of_stack != NULL) {
@@ -42,7 +43,7 @@ void exp_stackPop (ptrStack* stack ) {
     }
 }
 
-// vytvoří nové paměťové místo na zásobníku a vloží do něj data
+// Creates new memory space on stack for new element and insert data into it
 ERROR_CODE exp_stackPush (ptrStack* stack, void * value) {
     ptStack *tmp = malloc(sizeof(struct ptstack_structure));
     if(tmp != NULL) {
@@ -55,7 +56,7 @@ ERROR_CODE exp_stackPush (ptrStack* stack, void * value) {
     return ERROR_CODE_INTERNAL;
 }
 
-// uvolnění postupně celý zásobník
+//Free the whole stack one by one
 bool exp_stackClear(ptrStack *stack){
     while(stack->top_of_stack != NULL){
         exp_stackPop(stack);
