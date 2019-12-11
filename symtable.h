@@ -1,3 +1,11 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file symtable.h
+*
+* @author Zdeněk Kroča (xkroca02)
+*/
+
 #ifndef SYMTABLE
 #define SYMTABLE
 

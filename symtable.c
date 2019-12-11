@@ -1,8 +1,16 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file symtable.c
+* @brief Tabulka symbolů pro uchovávání dat o proměnných a funkcích
+*
+* @author Zdeněk Kroča (xkroca02)
+*/
+
 #include "symtable.h"
 
 // initialization of the binary tree
 void BSTInit (tBSTNodePtr *RootPtr) {
-
 	*RootPtr = NULL;
 }
 
@@ -25,6 +33,7 @@ tBSTNodePtr BSTSearch (tBSTNodePtr RootPtr, char* K) {
 	}
 }
 
+//insert data to binary search tree
 ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vartype, bool declared, int paramnum) {
 
 	ERROR_CODE result = ERROR_CODE_OK;
@@ -69,6 +78,7 @@ ERROR_CODE BSTInsert (tBSTNodePtr* RootPtr, char* K, NodeType type, VarType vart
 	return ERROR_CODE_SEM_OTHER;
 }
 
+//helper function for replacing node in binary search tree
 void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
 
 	if (RootPtr == NULL)
@@ -80,20 +90,20 @@ void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
 		PtrReplaced->defined = (*RootPtr)->defined;
 		PtrReplaced->parametrs = (*RootPtr)->parametrs;
 
-    PtrReplaced->Key = (*RootPtr)->Key;
+		PtrReplaced->Key = (*RootPtr)->Key;
 
 		tBSTNodePtr reserve = *RootPtr;
 		*RootPtr = (*RootPtr)->lPtr;
-	  free(reserve);
-  }
+		free(reserve);
+	}
 
 	else {
-    ReplaceByRightmost(PtrReplaced, &(*RootPtr)->rPtr);
-  }
+		ReplaceByRightmost(PtrReplaced, &(*RootPtr)->rPtr);
+	}
 }
 
+//delete content of binary search tree
 void BSTDelete (tBSTNodePtr *RootPtr, char* K) {
-
 	if (*RootPtr == NULL) {
         return ;
 	}
@@ -125,11 +135,11 @@ void BSTDelete (tBSTNodePtr *RootPtr, char* K) {
 	}
 }
 
+//dispose binary search tree
 void BSTDispose (tBSTNodePtr *RootPtr) {
-
-	if (*RootPtr == NULL)
-    	return ;
-
+	if (*RootPtr == NULL) {
+		return;
+	}
 	else {
 		BSTDispose(&(*RootPtr)->rPtr);
 		BSTDispose(&(*RootPtr)->lPtr);
@@ -138,43 +148,45 @@ void BSTDispose (tBSTNodePtr *RootPtr) {
 	}
 }
 
+//initialize symtable
 ERROR_CODE SYMInit(symtable* symtable) {
-  BSTInit(&(symtable->root));
-  tBSTNodePtr FunctionNode;
-  ERROR_CODE result;
+    BSTInit(&(symtable->root));
+	tBSTNodePtr FunctionNode;
+	ERROR_CODE result;
 
-  BSTInsert(&(symtable->root), "inputs", Function, undefined, true, 0);
-  BSTInsert(&(symtable->root), "inputi", Function, undefined, true, 0);
-  BSTInsert(&(symtable->root), "inputf", Function, undefined, true, 0);
+	//insert buildin functions
+	BSTInsert(&(symtable->root), "inputs", Function, undefined, true, 0);
+	BSTInsert(&(symtable->root), "inputi", Function, undefined, true, 0);
+	BSTInsert(&(symtable->root), "inputf", Function, undefined, true, 0);
+	BSTInsert(&(symtable->root), "len", Function, undefined, true, 1);
+	FunctionNode = BSTSearch(symtable->root, "len");
+	stringInit(&FunctionNode->paramName[0]);
+	stringAddChar(&(FunctionNode->paramName[0]), 's');
 
-  BSTInsert(&(symtable->root), "len", Function, undefined, true, 1);
-  FunctionNode = BSTSearch(symtable->root, "len");
-  stringInit(&FunctionNode->paramName[0]);
-  stringAddChar(&(FunctionNode->paramName[0]), 's');
+	BSTInsert(&(symtable->root), "substr", Function, undefined, true, 3);
+	FunctionNode = BSTSearch(symtable->root, "substr");
+	stringInit(&FunctionNode->paramName[0]);
+	stringInit(&FunctionNode->paramName[1]);
+	stringInit(&FunctionNode->paramName[2]);
+	stringAddChar(&(FunctionNode->paramName[0]), 's');
+	stringAddChar(&(FunctionNode->paramName[1]), 'i');
+	stringAddChar(&(FunctionNode->paramName[2]), 'n');
 
-  BSTInsert(&(symtable->root), "substr", Function, undefined, true, 3);
-  FunctionNode = BSTSearch(symtable->root, "substr");
-  stringInit(&FunctionNode->paramName[0]);
-  stringInit(&FunctionNode->paramName[1]);
-  stringInit(&FunctionNode->paramName[2]);
-  stringAddChar(&(FunctionNode->paramName[0]), 's');
-  stringAddChar(&(FunctionNode->paramName[1]), 'i');
-  stringAddChar(&(FunctionNode->paramName[2]), 'n');
+	BSTInsert(&(symtable->root), "ord", Function, undefined, true, 2);
+	FunctionNode = BSTSearch(symtable->root, "ord");
+	stringInit(&FunctionNode->paramName[0]);
+	stringInit(&FunctionNode->paramName[1]);
+	stringAddChar(&(FunctionNode->paramName[0]), 's');
+	stringAddChar(&(FunctionNode->paramName[1]), 'i');
 
-  BSTInsert(&(symtable->root), "ord", Function, undefined, true, 2);
-  FunctionNode = BSTSearch(symtable->root, "ord");
-  stringInit(&FunctionNode->paramName[0]);
-  stringInit(&FunctionNode->paramName[1]);
-  stringAddChar(&(FunctionNode->paramName[0]), 's');
-  stringAddChar(&(FunctionNode->paramName[1]), 'i');
-
-  result = BSTInsert(&(symtable->root), "chr", Function, undefined, true, 1);
-  FunctionNode = BSTSearch(symtable->root, "chr");
-  stringInit(&FunctionNode->paramName[0]);
-  stringAddChar(&(FunctionNode->paramName[0]), 'i');
-  return result;
+	result = BSTInsert(&(symtable->root), "chr", Function, undefined, true, 1);
+	FunctionNode = BSTSearch(symtable->root, "chr");
+	stringInit(&FunctionNode->paramName[0]);
+	stringAddChar(&(FunctionNode->paramName[0]), 'i');
+	return result;
 }
 
+//insert member of symtable (by its KEY name)
 ERROR_CODE SYMInsert(symtable* Table, string Key, bool isfunction) {
 
 	ERROR_CODE result;
@@ -187,16 +199,18 @@ ERROR_CODE SYMInsert(symtable* Table, string Key, bool isfunction) {
 	return result;
 }
 
+//search key in symtable
 tBSTNodePtr SYMSearch(symtable* Table, string Key) { // vraci ukazatel na hledany uzel, pokud nenajde vraci NULL
     return BSTSearch(Table->root, Key.value);
 }
 
-
+//delete content of symtable
 void SYMDelete(symtable* Table, string Key) {
     BSTDelete(&(Table->root), Key.value);
 }
 
 
+//dispose whole symtable
 void SYMDispose(symtable* Table) {
     BSTDispose(&(Table->root));
 }
