@@ -10,13 +10,13 @@
 int STACK_SIZE;
 
 typedef struct {
-	char arr[MAX_STACK];          /* pole pro uložení hodnot */
-	int top;                      /* index prvku na vrcholu zásobníku */
+	char arr[MAX_STACK];  // array for storing elements
+	int top;              // index of the element on top
 } tStack;
 
 
-/* Hlavičky funkcí pro práci se zásobníkem. */
 
+// stack functions
 void stackError(int error_code);
 ERROR_CODE stackInit(tStack* s);
 int stackEmpty(const tStack* s);

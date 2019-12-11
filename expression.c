@@ -71,9 +71,9 @@ int expressionAnalysis() {
             if (token.t_type == TOKEN_ADDITION || token.t_type == TOKEN_SUBTRACTION ||
             token.t_type == TOKEN_MULTIPLICATION || token.t_type == TOKEN_DIVISION ||
             token.t_type == TOKEN_INTEGER_DIVISION || token.t_type == TOKEN_EQUAL ||
-            token.t_type == TOKEN_EQUAL_EQUAL || token.t_type == TOKEN_BIGGERTHEN ||
-            token.t_type == TOKEN_BIGGERTHEN_EQUAL || token.t_type == TOKEN_SMALLERTHEN ||
-            token.t_type == TOKEN_SMALLERTHEN_EQUAL || token.t_type == TOKEN_NEG_EQUAL) {
+            token.t_type == TOKEN_EQUAL_EQUAL || token.t_type == TOKEN_BIGGERTHAN ||
+            token.t_type == TOKEN_BIGGERTHAN_EQUAL || token.t_type == TOKEN_SMALLERTHAN ||
+            token.t_type == TOKEN_SMALLERTHAN_EQUAL || token.t_type == TOKEN_NEG_EQUAL) {
                 if (stack_expression.top_of_stack->value->type == TOKEN_ADDITION ||
                 stack_expression.top_of_stack->value->type == TOKEN_SUBTRACTION ||
                 stack_expression.top_of_stack->value->type == TOKEN_MULTIPLICATION ||
@@ -81,13 +81,13 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN ||
-                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHAN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHAN ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
                     fprintf(stderr, "Dva operatory za sebou ve vyrazu. \n");
-                    return  ERROR_CODE_SYN; 
+                    return  ERROR_CODE_SYN;
                 }
             }
 
@@ -113,13 +113,13 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_INTEGER_DIVISION ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHEN ||
-                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN_EQUAL ||
-                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHEN ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHAN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_BIGGERTHAN ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN_EQUAL ||
+                stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
                     fprintf(stderr, "Vyraz konci operatorem.\n");
-                    return  ERROR_CODE_SYN; 
+                    return  ERROR_CODE_SYN;
 
                 }
             }
@@ -317,17 +317,17 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             noOperandInstr(&instrList, EQS);
             noOperandInstr(&instrList, NOTS);
             break;
-        case TOKEN_SMALLERTHEN:
+        case TOKEN_SMALLERTHAN:
             noOperandInstr(&instrList, LTS);
             break;
-        case TOKEN_BIGGERTHEN:
+        case TOKEN_BIGGERTHAN:
             noOperandInstr(&instrList, GTS);
             break;
-        case TOKEN_SMALLERTHEN_EQUAL:
+        case TOKEN_SMALLERTHAN_EQUAL:
             noOperandInstr(&instrList, GTS);
             noOperandInstr(&instrList, NOTS);
             break;
-        case TOKEN_BIGGERTHEN_EQUAL:
+        case TOKEN_BIGGERTHAN_EQUAL:
             noOperandInstr(&instrList, LTS);
             noOperandInstr(&instrList, NOTS);
             break;
@@ -373,7 +373,7 @@ ERROR_CODE makeIdInstr() {
 
     tBSTNodePtr helpergf = SYMSearch(&glSymtable,stack_expression.top_of_stack->value->e_data.ID);
     tBSTNodePtr helperlf = SYMSearch(&lcSymtable,stack_expression.top_of_stack->value->e_data.ID);
-    
+
     if(helperlf != NULL) {
         //ted jsem urcite ve funkci ne?
         switch (helperlf->Vartype) {
