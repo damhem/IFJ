@@ -1,3 +1,13 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file scanner.c
+* @brief Lexikální analýza (getNextToken funkce)
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+*/
 
 #include "scanner.h"
 #include "parser.h"

@@ -1,7 +1,12 @@
-
-
-// @author dp98 lol
-
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file scanner.h
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+*/
 
 
 #ifndef IFJ_SCANNER_H
