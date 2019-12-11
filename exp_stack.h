@@ -1,8 +1,7 @@
 /**
 * Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
 *
-* @file exp_stack.c
-* @brief Pomocný stack pro práci s výrazy
+* @file exp_stack.h
 *
 * @author Daniel Čechák (xcecha06)
 */

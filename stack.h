@@ -1,3 +1,12 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file stack.h
+*
+* @author Zdeněk Kroča (xkroca02)
+*/
+
+
 #ifndef IFJ_STACK_H
 #define IFJ_STACK_H
 

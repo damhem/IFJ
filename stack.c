@@ -1,3 +1,12 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file stack.c
+* @brief Pomocný stack pro lexikální analýzu a práci s indenty a dedenty
+*
+* @author Zdeněk Kroča (xkroca02)
+*/
+
 #include "stack.h"
 
 
