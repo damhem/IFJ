@@ -1,9 +1,22 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file parser.c
+* @brief Syntaktická analýza (rekurzivně)
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+* @author Unensanaa Tumenjargal (xtumen01)
+*/
+
 #include "parser.h"
 
 ERROR_CODE parse() {
 
   ERROR_CODE result;
 
+  //inicialize variables
   line_flag = true;
   nowExpression = false;
   paramIndex = 0;
@@ -33,7 +46,7 @@ ERROR_CODE parse() {
   result = checkDefinedFunctions(glSymtable.root);
   if (result != ERROR_CODE_OK) return result;
 
-  //free memory
+  //free memory and get back
   stringDispose(&functionName);
   exp_stackClear(&stack_expression);
   stackClear(&s);
@@ -41,6 +54,7 @@ ERROR_CODE parse() {
   return result;
 }
 
+//this function is skipping new lines between commands
 ERROR_CODE skipEol() {
   ERROR_CODE result;
   switch (token.t_type) {
@@ -53,8 +67,8 @@ ERROR_CODE skipEol() {
   return result;
 }
 
+// Program -> Telo_Programu EOF
 ERROR_CODE program() {
-  // Program -> Telo_Programu EOF
 
   ERROR_CODE result = skipEol();
       if (result != ERROR_CODE_OK) return result;
@@ -95,6 +109,7 @@ ERROR_CODE program() {
   return ERROR_CODE_SYN;
 }
 
+//first large part -> commands
 ERROR_CODE programBody() {
   ERROR_CODE result;
 
@@ -139,6 +154,7 @@ ERROR_CODE programBody() {
   return ERROR_CODE_SYN;
 }
 
+//second large part -> declaration of function
 ERROR_CODE functionDef() {
 
   ERROR_CODE result;
@@ -147,10 +163,10 @@ ERROR_CODE functionDef() {
 
     case TOKEN_DEF:
       //Definice_funkce -> Hlavicka_funkce eol indent Telo_funkce dedent
-
       result = functionHead();
       if (result != ERROR_CODE_OK) return result;
 
+      //generate label for function and pushframe
       string functionLabel;
       stringInit(&functionLabel);
       stringAddChars(&functionLabel, functionName.value);
@@ -198,7 +214,7 @@ ERROR_CODE functionDef() {
         }
       }
 
-      //generate parametres
+      //generate parametres (defvars)
       for (int i = 0; i < helper->parametrs; i++) {
         operand1 = initOperand(operand1, helper->paramName[i].value, TOKEN_ID, LF, false, false);
         oneOperandInstr(&instrList, DEFVAR, operand1);
@@ -221,6 +237,7 @@ ERROR_CODE functionDef() {
         return ERROR_CODE_SYN;
       }
 
+      //generate return and label for skipping the function
       noOperandInstr(&instrList, RETURN);
 
       operand1 = initOperand(operand1, functionLabel.value, TOKEN_ID, GF, false, true);
@@ -240,13 +257,14 @@ ERROR_CODE functionDef() {
   return ERROR_CODE_SYN;
 }
 
+//in this function we make sure that the function is defined right way
 ERROR_CODE functionHead() {
 
   ERROR_CODE result;
 
   switch (token.t_type) {
 
-    case TOKEN_DEF: ;
+    case TOKEN_DEF:;
       int numberOfPrevParams = 0;
       bool declared = false;
       //Hlavicka_funkce -> def id ( Parametry ) :
@@ -334,6 +352,7 @@ ERROR_CODE functionHead() {
   return ERROR_CODE_SYN;
 }
 
+//function can have parametres (they have to be specially generated)
 ERROR_CODE functionParam() {
   ERROR_CODE result;
 
@@ -341,10 +360,12 @@ ERROR_CODE functionParam() {
     case TOKEN_ID: ;
       //Parametry -> id Dalsi_parametr
 
+      //create string for paramname
       string Paramname;
       stringInit(&Paramname);
       stringAddChars(&Paramname, token.t_data.ID.value);
 
+      //check symtable for ID
       tBSTNodePtr helper = SYMSearch(&glSymtable, Paramname);
       if (helper != NULL) {
         //there has been function with the same ID
@@ -369,9 +390,6 @@ ERROR_CODE functionParam() {
         stringAddChars(&(helper->paramName[paramIndex]), Paramname.value);
 
         //increment number of function paramentres
-        //(helper->parametrs)++;
-
-        //increment the index
         paramIndex++;
 
       }
@@ -399,6 +417,7 @@ ERROR_CODE functionParam() {
   return ERROR_CODE_SYN;
 }
 
+//more parametres after each other
 ERROR_CODE nextFunctionParam() {
 
   switch (token.t_type) {
@@ -420,6 +439,7 @@ ERROR_CODE nextFunctionParam() {
   return ERROR_CODE_SYN;
 }
 
+//make sure that the commands in function are done correctly
 ERROR_CODE functionBody() {
   ERROR_CODE result;
 
@@ -436,8 +456,7 @@ ERROR_CODE functionBody() {
     case TOKEN_LEFTPAR:
       //Telo_funkce -> Prikaz Telo_funkce
 
-      //todo????????????? some var infunction
-
+      //there will be commands
       result = command();
       if (result != ERROR_CODE_OK) return result;
 
@@ -454,6 +473,7 @@ ERROR_CODE functionBody() {
   return ERROR_CODE_SYN;
 }
 
+//this function process any command that is supported
 ERROR_CODE command() {
 
   ERROR_CODE result;
@@ -488,6 +508,7 @@ ERROR_CODE command() {
 
       //vyhodnoceni vyrazu if
       //popnu hodnotu z vyrazu do tmp
+      //generate IF
       operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
       oneOperandInstr(&instrList, POPS, operand1); 
 
@@ -659,10 +680,7 @@ ERROR_CODE command() {
       operand1 = initOperand(operand1, lableFive.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
 
-      
-
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
-      
 
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
@@ -671,7 +689,6 @@ ERROR_CODE command() {
 
     case TOKEN_WHILE:;
       //Prikaz -> while Vyraz : eol indent Sekvence_prikazu dedent
-
       //have to generate lable for another start while
       //there has to be jump to an end
       string lableStart;
@@ -685,6 +702,7 @@ ERROR_CODE command() {
 
       nowExpression = true;
 
+      //expression for true /false value
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       VarType type_while;
       result = expression(&type_while);
@@ -706,6 +724,7 @@ ERROR_CODE command() {
 
       //vyhodnoceni vyrazu while
       //popnu hodnotu z vyrazu do tmp
+      //generate while statement
       operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
       oneOperandInstr(&instrList, POPS, operand1); 
 
@@ -749,7 +768,6 @@ ERROR_CODE command() {
       operand3 = initOperand(operand3, "bool", TOKEN_STRING, GF, false, false);
       threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
       
-
       string lableThreeW;
       stringInit(&lableThreeW);
       stringAddChars(&lableThreeW, "continue_w%");
@@ -759,10 +777,6 @@ ERROR_CODE command() {
 
       operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, JUMP, operand1);
-
-
-
-
 
       //compare for int
       operand1 = initOperand(operand1, lableInt.value, LABEL, GF, false, true);
@@ -808,7 +822,7 @@ ERROR_CODE command() {
       operand1 = initOperand(operand1, lableThreeW.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
 
-      //prikazy ve while
+      //commands in while
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       result = skipEol();
@@ -841,6 +855,7 @@ ERROR_CODE command() {
 
     case TOKEN_PASS:
       //Prikaz -> pass eol
+      //does nothing actually
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       if (token.t_type != TOKEN_EOL) return ERROR_CODE_SYN;
 
@@ -858,11 +873,11 @@ ERROR_CODE command() {
       if (function_cancel == TOKEN_LEFTPAR) {
         return ERROR_CODE_SYN;
       }
+
       VarType type_return;
       result = expression(&type_return);
       if (result != ERROR_CODE_OK) return result;
 
-      //todo retvalue?
       nowExpression = false;
 
       if (token.t_type != TOKEN_EOL) {
@@ -873,7 +888,7 @@ ERROR_CODE command() {
 
       return ERROR_CODE_OK;
 
-    case TOKEN_ID: ;
+    case TOKEN_ID:;
 
       //have to check if its expression
       token_type nextTokenType;
@@ -892,27 +907,24 @@ ERROR_CODE command() {
         case TOKEN_BIGGERTHEN:
         case TOKEN_BIGGERTHEN_EQUAL: ;
           //has to be operator
-        
+          //nowhere to assingn type
           VarType type_id;
           result = expression(&type_id);
           if (result != ERROR_CODE_OK) return result;
 
           return ERROR_CODE_OK;
 
-        case TOKEN_EOL: ;
+        case TOKEN_EOL:;
           //just a variable
           if (functionName.length == 0) {
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
 
-              //promenna jeste nebyla vytvorena -> vytvorim
+              //var is not created yet -> have to do it now
               SYMInsert(&glSymtable, token.t_data.ID, false);
-
               helper = SYMSearch(&glSymtable, token.t_data.ID);
 
-              
-
-              //budu generovat instrukci pro vytvoreni promenne
+              //generate instruction to create the var
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, GF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
@@ -921,11 +933,11 @@ ERROR_CODE command() {
             //now im in function
             tBSTNodePtr helper = SYMSearch(&lcSymtable, token.t_data.ID);
             if (helper == NULL) {
-              //todo nepouzival jsem ji predtim?
-              //promenna jeste nebyla vytvorena -> vytvorime
+
+              //var is not created yet -> have to do it now
               SYMInsert(&lcSymtable, token.t_data.ID, false);
 
-              //budu generovat instrukci pro vytvoreni promenne
+              //generate instruction to create the var
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
@@ -938,7 +950,6 @@ ERROR_CODE command() {
         case TOKEN_EQUAL:;
           //Pokracovani_id -> = Pokracovani_id_next
           //going into variable assignment
-
           //have to update symtable
           if (functionName.length == 0) {
             //now im in main program -> looking into global symtable
@@ -948,7 +959,7 @@ ERROR_CODE command() {
             //make sure that this var is not in table
             tBSTNodePtr helper = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper == NULL) {
-              //promenna jeste nebyla vytvorena
+              //var has not been created yet
               //later, variable will be added to symtable
               stringAddChars(&insertInGlobal, token.t_data.ID.value);
 
@@ -1015,6 +1026,7 @@ ERROR_CODE command() {
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
             
+            //check if there is not function with same name
             tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper2 != NULL) {
               if (helper2->DataType == Function) {
@@ -1061,17 +1073,13 @@ ERROR_CODE command() {
 
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
-          
           nowExpression = true;
           
-          //if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
           VarType type_proc;
           result = expression(&type_proc);
           if (result != ERROR_CODE_OK) return result;
           
           nowExpression = false;
-
-          //todo? co bude vracet expression? nebo nic?
 
           if (token.t_type != TOKEN_EOL) {
             return ERROR_CODE_SYN;
@@ -1086,9 +1094,10 @@ ERROR_CODE command() {
     case TOKEN_INT:
     case TOKEN_DOUBLE:
     case TOKEN_NONE:
-    case TOKEN_LEFTPAR: ;
+    case TOKEN_LEFTPAR:;
 
       // Prikaz -> Vyraz eol (vyraz muze byt string, int, float, )
+      //this is just expression (but we have to check it for mistakes)
       nowExpression = true;
       VarType sth;
       result = expression(&sth);
@@ -1099,10 +1108,10 @@ ERROR_CODE command() {
         return ERROR_CODE_SYN;
       }
       
+      //generate instruction to pop it it temp and never use it actually
       operand operand_bye = initOperand(operand_bye, "", TOKEN_ID, GF, true, false);
       oneOperandInstr(&instrList, POPS, operand_bye);
       
-
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       return ERROR_CODE_OK;
@@ -1113,6 +1122,7 @@ ERROR_CODE command() {
   return ERROR_CODE_SYN;
 }
 
+//we can have more command after each other
 ERROR_CODE commands() {
 
   ERROR_CODE result;
@@ -1134,8 +1144,6 @@ ERROR_CODE commands() {
         return result;
       }
 
-
-
       result = skipEol();
       if (result != ERROR_CODE_OK) return result;
 
@@ -1149,7 +1157,7 @@ ERROR_CODE commands() {
   return ERROR_CODE_SYN;
 }
 
-//finální rekurzivní kontrola, zda jsou všechny použité funkce definované
+//final recursive method to check all functions (they have to be defined all)
 ERROR_CODE checkDefinedFunctions(struct tBSTNode* Root) {
   ERROR_CODE result;
   if (Root != NULL) {
@@ -1158,9 +1166,9 @@ ERROR_CODE checkDefinedFunctions(struct tBSTNode* Root) {
         fprintf(stderr, "Funkce \"%s\" nebyla definovana.\n", Root->Key.value);
         return ERROR_CODE_SEM;
       }
-      //je funkce, ale je definovana, takze chill
+      //defined already
     }
-    //neni null, ale je to promenna, takze chill
+    //is variable -> going further
     result = checkDefinedFunctions(Root->lPtr);
     if (result != ERROR_CODE_OK) return result;
     result = checkDefinedFunctions(Root->rPtr);
