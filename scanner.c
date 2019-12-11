@@ -186,14 +186,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         else if ( c == '<'){
           *line_flag=false;
-          state= SCANNER_SMALLERTHEN;
-          token.t_type = TOKEN_SMALLERTHEN;
+          state= SCANNER_SMALLERTHAN;
+          token.t_type = TOKEN_SMALLERTHAN;
         }
 
         else if ( c == '>'){
           *line_flag=false;
-          state= SCANNER_BIGGERTHEN;
-          token.t_type = TOKEN_BIGGERTHEN;
+          state= SCANNER_BIGGERTHAN;
+          token.t_type = TOKEN_BIGGERTHAN;
         }
 
         else if ( c == '!'){
@@ -890,10 +890,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         break;
 
-      case (SCANNER_SMALLERTHEN):
+      case (SCANNER_SMALLERTHAN):
 
         if (c == '='){
-          token.t_type = TOKEN_SMALLERTHEN_EQUAL;
+          token.t_type = TOKEN_SMALLERTHAN_EQUAL;
           return token;
         }
 
@@ -904,10 +904,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         break;
 
-      case (SCANNER_BIGGERTHEN):
+      case (SCANNER_BIGGERTHAN):
 
         if (c == '='){
-          token.t_type = TOKEN_BIGGERTHEN_EQUAL;
+          token.t_type = TOKEN_BIGGERTHAN_EQUAL;
           return token;
         }
 

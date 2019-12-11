@@ -407,7 +407,7 @@ ERROR_CODE functionParam() {
       return ERROR_CODE_OK;
 
     case TOKEN_RIGHTPAR:
-      //Parametry -> eps      
+      //Parametry -> eps
       return ERROR_CODE_OK;
 
     default:
@@ -510,12 +510,12 @@ ERROR_CODE command() {
       //popnu hodnotu z vyrazu do tmp
       //generate IF
       operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-      oneOperandInstr(&instrList, POPS, operand1); 
+      oneOperandInstr(&instrList, POPS, operand1);
 
       operand1 = initOperand(operand1, "tmp1", TOKEN_ID, GF, false, false);
       operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
       twoOperandInstr(&instrList, TYPE, operand1, operand2);
-      
+
       string lableOne;
       stringInit(&lableOne);
       stringAddChars(&lableOne, "compare_int%");
@@ -526,7 +526,7 @@ ERROR_CODE command() {
       operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
       operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
       threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
-      
+
 
       string lableTwo;
       stringInit(&lableTwo);
@@ -550,7 +550,7 @@ ERROR_CODE command() {
       operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
       operand3 = initOperand(operand3, "bool", TOKEN_STRING, GF, false, false);
       threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
-      
+
 
       string lableThree;
       stringInit(&lableThree);
@@ -595,7 +595,7 @@ ERROR_CODE command() {
       //compare for bool
       operand1 = initOperand(operand1, lableTwoHalf.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
-      
+
       string tempstring;
       stringInit(&tempstring);
       stringAddChars(&tempstring, "$");
@@ -670,7 +670,7 @@ ERROR_CODE command() {
       result = commands();
       if (result != ERROR_CODE_OK) {
         return result;
-      }      
+      }
 
       if (token.t_type != TOKEN_DEDENT) {
         fprintf(stderr, "Za prikazem else se nevyskytuje token DEDENT.\n");
@@ -726,7 +726,7 @@ ERROR_CODE command() {
       //popnu hodnotu z vyrazu do tmp
       //generate while statement
       operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-      oneOperandInstr(&instrList, POPS, operand1); 
+      oneOperandInstr(&instrList, POPS, operand1);
 
       operand1 = initOperand(operand1, "tmp1", TOKEN_ID, GF, false, false);
       operand2 = initOperand(operand2, "", TOKEN_ID, GF, true, false);
@@ -743,7 +743,7 @@ ERROR_CODE command() {
       operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
       operand3 = initOperand(operand3, "int", TOKEN_STRING, GF, false, false);
       threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
-      
+
 
       string lableDouble;
       stringInit(&lableDouble);
@@ -767,7 +767,7 @@ ERROR_CODE command() {
       operand2 = initOperand(operand2, "tmp1", TOKEN_ID, GF, false, false);
       operand3 = initOperand(operand3, "bool", TOKEN_STRING, GF, false, false);
       threeOperandInstr(&instrList, JUMPIFEQ, operand1, operand2, operand3);
-      
+
       string lableThreeW;
       stringInit(&lableThreeW);
       stringAddChars(&lableThreeW, "continue_w%");
@@ -811,7 +811,7 @@ ERROR_CODE command() {
       //compare for bool
       operand1 = initOperand(operand1, lableTwoHalfW.value, LABEL, GF, false, true);
       oneOperandInstr(&instrList, LABEL, operand1);
-      
+
       string tempstringW;
       stringInit(&tempstringW);
       stringAddChars(&tempstringW, "$");
@@ -864,7 +864,7 @@ ERROR_CODE command() {
 
     case TOKEN_RETURN:
       //Prikaz -> return Vyraz eol
-      
+
       nowExpression = true;
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
       
@@ -902,12 +902,14 @@ ERROR_CODE command() {
         case TOKEN_DIVISION:
         case TOKEN_INTEGER_DIVISION:
         case TOKEN_EQUAL_EQUAL:
-        case TOKEN_SMALLERTHEN:
-        case TOKEN_SMALLERTHEN_EQUAL:
-        case TOKEN_BIGGERTHEN:
-        case TOKEN_BIGGERTHEN_EQUAL: ;
+
+        case TOKEN_SMALLERTHAN:
+        case TOKEN_SMALLERTHAN_EQUAL:
+        case TOKEN_BIGGERTHAN:
+        case TOKEN_BIGGERTHAN_EQUAL:;
           //has to be operator
           //nowhere to assingn type
+
           VarType type_id;
           result = expression(&type_id);
           if (result != ERROR_CODE_OK) return result;
@@ -975,7 +977,7 @@ ERROR_CODE command() {
             }
 
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
-            
+
             nowExpression = true;
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //vyraz
 
@@ -995,7 +997,7 @@ ERROR_CODE command() {
             if (insertInGlobal.length != 0) {
               result = SYMInsert(&glSymtable, insertInGlobal, false);
               if (result != ERROR_CODE_OK) return result;
-              
+
               helper = SYMSearch(&glSymtable, insertInGlobal);
               if (helper == NULL) return ERROR_CODE_INTERNAL;
             }
@@ -1025,7 +1027,7 @@ ERROR_CODE command() {
               operand var_operand = initOperand(var_operand, token.t_data.ID.value, TOKEN_ID, LF, false, false);
               oneOperandInstr(&instrList, DEFVAR, var_operand);
             }
-            
+
             //check if there is not function with same name
             tBSTNodePtr helper2 = SYMSearch(&glSymtable, token.t_data.ID);
             if (helper2 != NULL) {
@@ -1034,7 +1036,7 @@ ERROR_CODE command() {
               return ERROR_CODE_SEM;
               }
             }
-            
+
             if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //=
 
             nowExpression = true;
@@ -1074,11 +1076,10 @@ ERROR_CODE command() {
         case TOKEN_LEFTPAR:
           //just a function call (without actually var to assign to) - procedure
           nowExpression = true;
-          
           VarType type_proc;
           result = expression(&type_proc);
           if (result != ERROR_CODE_OK) return result;
-          
+
           nowExpression = false;
 
           if (token.t_type != TOKEN_EOL) {
@@ -1107,11 +1108,11 @@ ERROR_CODE command() {
       if (token.t_type != TOKEN_EOL) {
         return ERROR_CODE_SYN;
       }
-      
+
       //generate instruction to pop it it temp and never use it actually
       operand operand_bye = initOperand(operand_bye, "", TOKEN_ID, GF, true, false);
       oneOperandInstr(&instrList, POPS, operand_bye);
-      
+    
       if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer;
 
       return ERROR_CODE_OK;
