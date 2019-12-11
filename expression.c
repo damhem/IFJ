@@ -446,7 +446,6 @@ ERROR_CODE makeIdInstr() {
             return ERROR_CODE_SEM;
         }
     }
-   
     if(helperlf != NULL) {
         
         switch (helperlf->Vartype) {
@@ -808,7 +807,7 @@ ERROR_CODE makeFunction() {
 }
 
 
-
+//buildin function print
 ERROR_CODE makePrintFunction() {
     retVal = undefined;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //now leftpar
@@ -825,6 +824,7 @@ ERROR_CODE makePrintFunction() {
     exp_stackInit(&myStack);
     exp_stackPop(&myStack);
 
+    //params
     while (token.t_type != TOKEN_RIGHTPAR ) {
         if (token.t_type == TOKEN_STRING || token.t_type == TOKEN_ID || token.t_type == TOKEN_INT || token.t_type == TOKEN_DOUBLE || token.t_type == TOKEN_NONE) {
             exp_stackPush(&myStack, tokentoExp_element(token, false));
@@ -843,7 +843,7 @@ ERROR_CODE makePrintFunction() {
         }
     }
 
-
+    //have to print params in another order
     while (exp_stackEmpty(&myStack) != 1) {
         switch(myStack.top_of_stack->value->type) {
             case TOKEN_STRING:
@@ -899,7 +899,7 @@ ERROR_CODE makePrintFunction() {
                 return ERROR_CODE_SEM_OTHER;
 
         }
-
+        //delete member
         exp_stackPop(&myStack);
     }
 
@@ -912,6 +912,7 @@ ERROR_CODE makePrintFunction() {
     return ERROR_CODE_OK;
 }
 
+//buildin function Len
 ERROR_CODE makeLenFunction() {
     retVal = typeinteger;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
@@ -982,6 +983,7 @@ ERROR_CODE makeLenFunction() {
     return ERROR_CODE_OK;
 }
 
+//buildin function Ord
 ERROR_CODE makeOrdFunction() {
     retVal = typeinteger;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar
@@ -1192,6 +1194,7 @@ ERROR_CODE makeChrFunction() {
     return ERROR_CODE_OK;
 }
 
+//buildin function substr
 ERROR_CODE makeSubstrFunction() {
     retVal = typestring;
     if (((token = getNextToken(&line_flag, &s)).t_type) == TOKEN_UNDEF) return token.t_data.integer; //leftpar  
