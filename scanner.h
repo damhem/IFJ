@@ -1,7 +1,12 @@
-
-
-// @author dp98 lol
-
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file scanner.h
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+*/
 
 
 #ifndef IFJ_SCANNER_H
@@ -82,9 +87,8 @@ typedef enum {
   TOKEN_INT,                //15
   TOKEN_DOUBLE,             //16
   TOKEN_ID,                 //17
-  TOKEN_EOF,                //18
-  TOKEN_COMMA,              //19
-  TOKEN_UNDEF,              //20
+  TOKEN_NONE,               //18
+  TOKEN_UNDEF,              //19
 
   TOKEN_INDENT,             //21
   TOKEN_DEDENT,             //22
@@ -94,7 +98,6 @@ typedef enum {
   TOKEN_IF,                 //26
   TOKEN_NONE,               //27
   TOKEN_PASS,               //28
-
   TOKEN_RETURN,             //29
   TOKEN_WHILE,              //30
   TOKEN_DOUBLEDOT,          //31

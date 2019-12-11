@@ -23,7 +23,7 @@ do
 	return_value=$?
 	i=$(($i + 1))
 
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "0" ]; then
     printf "   OK   "
 	else
@@ -40,11 +40,11 @@ for file in $inputs_lex
 do
     test_name=$(basename "$file")
 
-    cat $file | ./p 1>/dev/null
+    cat $file | ./p 2>/dev/null 1>/dev/null
 	return_value=$?
 	i=$(($i + 1))
 
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "1" ]; then
     printf "   OK   "
 	else
@@ -67,7 +67,7 @@ do
 	i=$(($i + 1))
 
     # vypsani testu
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "2" ]; then
     printf "   OK   "
 	else
@@ -89,7 +89,7 @@ do
 	i=$(($i + 1))
 
     # vypsani testu
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "3" ]; then
     printf "   OK   "
 	else
@@ -111,7 +111,7 @@ do
 	i=$(($i + 1))
 
     # vypsani testu
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "4" ]; then
     printf "   OK   "
 	else
@@ -133,7 +133,7 @@ do
 	i=$(($i + 1))
 
     # vypsani testu
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "5" ]; then
     printf "   OK   "
 	else
@@ -155,7 +155,7 @@ do
 	i=$(($i + 1))
 
     # vypsani testu
-	printf "%-02d  " "$i"
+	printf "%-03d  " "$i"
 	if [ "$return_value" -eq "9" ]; then
     printf "   OK   "
 	else

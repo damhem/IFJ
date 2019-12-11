@@ -1,17 +1,2 @@
-a = 55
-print(a)
-print(55)
-
-def foo():
-  a = 34
-  print(a)
-  a = a+6
-  print(a)
-
-def bar():
-  a = 58
-  print(a)
-
-foo()
-bar()
+a = 'abc\\def\'123\"456\t789\nghi\Zjkl\x52'
 print(a)

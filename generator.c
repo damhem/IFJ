@@ -2,6 +2,7 @@
 * Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
 *
 * @file generator.c
+* @brief Knihovna pro praci s generatorem instrukci a generování pomocných funkcí
 *
 * @author Daniel Pátek (xpatek08)
 */
@@ -10,13 +11,10 @@
 #include "linear_list.h"
 #include "scanner.h"
 
-
-
-
-
+//init operand (operand is part of instruction)
 operand initOperand(operand operand, char * value, int type, frame frame, bool is_temp, bool is_label){
     stringInit(&(operand.value));
-    stringAddChars(&(operand.value), value);
+    stringAddChars(&(operand.value), value); //name
     operand.type = type; //token type
     operand.frame = frame;
     operand.is_temp = is_temp;
@@ -40,7 +38,6 @@ void oneOperandInstr(instruction_list *List, int instType, operand first){
 
     int temp_operand1_type = first.type;
     bool temp_operand1_is_temp = first.is_temp;
-    //bool temp_operand1_isScope = first.isScope;
     bool temp_operand1_is_label = first.is_label;
     frame temp_operand1_frame = first.frame;
 
@@ -62,13 +59,13 @@ void oneOperandInstr(instruction_list *List, int instType, operand first){
             stringAddChars(&operand1, FRAMEGF);
             stringAddChars(&operand1, temp_operand1.value);
         }
-        else /* při práci s proměnnou na Temporary frame */{
+        else {
             stringClear(&operand1);
             stringAddChars(&operand1, FRAMETF);
             stringAddChars(&operand1, temp_operand1.value);
         }
     }
-    // Operand je konstanta
+    // Operand is constant
     else if(temp_operand1_type == TOKEN_INT){
         stringClear(&operand1);
         stringAddChars(&operand1, TYPEINT);
@@ -84,18 +81,13 @@ void oneOperandInstr(instruction_list *List, int instType, operand first){
         stringAddChars(&operand1, TYPESTRING);
         stringAddChars(&operand1, temp_operand1.value);
     }
-    // Operand je návěští
+    // Operand is label
     if(temp_operand1_is_label == true) {
         stringClear(&operand1);
         stringAddChars(&operand1, LABELSYMBOL);
         stringAddChars(&operand1, temp_operand1.value);
     }
-    /*
-    if (temp_operand1_isScope == true) {
-        stringClear(&operand1);
-        stringAddChars(&operand1, SCOPE);
-    }
-*/
+    
     addInstruction(List, instType, operand1.value, NULL, NULL);
 
 }
@@ -103,6 +95,7 @@ void oneOperandInstr(instruction_list *List, int instType, operand first){
 
 void twoOperandInstr(instruction_list *L, int instType, operand first, operand second){
     
+    //basicly the same as for the oneoperand function
     string operand1;
     stringInit(&operand1);
     string temp_operand1;
@@ -112,7 +105,6 @@ void twoOperandInstr(instruction_list *L, int instType, operand first, operand s
 
     int temp_operand1_type = first.type;
     bool temp_operand1_is_temp = first.is_temp;
-    //bool temp_operand1_isScope = first.isScope;
     bool temp_operand1_is_label = first.is_label;
     frame temp_operand1_frame = first.frame;
     
@@ -160,12 +152,6 @@ void twoOperandInstr(instruction_list *L, int instType, operand first, operand s
         stringAddChars(&operand1, LABELSYMBOL);
         stringAddChars(&operand1, temp_operand1.value);
     }
-    /*
-    if (temp_operand1_isScope == true) {
-        stringClear(&operand1);
-        stringAddChars(&operand1, SCOPE);
-    }
-    */
 
     string operand2;
     stringInit(&operand2);
@@ -177,7 +163,7 @@ void twoOperandInstr(instruction_list *L, int instType, operand first, operand s
     bool tmp_operand2_is_temp = second.is_temp;
     bool tmp_operand2_is_label = second.is_label;
     frame tmp_operand2_frame = second.frame;
-    //INPUTTYPE tmp_operand2_inputtype = second.inputType;
+
     if(tmp_operand2_type == TOKEN_ID)
         if (tmp_operand2_is_temp == true) {
             stringClear(&operand2);
@@ -218,18 +204,7 @@ void twoOperandInstr(instruction_list *L, int instType, operand first, operand s
         stringAddChars(&operand2, LABELSYMBOL);
         stringAddChars(&operand2, tmp_operand2.value);
     }
-    /*
-    if (tmp_operand2_inputtype == INPUT_INT) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "int");
-    } else if (tmp_operand2_inputtype == INPUT_DOUBLE) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "float");
-    } else if (tmp_operand2_inputtype == INPUT_STRING) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "string");
-    }
-    */
+
     addInstruction(L, instType, operand1.value, operand2.value, NULL);
 }
 
@@ -242,7 +217,6 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
 
     int temp_operand1_type = first.type;
     bool temp_operand1_is_temp = first.is_temp;
-    //bool temp_operand1_isScope = first.isScope;
     bool temp_operand1_is_label = first.is_label;
     frame temp_operand1_frame = first.frame;
     if(temp_operand1_type == TOKEN_ID) {
@@ -288,13 +262,6 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
         stringAddChars(&operand1, LABELSYMBOL);
         stringAddChars(&operand1, temp_operand1.value);
     }
-    /*
-    if (temp_operand1_isScope == true) {
-        stringClear(&operand1);
-        stringAddChars(&operand1, SCOPE);
-    }
-    */
-
 
     string operand2;
     stringInit(&operand2);
@@ -306,7 +273,6 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
     bool tmp_operand2_is_temp = second.is_temp;
     bool tmp_operand2_is_label = second.is_label;
     frame tmp_operand2_frame = second.frame;
-    //INPUTTYPE tmp_operand2_inputtype = second.inputType;
     if(tmp_operand2_type == TOKEN_ID)
         if (tmp_operand2_is_temp == true) {
             stringClear(&operand2);
@@ -347,19 +313,7 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
         stringAddChars(&operand2, LABELSYMBOL);
         stringAddChars(&operand2, tmp_operand2.value);
     }
-    /*
-    // Operand je typ vstupní hodnoty
-    if (tmp_operand2_inputtype == INPUT_INT) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "int");
-    } else if (tmp_operand2_inputtype == INPUT_DOUBLE) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "float");
-    } else if (tmp_operand2_inputtype == INPUT_STRING) {
-        stringClear(&operand2);
-        stringAddChars(&operand2, "string");
-    }
-*/
+
     string operand3;
     stringInit(&operand3);
     string tmp_operand3;
@@ -389,11 +343,7 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
             stringAddChars(&operand3, FRAMETF);
             stringAddChars(&operand3, tmp_operand3.value);
         }
-    else if(tmp_operand3_type == 42){
-        stringClear(&operand3);
-        stringAddChars(&operand3, TYPEBOOL);
-        stringAddChars(&operand3, tmp_operand3.value);
-    }
+
     else if(tmp_operand3_type == TOKEN_INT) {
         stringClear(&operand3);
         stringAddChars(&operand3, TYPEINT);
@@ -417,24 +367,25 @@ void threeOperandInstr(instruction_list *L, int instType, operand first, operand
     addInstruction(L, instType, operand1.value, operand2.value, operand3.value);
 }
 
-
+//add instruction to instruction list
 void addInstruction(struct instruction_list *List, int instType, void *adress1, void *adress2, void *adress3) {
     instruction instruction;
     instruction.instructionType = instType;
     instruction.adress1 = adress1;
     instruction.adress2 = adress2;
     instruction.adress3 = adress3;
-    // generovani instrukce
+
+    // generate instruction
     DLInsertLast(List, instruction);
 }
 
 
 void printInstructionList(instruction_list *List) {
-    instruction tempInst; // docasne ulozeni instrukce
-    DLFirst(List); // aktivita je na prvni instruci
+    instruction tempInst; // temporarty saved instruction
+    DLFirst(List); //first member is active now
     while ( DLActive(List) ) {
         DLCopy(List, &tempInst);
-        // vypsani typu instrukce
+        //make sure that type of instruction is printed to stdout
         switch (tempInst.instructionType) {
             case START:           printf(".IFJcode19\n");        break;
             case COMMENT:         printf("# %s\n",               (char*)tempInst.adress1);       break;
@@ -494,15 +445,13 @@ void printInstructionList(instruction_list *List) {
             case BREAK:           printf("BREAK\n");             break;
             case DPRINT:          printf("DPRINT %s\n",          (char*)tempInst.adress1);       break;
             case EXIT:            printf("EXIT\n");              break;
-            //case QUESTIONMARK:  printf("?");                   break;
         }
-        // vypsani operandu instrukce (delete pak)
-        //printf(" %p %p %p\n", tempInst.adress1, tempInst.adress2, tempInst.adress3); // vypise adresy operandu instrukce
-
+        //next member
         DLSucc(List);
     }
 }
 
+//string input function
 void inputSFunction() {
     operand1 = initOperand(operand1, "inputs", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
@@ -517,6 +466,7 @@ void inputSFunction() {
     noOperandInstr(&instrList, RETURN);
 }
 
+//integer input function
 void inputIFunction() {
     operand1 = initOperand(operand1, "inputi", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
@@ -531,6 +481,7 @@ void inputIFunction() {
     noOperandInstr(&instrList, RETURN);
 }
 
+//float input function
 void inputFFunction() {
     operand1 = initOperand(operand1, "inputf", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
@@ -545,9 +496,9 @@ void inputFFunction() {
     noOperandInstr(&instrList, RETURN);
 }
 
-void lenFunction() { //params: s
+//len integrated function
+void lenFunction() {
     //label
-
     operand1 = initOperand(operand1, "len", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
 
@@ -556,47 +507,42 @@ void lenFunction() { //params: s
 
     //make it do sth (goes to tmp)
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
     twoOperandInstr(&instrList, STRLEN, operand1, operand2);
 
-    //popping from expression
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
+    //popping from expression
     noOperandInstr(&instrList, RETURN);
 }
 
-void ordFunction() { //params: s, i
+//ord integrated function
+void ordFunction() { 
     //label
-
     operand1 = initOperand(operand1, "ord", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
 
     //pushframe
     noOperandInstr(&instrList, PUSHFRAME);
 
-    //define strlen var
-    operand1 = initOperand(operand1, "slen", TOKEN_ID, LF, false, false);
-    oneOperandInstr(&instrList, DEFVAR, operand1);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
-
-    twoOperandInstr(&instrList, STRLEN, operand1, operand2);
-
     //sub a 1 (bcs string goes from 0) to strlen-1
-    operand1 = initOperand(operand1, "i", TOKEN_ID, LF, false, false);
+    operand1 = initOperand(operand1, "%2", TOKEN_ID, LF, false, false);
     operand2 = initOperand(operand2, "1", TOKEN_INT, LF, false, false);
     threeOperandInstr(&instrList, SUB, operand1, operand1, operand2);
 
-    //todo checks? jumps? err?
-
     //result is in global1 var
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "s", TOKEN_ID, LF, false, false);
-    operand3 = initOperand(operand3, "i", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
+    operand3 = initOperand(operand3, "%2", TOKEN_ID, LF, false, false);
     threeOperandInstr(&instrList, STRI2INT, operand1, operand2, operand3);
+
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
     noOperandInstr(&instrList, RETURN);
 }
 
-void chrFunction() { //params: i
+//chr integrated function
+void chrFunction() {
     //label
     operand1 = initOperand(operand1, "chr", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);
@@ -604,18 +550,17 @@ void chrFunction() { //params: i
     //pushframe
     noOperandInstr(&instrList, PUSHFRAME);
 
-    //todo some test?
-
     operand1 = initOperand(operand1, "", TOKEN_ID, GF, true, false);
-    operand2 = initOperand(operand2, "i", TOKEN_ID, LF, false, false);
+    operand2 = initOperand(operand2, "%1", TOKEN_ID, LF, false, false);
     twoOperandInstr(&instrList, INT2CHAR, operand1, operand2);
+
+    oneOperandInstr(&instrList, PUSHS, operand1);
 
     noOperandInstr(&instrList, RETURN);
 }
 
-//todo substr
-
-void printFunction() { //params: term1 term2 term3 ....
+//print integrated function
+void printFunction() {
     //label
     operand1 = initOperand(operand1, "print", TOKEN_ID, GF, false, true);
     oneOperandInstr(&instrList, LABEL, operand1);

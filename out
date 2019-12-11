@@ -7,20 +7,21 @@ JUMP $$start
 # -------------------len()------------------
 LABEL $len
 PUSHFRAME
-STRLEN GF@tmp LF@s
+STRLEN GF@tmp LF@%1
+PUSHS GF@tmp
 RETURN
 # -------------------ord()------------------
 LABEL $ord
 PUSHFRAME
-DEFVAR LF@slen
-STRLEN LF@slen LF@s
-SUB LF@i LF@i int@1
-STRI2INT GF@tmp LF@s LF@i
+SUB LF@%2 LF@%2 int@1
+STRI2INT GF@tmp LF@%1 LF@%2
+PUSHS GF@tmp
 RETURN
 # -------------------chr()--------------------
 LABEL $chr
 PUSHFRAME
-INT2CHAR GF@tmp LF@i
+INT2CHAR GF@tmp LF@%1
+PUSHS GF@tmp
 RETURN
 # -------------------inputs()--------------------
 LABEL $inputs
@@ -69,54 +70,8 @@ RETURN
 # ------------------------------------------
 LABEL $$start
 DEFVAR GF@a
-PUSHS int@55
+PUSHS string@abc\092def'123"456\009789\010ghi\092ZjklR
 POPS GF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS GF@a
-CALL $print
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS string@55
-CALL $print
-JUMP $foo%
-LABEL $foo
-PUSHFRAME
-DEFVAR LF@a
-PUSHS int@34
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
-PUSHS LF@a
-PUSHS int@6
-ADDS
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
-RETURN
-LABEL $foo%
-JUMP $bar%
-LABEL $bar
-PUSHFRAME
-DEFVAR LF@a
-PUSHS int@58
-POPS LF@a
-MOVE GF@tmp2 int@2
-PUSHS string@%endwhile
-PUSHS LF@a
-CALL $print
-RETURN
-LABEL $bar%
-CREATEFRAME
-CALL $foo
-POPFRAME
-CREATEFRAME
-CALL $bar
-POPFRAME
 MOVE GF@tmp2 int@2
 PUSHS string@%endwhile
 PUSHS GF@a
