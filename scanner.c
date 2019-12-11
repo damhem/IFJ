@@ -1,3 +1,13 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file scanner.c
+* @brief Lexikální analýza (getNextToken funkce)
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+*/
 
 #include "scanner.h"
 #include "parser.h"
@@ -14,7 +24,7 @@ token_type peekNextToken() {
 
 Token getNextToken(bool *line_flag, tStack *s) {
 
-  // checks if some token isnt already read
+  // checks if some token is not already read
   if (peekToken.t_type != TOKEN_UNDEF) {
     Token peekThisToken = peekToken;
     peekToken.t_type = TOKEN_UNDEF;
@@ -30,7 +40,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
   char prev_c; // helps with hexadecimal chars in strings
   int spacecount = 0; // helps counting spaces for indentation
 
-  // sorts chars from the source file
+  // sorting of chars from the source file
   while(true) {
 
     // generates dedent tokens if more than 1 are needed
@@ -55,6 +65,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             token.t_type = TOKEN_EOL;
   					return token;
           }
+
           // generates dedent tokens until the indentation stack is empty
           else if (stackEmpty(s)==0) {
             stackPop(s);
@@ -85,7 +96,8 @@ Token getNextToken(bool *line_flag, tStack *s) {
             token.t_data.integer = ERROR_CODE_LEX;
             return token;
           }
-          // ignores next line if it is line comment
+
+          // ignores next line if it is a line comment
           if (c == '#') {
             *line_flag=false;
             state = SCANNER_LINE_COMMENT;
@@ -111,7 +123,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
           spacecount++;
         }
 
-        // zero has special state for BASE expansion and possible redundant zeros in number
+        // zero has special state for BASE expansion and detection of redundant zeros in numbers
         else if (c == '0') {
           *line_flag=false;
           state = SCANNER_ZERO;
@@ -174,14 +186,14 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         else if ( c == '<'){
           *line_flag=false;
-          state= SCANNER_SMALLERTHEN;
-          token.t_type = TOKEN_SMALLERTHEN;
+          state= SCANNER_SMALLERTHAN;
+          token.t_type = TOKEN_SMALLERTHAN;
         }
 
         else if ( c == '>'){
           *line_flag=false;
-          state= SCANNER_BIGGERTHEN;
-          token.t_type = TOKEN_BIGGERTHEN;
+          state= SCANNER_BIGGERTHAN;
+          token.t_type = TOKEN_BIGGERTHAN;
         }
 
         else if ( c == '!'){
@@ -299,7 +311,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
             return token;
           }
 
-          // if the number of spaces is equal to top of the stack, don't generate any token
+          // if the number of spaces is equal to top of the stack, do not generate any token
           else if (spacecount==stack_top) {
             spacecount=0;
             state = SCANNER_START;
@@ -822,6 +834,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
               return token;
           }
 
+          // if not, the documentation string is ignored
           else {
             state = SCANNER_START;
           }
@@ -877,10 +890,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         break;
 
-      case (SCANNER_SMALLERTHEN):
+      case (SCANNER_SMALLERTHAN):
 
         if (c == '='){
-          token.t_type = TOKEN_SMALLERTHEN_EQUAL;
+          token.t_type = TOKEN_SMALLERTHAN_EQUAL;
           return token;
         }
 
@@ -891,10 +904,10 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
         break;
 
-      case (SCANNER_BIGGERTHEN):
+      case (SCANNER_BIGGERTHAN):
 
         if (c == '='){
-          token.t_type = TOKEN_BIGGERTHEN_EQUAL;
+          token.t_type = TOKEN_BIGGERTHAN_EQUAL;
           return token;
         }
 
@@ -1032,7 +1045,7 @@ Token getNextToken(bool *line_flag, tStack *s) {
 
       case (SCANNER_STRING_4):
 
-        // coneverts hexadecimal escape sequence into respective char
+        // converts hexadecimal escape sequence into respective char
         if ((c>='a' && c<='f') || (c>='A' && c<='F') || isdigit(c)) {
           string String;
           stringInit(&String);

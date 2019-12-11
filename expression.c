@@ -88,7 +88,7 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
                     fprintf(stderr, "Dva operatory za sebou ve vyrazu. \n");
-                    return  ERROR_CODE_SYN; 
+                    return  ERROR_CODE_SYN;
                 }
             }
 
@@ -120,8 +120,9 @@ int expressionAnalysis() {
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN_EQUAL ||
                 stack_expression.top_of_stack->value->type == TOKEN_SMALLERTHAN ||
                 stack_expression.top_of_stack->value->type == TOKEN_NEG_EQUAL) {
-                    fprintf(stderr, "Vyraz konci operatorem. %d\n", stack_expression.top_of_stack->value->type);
-                    return  ERROR_CODE_SYN; 
+                    fprintf(stderr, "Vyraz konci operatorem.\n");
+                    return  ERROR_CODE_SYN;
+
                 }
             }
             //processing of the expression
@@ -366,6 +367,7 @@ ERROR_CODE useRule(ptrStack *stack_expression){
             noOperandInstr(&instrList, EQS);
             noOperandInstr(&instrList, NOTS);
             break;
+
         //prossesing of smallerthan
         case TOKEN_SMALLERTHAN:
             noOperandInstr(&instrList, LTS);
@@ -434,7 +436,7 @@ ERROR_CODE makeIdInstr() {
             return ERROR_CODE_SEM;
         }
     }
-    
+   
     if(helperlf != NULL) {
         
         switch (helperlf->Vartype) {

@@ -1,11 +1,13 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file generator.h
+*
+* @author Daniel Pátek (xpatek08)
+*/
 
 #ifndef IFJ_GENERATOR_H
 #define IFJ_GENERATOR_H
-/**
- * @brief IFJ / IAL project VUT FIT 2019
- * @file generator.h
- * @author xpatek08 (Daniel Pátek)
- */
 
 #include "string.h"
 
@@ -108,8 +110,7 @@ typedef enum {
 typedef enum {
     GF,
     LF,
-    TF,
-    DEFAULT
+    TF
 } frame;
 
 //struct for instruction
@@ -125,12 +126,10 @@ typedef struct instruction {
 //struct for operand
 typedef struct operand {
     string value;
-    int type;           //todo?
+    int type;           
     frame frame;
     bool is_temp;
     bool is_label;
-    //todo? isscope
-    //todo? inputtype?
 } operand;
 
 //instruction as part of the list
@@ -152,7 +151,7 @@ operand operand1;
 operand operand2;
 operand operand3;
 
-
+//function declaration
 void addInstruction(struct instruction_list *List, int instType, void *adress1, void *adress2, void *adress3);
 void noOperandInstr(struct instruction_list *List, inst_type type);
 operand initOperand(operand operand, char* value, int type, frame frame, bool is_temp, bool is_label);
@@ -171,6 +170,5 @@ void inputFFunction();
 
 
 #include "parser.h"
-
 
 #endif

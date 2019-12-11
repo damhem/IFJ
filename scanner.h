@@ -1,7 +1,12 @@
-
-
-// @author dp98 lol
-
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file scanner.h
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+* @author Zdeněk Kroča (xkroca02)
+*/
 
 
 #ifndef IFJ_SCANNER_H
@@ -17,6 +22,7 @@
 #include <ctype.h>
 #include <string.h>
 
+// individual states in scanner
 typedef enum {
   SCANNER_START,
   SCANNER_NUMBER,
@@ -50,8 +56,8 @@ typedef enum {
 
   SCANNER_DIVISION,
   SCANNER_EQUAL,
-  SCANNER_SMALLERTHEN,
-  SCANNER_BIGGERTHEN,
+  SCANNER_SMALLERTHAN,
+  SCANNER_BIGGERTHAN,
   SCANNER_NEG,
   SCANNER_STRING_1,
   SCANNER_STRING_2,
@@ -61,6 +67,7 @@ typedef enum {
   SCANNER_EOL,
 } scanner_state;
 
+// individual token types
 typedef enum {
   TOKEN_MULTIPLICATION,     //0
   TOKEN_DIVISION,           //1
@@ -69,10 +76,10 @@ typedef enum {
   TOKEN_SUBTRACTION,        //4
   TOKEN_EQUAL,              //5
   TOKEN_NEG_EQUAL,          //6
-  TOKEN_SMALLERTHEN,        //7
-  TOKEN_SMALLERTHEN_EQUAL,  //8
-  TOKEN_BIGGERTHEN,         //9
-  TOKEN_BIGGERTHEN_EQUAL,   //10
+  TOKEN_SMALLERTHAN,        //7
+  TOKEN_SMALLERTHAN_EQUAL,  //8
+  TOKEN_BIGGERTHAN,         //9
+  TOKEN_BIGGERTHAN_EQUAL,   //10
   TOKEN_EQUAL_EQUAL,        //11
   TOKEN_LEFTPAR,            //12
   TOKEN_RIGHTPAR,           //13
@@ -83,37 +90,36 @@ typedef enum {
   TOKEN_NONE,               //18
   TOKEN_UNDEF,              //19
 
-  TOKEN_COMMA,              //20
-  TOKEN_PLUS,               //21
-  TOKEN_MINUS,              //22
-  TOKEN_INDENT,             //23
-  TOKEN_DEDENT,             //24
-  TOKEN_EOL,                //25
-  TOKEN_DEF,                //26
-  TOKEN_ELSE,               //27
-  TOKEN_IF,                 //28
-  TOKEN_EOF,                //29
-  TOKEN_PASS,               //30
-
-  TOKEN_RETURN,             //31
-  TOKEN_WHILE,              //32
-  TOKEN_DOUBLEDOT,          //33
+  TOKEN_INDENT,             //21
+  TOKEN_DEDENT,             //22
+  TOKEN_EOL,                //23
+  TOKEN_DEF,                //24
+  TOKEN_ELSE,               //25
+  TOKEN_IF,                 //26
+  TOKEN_NONE,               //27
+  TOKEN_PASS,               //28
+  TOKEN_RETURN,             //29
+  TOKEN_WHILE,              //30
+  TOKEN_DOUBLEDOT,          //31
 } token_type;
 
+// union for storing useful data of a token
 typedef union token_data {
   string ID;
   int integer;
   double decimal;
 } token_data;
 
+// structure for storing basic informations about each token
 typedef struct Token {
   token_data t_data;
   token_type t_type;
 } Token;
 
-int dentcount;
-bool endoffile;
+int dentcount; // helps with multiple DEDENT tokens generation
+bool endoffile; // helps with generation of extra EOL token before EOF token for correct syntax
 
+// scanner functions
 Token getNextToken(bool *line_flag, tStack *s);
 token_type peekNextToken();
 
