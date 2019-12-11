@@ -10,7 +10,7 @@
 #include "symtable.h"
 #include "parser.h"
 
-//velikost precedencni tabulky
+//Size of the precedence table
 #define PT_SIZE 20
 
 typedef union element_data {
@@ -19,11 +19,11 @@ typedef union element_data {
   double decimal;
 } element_data;
 
-//Struktura reprezentující (ne)terminál na zásobníku
+//Structure representing (not)terminal on stack
 typedef struct exp_element {
     element_data e_data;
     token_type type;
-    bool handle;    //Handle pro pomoc při redukci stacku
+    bool handle;    //Handle for help with reduction of the expression stack
     bool terminal;
 } Exp_element;
 
@@ -33,7 +33,8 @@ ptStack* firstTerm;
 //return value int
 VarType retVal;
 
-int expression(VarType* returnValue); /*,int expectedValue*/
+// Declaration of funcition for expression
+int expression(VarType* returnValue); 
 int expressionAnalysis();
 char getSignFromTable();
 Exp_element *newElement(int type,bool handle);
