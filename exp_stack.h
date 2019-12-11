@@ -18,25 +18,24 @@
 #include "scanner.h"
 
 
-// Struktura prvku na zásobníku
+// Strucure of the element on stack 
 typedef struct ptstack_structure{
     struct ptstack_structure *left;
     struct exp_element *value;
 } ptStack;
 
-// Struktura zásobníku
+// Strucure of the stack
 typedef struct {
     ptStack *top_of_stack;
 } ptrStack;
 
-// Deklarace funkcí pro zásobník
+// Declaration of funcition for stack
 ERROR_CODE exp_stackInit(ptrStack *);
 ERROR_CODE exp_stackPush(ptrStack *, void *);
 void exp_stackPop(ptrStack *);
-//Token exp_stackTop(ptrStack *);
 bool exp_stackEmpty(ptrStack *);
 bool exp_stackClear(ptrStack *);
 
 #include "expression.h"
 
-#endif //EXP_STACK_H
+#endif
