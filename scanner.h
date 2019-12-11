@@ -89,18 +89,19 @@ typedef enum {
   TOKEN_ID,                 //17
   TOKEN_NONE,               //18
   TOKEN_UNDEF,              //19
-
+  
   TOKEN_INDENT,             //21
   TOKEN_DEDENT,             //22
   TOKEN_EOL,                //23
   TOKEN_DEF,                //24
   TOKEN_ELSE,               //25
   TOKEN_IF,                 //26
-  TOKEN_NONE,               //27
+  TOKEN_COMMA,               //27
   TOKEN_PASS,               //28
   TOKEN_RETURN,             //29
   TOKEN_WHILE,              //30
   TOKEN_DOUBLEDOT,          //31
+  TOKEN_EOF                 //32
 } token_type;
 
 // union for storing useful data of a token
