@@ -1,3 +1,12 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file expression.h
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+*/
+
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 

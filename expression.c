@@ -1,3 +1,13 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file expression.c
+* @brief Sémantická analýza výrazu / volání funkce
+*
+* @author Daniel Pátek (xpatek08)
+* @author Daniel Čechák (xcecha06)
+*/
+
 #include "expression.h"
 
 Token token; //Token taken from scanner
@@ -1227,6 +1237,7 @@ ERROR_CODE makeSubstrFunction() {
     return ERROR_CODE_OK;
 }
 
+//check operands if they can be used in operation
 ERROR_CODE checkOperands(token_type rightResultType, Exp_element* element1, Exp_element* element2) {
     if (element1 == NULL || element2 == NULL) {
         return ERROR_CODE_INTERNAL;
