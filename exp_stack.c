@@ -1,11 +1,20 @@
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file exp_stack.c
+* @brief Pomocný stack pro práci s výrazy
+*
+* @author Daniel Čechák (xcecha06)
+*/
+
 #include "exp_stack.h"
 
 unsigned int deletedItems = 0;
 unsigned int stackSize = 0;
+
 // Inicializuje zásobník
 ERROR_CODE exp_stackInit (ptrStack* stack) {
     stack->top_of_stack = NULL;
-
     int type = TOKEN_UNDEF;
     Exp_element *new_element = newElement(type,false);
     return exp_stackPush(stack, new_element);
@@ -26,10 +35,10 @@ bool exp_stackEmpty (ptrStack* stack ) {
 void exp_stackPop (ptrStack* stack ) {
     ptStack *tmp = NULL;
     if (stack->top_of_stack != NULL) {
-      tmp = stack->top_of_stack;
-      stack->top_of_stack = stack->top_of_stack->left;
-      free(tmp);
-      stackSize--;
+        tmp = stack->top_of_stack;
+        stack->top_of_stack = stack->top_of_stack->left;
+        free(tmp);
+        stackSize--;
     }
 }
 
