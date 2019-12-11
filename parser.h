@@ -1,4 +1,10 @@
-
+/**
+* Projekt IFJ/IAL 2019 - Překladač imperativního jazyka IFJ19
+*
+* @file parser.h
+*
+* @author Daniel Pátek (xpatek08)
+*/
 
 #ifndef IFJ_PARSER_H
 #define IFJ_PARSER_H
@@ -23,12 +29,14 @@ Token peekToken;
 
 //scanner stack
 tStack s;
+
+//expression stack
 ptrStack stack_expression;
 
 //line variable for scanner
 bool line_flag;
 
-// ?
+//bool var to check when we expect a docstring from scanner
 bool nowExpression;
 
 //var for actual function name
